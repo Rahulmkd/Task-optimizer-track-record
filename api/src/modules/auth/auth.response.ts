@@ -1,7 +1,6 @@
 export type UserResponseDTO = {
   id: string;
-  firstName: string;
-  lastName: string | null;
+  name: string;
   email: string;
   phoneNumber: string;
   createdAt: Date;

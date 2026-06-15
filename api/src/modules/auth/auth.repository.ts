@@ -12,8 +12,7 @@ export class AuthRepository implements IAuthRepository {
   }
 
   async createUser(data: {
-    firstName: string;
-    lastName?: string | null;
+    name: string;
     email: string;
     password: string;
     phoneNumber: string;

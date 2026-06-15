@@ -59,10 +59,8 @@ export const getUserById = async (userId: string) => {
       id: userId,
     },
     select: {
-      firstName: true,
-      lastName: true,
+      name: true,
       email: true,
-      role: true,
       phoneNumber: true,
     },
   });

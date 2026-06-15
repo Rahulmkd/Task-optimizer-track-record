@@ -23,7 +23,7 @@ export class AuthService {
   constructor(private userRepo: IAuthRepository) {}
 
   async registerUserService(data: registerUserDTO) {
-    const { firstName, lastName, email, password, phoneNumber } = data;
+    const { name, email, password, phoneNumber } = data;
 
     const existingUser = await this.userRepo.getUserByEmail(email);
 
@@ -34,8 +34,7 @@ export class AuthService {
     const hashedPassword = await hashPassword(password);
 
     const newUser = await this.userRepo.createUser({
-      firstName,
-      lastName: lastName ?? null,
+      name,
       email,
       password: hashedPassword,
       phoneNumber,

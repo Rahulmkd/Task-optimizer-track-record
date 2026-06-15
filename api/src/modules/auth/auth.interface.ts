@@ -5,8 +5,7 @@ export interface IAuthRepository {
   getUserByEmail(email: string): Promise<User | null>;
 
   createUser(data: {
-    firstName: string;
-    lastName?: string | null;
+    name: string;
     email: string;
     password: string;
     phoneNumber: string;

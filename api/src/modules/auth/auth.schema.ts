@@ -2,14 +2,10 @@ import { z } from "zod";
 
 export const registerUserSchema = z
   .object({
-    firstName: z.string().min(1, "First name cannot be empty"),
-    lastName: z.string().optional(),
+    name: z.string().min(1, "Name cannot be empty"),
     email: z.email(),
     password: z.string().min(6, "Password must be at least 6 characters long."),
-    phoneNumber: z
-      .string()
-      .min(6, "Phone number must be at least 6 digits")
-      .max(12),
+    phoneNumber: z.string().min(6, "Phone number must be 10 digits").max(12),
   })
   .strict();
 
