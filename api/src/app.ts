@@ -23,9 +23,11 @@ app.get("/health-check", (req: Request, res: Response) => {
 
 import authRouter from "./modules/auth/auth.routes.js";
 import taskRouter from "./modules/task/task.routes.js";
+import actionRouter from "./modules/action/action.routes.js";
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/task", taskRouter);
+app.use("/api/v1/action", actionRouter);
 
 app.use(globalErrorHandler);
 

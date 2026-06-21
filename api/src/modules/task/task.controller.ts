@@ -18,13 +18,33 @@ const getParamId = (req: Request): string => {
   return id;
 };
 
+const getUserId = (req: Request): string => {
+  if (!req.user?.id) {
+    throw new AppError("Unauthorized", 401);
+  }
+
+  return req.user.id;
+};
+
+const getActionId = (req: Request): string => {
+  const actionId = req.params.id;
+
+  if (typeof actionId !== "string") {
+    throw new AppError("Invalid action id", 400);
+  }
+
+  return actionId;
+};
+
 /* -------------------------------------------------------------------------- */
 /*                                 CREATE TASK                                */
 /* -------------------------------------------------------------------------- */
 
 export const createTaskController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await taskService.createTask(req.user.id, req.body);
+    const userId = getUserId(req);
+    const actionId = getActionId(req);
+    const result = await taskService.createTask(userId, actionId, req.body);
 
     sendResponse(res, 201, {
       success: true,
@@ -40,7 +60,9 @@ export const createTaskController = catchAsync(
 
 export const getTasksController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await taskService.getTasksForUser(req.user.id);
+    const userId = getUserId(req);
+
+    const result = await taskService.getTasksForUser(userId);
 
     sendResponse(res, 200, {
       success: true,
@@ -57,8 +79,9 @@ export const getTasksController = catchAsync(
 export const getTaskByIdController = catchAsync(
   async (req: Request, res: Response) => {
     const taskId = getParamId(req);
+    const userId = getUserId(req);
 
-    const result = await taskService.getTaskById(req.user.id, taskId);
+    const result = await taskService.getTaskById(userId, taskId);
 
     sendResponse(res, 200, {
       success: true,
@@ -75,8 +98,9 @@ export const getTaskByIdController = catchAsync(
 export const updateTaskController = catchAsync(
   async (req: Request, res: Response) => {
     const taskId = getParamId(req);
+    const userId = getUserId(req);
 
-    const result = await taskService.updateTask(req.user.id, taskId, req.body);
+    const result = await taskService.updateTask(userId, taskId, req.body);
 
     sendResponse(res, 200, {
       success: true,
@@ -93,8 +117,9 @@ export const updateTaskController = catchAsync(
 export const toggleTaskController = catchAsync(
   async (req: Request, res: Response) => {
     const taskId = getParamId(req);
+    const userId = getUserId(req);
 
-    const result = await taskService.toggleTaskCompletion(req.user.id, taskId);
+    const result = await taskService.toggleTaskCompletion(userId, taskId);
 
     sendResponse(res, 200, {
       success: true,
@@ -111,8 +136,9 @@ export const toggleTaskController = catchAsync(
 export const deleteTaskController = catchAsync(
   async (req: Request, res: Response) => {
     const taskId = getParamId(req);
+    const userId = getUserId(req);
 
-    await taskService.deleteTask(req.user.id, taskId);
+    await taskService.deleteTask(userId, taskId);
 
     sendResponse(res, 200, {
       success: true,

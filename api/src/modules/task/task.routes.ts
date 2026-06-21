@@ -18,11 +18,12 @@ router.use(verifyUser);
 
 router
   .route("/")
-  .post(validate(createTaskSchema), createTaskController)
+
   .get(getTasksController);
 
 router
   .route("/:id")
+  .post(validate(createTaskSchema), createTaskController)
   .get(getTaskByIdController)
   .patch(validate(updateTaskSchema), updateTaskController)
   .delete(deleteTaskController);

@@ -6,8 +6,8 @@ import { createTaskDTO, updateTaskDTO } from "./task.schema.js";
 export class TaskService {
   constructor(private taskRepo: ITaskRepository) {}
 
-  async createTask(userId: string, data: createTaskDTO) {
-    const { title, time, actionId } = data;
+  async createTask(userId: string, actionId: string, data: createTaskDTO) {
+    const { title, time } = data;
 
     const task = await this.taskRepo.createTask({
       userId,
@@ -25,6 +25,7 @@ export class TaskService {
     return toTaskListResponse(tasks);
   }
 
+  
   async getTaskById(userId: string, taskId: string) {
     const task = await this.taskRepo.getTaskById(taskId);
 
