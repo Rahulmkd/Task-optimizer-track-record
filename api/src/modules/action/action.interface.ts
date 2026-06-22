@@ -1,20 +1,23 @@
 import { Action } from "@prisma/client";
 
+export type ActionWithTaskCount = Action & { _count: { tasks: number } };
+
 export interface IActionRepository {
   createAction(data: { userId: string; actionName: string }): Promise<Action>;
 
-  getActionsByUserId(userId: string): Promise<Action[]>;
+  getActionsByUserId(userId: string): Promise<ActionWithTaskCount[]>;
 
-  getActionById(actionId: string): Promise<Action | null>;
+  getActionById(actionId: string): Promise<ActionWithTaskCount | null>;
 
   updateAction(
     actionId: string,
+
     data: Partial<{
-      userId: string | null;
       actionName: string;
-      completed: boolean;
     }>,
   ): Promise<Action>;
+
+  countTasksForAction(actionId: string): Promise<number>;
 
   deleteAction(actionId: string): Promise<void>;
 }

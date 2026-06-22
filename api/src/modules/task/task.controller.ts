@@ -26,16 +26,6 @@ const getUserId = (req: Request): string => {
   return req.user.id;
 };
 
-const getActionId = (req: Request): string => {
-  const actionId = req.params.id;
-
-  if (typeof actionId !== "string") {
-    throw new AppError("Invalid action id", 400);
-  }
-
-  return actionId;
-};
-
 /* -------------------------------------------------------------------------- */
 /*                                 CREATE TASK                                */
 /* -------------------------------------------------------------------------- */
@@ -43,8 +33,7 @@ const getActionId = (req: Request): string => {
 export const createTaskController = catchAsync(
   async (req: Request, res: Response) => {
     const userId = getUserId(req);
-    const actionId = getActionId(req);
-    const result = await taskService.createTask(userId, actionId, req.body);
+    const result = await taskService.createTask(userId, req.body);
 
     sendResponse(res, 201, {
       success: true,

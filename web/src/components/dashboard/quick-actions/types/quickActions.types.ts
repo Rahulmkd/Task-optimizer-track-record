@@ -3,11 +3,14 @@
 /* -------------------------------------------------------------------------- */
 
 export interface QuickAction {
+  id: string;
   icon: React.ElementType;
   label: string;
   gradient: string;
   glow: string;
-  accent: string; // single colour for the icon bg in the modal header
+  accent: string;
+  taskCount?: number;
+  isPreset?: boolean;
 }
 
 export interface Task {

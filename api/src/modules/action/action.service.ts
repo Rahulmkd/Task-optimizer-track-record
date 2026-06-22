@@ -14,13 +14,14 @@ export class ActionService {
       actionName,
     });
 
-    return toActionResponse(action);
+    // A freshly created action never has tasks yet.
+    return toActionResponse(action, 0);
   }
 
   async getActionsForUser(userId: string) {
-    const action = await this.actionRepo.getActionsByUserId(userId);
+    const actions = await this.actionRepo.getActionsByUserId(userId);
 
-    return toActionListResponse(action);
+    return toActionListResponse(actions);
   }
 
   async getActionById(userId: string, actionId: string) {
@@ -30,9 +31,9 @@ export class ActionService {
       throw new AppError("Action not found", 404);
     }
 
-    // ensure a user can't read another user's task by id.
+    // ensure a user can't read another user's action by id.
     if (action.userId !== userId) {
-      throw new AppError("Task not found", 404);
+      throw new AppError("Action not found", 404);
     }
 
     return toActionResponse(action);
@@ -49,8 +50,9 @@ export class ActionService {
       throw new AppError("Action not found", 404);
     }
 
-    const updateAction = await this.actionRepo.updateAction(actionId, data);
-    return toActionResponse(updateAction);
+    const updatedAction = await this.actionRepo.updateAction(actionId, data);
+
+    return toActionResponse(updatedAction, existingAction._count.tasks);
   }
 
   async deleteAction(userId: string, actionId: string) {
@@ -62,6 +64,15 @@ export class ActionService {
 
     if (existingAction.userId !== userId) {
       throw new AppError("Action not found", 404);
+    }
+
+    const taskCount = existingAction._count.tasks;
+
+    if (taskCount > 0) {
+      throw new AppError(
+        `Cannot delete "${existingAction.actionName}" — it still has ${taskCount} task${taskCount === 1 ? "" : "s"} attached. Remove or reassign them first.`,
+        409,
+      );
     }
 
     await this.actionRepo.deleteAction(actionId);

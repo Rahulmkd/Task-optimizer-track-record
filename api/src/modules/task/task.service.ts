@@ -2,12 +2,24 @@ import { AppError } from "../../utils/AppError.js";
 import { ITaskRepository } from "./task.interface.js";
 import { toTaskListResponse, toTaskResponse } from "./task.mapper.js";
 import { createTaskDTO, updateTaskDTO } from "./task.schema.js";
+import { IActionRepository } from "../action/action.interface.js";
 
 export class TaskService {
-  constructor(private taskRepo: ITaskRepository) {}
+  constructor(
+    private taskRepo: ITaskRepository,
+    private actionRepo: IActionRepository,
+  ) {}
 
-  async createTask(userId: string, actionId: string, data: createTaskDTO) {
-    const { title, time } = data;
+  async createTask(userId: string, data: createTaskDTO) {
+    const { title, time, actionId } = data;
+
+    if (actionId) {
+      const action = await this.actionRepo.getActionById(actionId);
+
+      if (!action || action.userId !== userId) {
+        throw new AppError("Action not found", 404);
+      }
+    }
 
     const task = await this.taskRepo.createTask({
       userId,
@@ -25,7 +37,6 @@ export class TaskService {
     return toTaskListResponse(tasks);
   }
 
-  
   async getTaskById(userId: string, taskId: string) {
     const task = await this.taskRepo.getTaskById(taskId);
 
@@ -50,6 +61,14 @@ export class TaskService {
 
     if (existingTask.userId !== userId) {
       throw new AppError("Task not found", 404);
+    }
+
+    if (data.actionId) {
+      const action = await this.actionRepo.getActionById(data.actionId);
+
+      if (!action || action.userId !== userId) {
+        throw new AppError("Action not found", 404);
+      }
     }
 
     const updatedTask = await this.taskRepo.updateTask(taskId, data);

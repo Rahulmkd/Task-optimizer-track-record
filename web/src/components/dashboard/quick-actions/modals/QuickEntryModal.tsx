@@ -53,6 +53,7 @@ export function QuickEntryModal({
       await createTask({
         title: details.trim(),
         time,
+        actionId: action.isPreset ? undefined : action.id,
       }).unwrap();
 
       onClose();

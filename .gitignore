@@ -44,3 +44,5 @@ next-env.d.ts
 auth-frontend/
 
 apps/auth-frontend/
+
+api/dist/

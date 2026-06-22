@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Pencil, Trash2 } from "lucide-react";
 import { Task } from "../types/quickActions.types";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -7,48 +7,59 @@ export function TaskRow({
   task,
   index,
   onToggle,
+  onEdit,
+  onDelete,
 }: {
   task: Task;
   index: number;
   onToggle: () => void;
+
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
   return (
-    <motion.button
+    <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.18 + index * 0.045, ease: [0.16, 1, 0.3, 1] }}
-      onClick={onToggle}
-      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors text-left group"
+      className="group relative flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] transition-colors"
     >
-      {/* Checkbox */}
-      <motion.div
-        animate={task.done ? { scale: [1, 1.22, 1] } : { scale: 1 }}
-        transition={{ duration: 0.28 }}
+      {/* Toggle (checkbox + label + time) — its own button so clicking the
+          row body toggles completion, while edit/delete live in a separate
+          control cluster on the right and don't fire the toggle. */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex-1 min-w-0 flex items-center gap-3 text-left"
       >
-        {task.done ? (
-          <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 drop-shadow-[0_0_7px_rgba(52,211,153,0.55)]" />
-        ) : (
-          <Circle className="h-5 w-5 text-white/20 shrink-0 group-hover:text-white/35 transition-colors" />
-        )}
-      </motion.div>
-
-      {/* Text */}
-      <div className="flex-1 min-w-0">
-        <p
-          className={cn(
-            "text-sm font-medium truncate transition-colors",
-            task.done
-              ? "line-through text-white/25"
-              : "text-white/75 group-hover:text-white",
-          )}
+        <motion.div
+          animate={task.done ? { scale: [1, 1.22, 1] } : { scale: 1 }}
+          transition={{ duration: 0.28 }}
         >
-          {task.label}
-        </p>
-        <p className="flex items-center gap-1 text-xs text-white/25 mt-0.5">
-          <Clock className="h-3 w-3" />
-          {task.time}
-        </p>
-      </div>
+          {task.done ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 drop-shadow-[0_0_7px_rgba(52,211,153,0.55)]" />
+          ) : (
+            <Circle className="h-5 w-5 text-white/20 shrink-0 group-hover:text-white/35 transition-colors" />
+          )}
+        </motion.div>
+
+        <div className="flex-1 min-w-0">
+          <p
+            className={cn(
+              "text-sm font-medium truncate transition-colors",
+              task.done
+                ? "line-through text-white/25"
+                : "text-white/75 group-hover:text-white",
+            )}
+          >
+            {task.label}
+          </p>
+          <p className="flex items-center gap-1 text-xs text-white/25 mt-0.5">
+            <Clock className="h-3 w-3" />
+            {task.time}
+          </p>
+        </div>
+      </button>
 
       {/* Done pill */}
       <AnimatePresence>
@@ -63,6 +74,38 @@ export function TaskRow({
           </motion.span>
         )}
       </AnimatePresence>
-    </motion.button>
+
+      {/* ── Edit / Delete controls (right side, shown on hover) ─────────── */}
+      {(onEdit || onDelete) && (
+        <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150">
+          {onEdit && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              title="Edit task"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              title="Delete task"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+    </motion.div>
   );
 }

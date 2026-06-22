@@ -4,21 +4,27 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Plus, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { quickActions } from "./data/quickActionsData";
+import { actionStylePalette } from "./data/quickActionsData";
 import { QuickAction, Task } from "./types/quickActions.types";
 import { ActionButton } from "./components/ActionButton";
 import { TaskRow } from "./components/TaskRow";
 import { QuickEntryModal } from "./modals/QuickEntryModal";
 import { NewActionModal } from "./modals/NewActionModal";
+import { EditTaskModal } from "./modals/EditTaskModal";
 
 import { EmptyState } from "@/components/shared/EmptyState";
 import {
+  useDeleteTaskMutation,
   useGetTasksQuery,
   useToggleTaskMutation,
 } from "@/features/tasks/services/task.service";
 
 import { ITask } from "@/features/tasks/types/task.types";
-import { useGetActionQuery } from "@/features/actions/services/action.service";
+import {
+  useDeleteActionMutation,
+  useGetActionsQuery,
+} from "@/features/actions/services/action.service";
+import { IAction } from "@/features/actions/types/action.types";
 
 /* -------------------------------------------------------------------------- */
 /*                              SERVER → UI MAPPING                           */
@@ -31,6 +37,18 @@ const toUiTask = (task: ITask): Task => ({
   time: task.time ?? "—",
 });
 
+const toUiAction = (action: IAction, index: number): QuickAction => {
+  const style = actionStylePalette[index % actionStylePalette.length];
+
+  return {
+    id: action.id,
+    label: action.actionName,
+    taskCount: action.taskCount,
+    isPreset: false,
+    ...style,
+  };
+};
+
 /* -------------------------------------------------------------------------- */
 /*                               ROOT COMPONENT                               */
 /* -------------------------------------------------------------------------- */
@@ -38,12 +56,18 @@ const toUiTask = (task: ITask): Task => ({
 export function QuickActions() {
   const [activeModal, setActiveModal] = useState<QuickAction | null>(null);
   const [showNewAction, setShowNewAction] = useState(false);
+  const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   const { data: tasksData, isLoading, isError } = useGetTasksQuery();
+  const { data: actionsData, isLoading: isActionsLoading } =
+    useGetActionsQuery();
 
   const [toggleTask] = useToggleTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
+  const [deleteAction] = useDeleteActionMutation();
 
   const tasks: Task[] = (tasksData ?? []).map(toUiTask);
+  const actions: QuickAction[] = (actionsData ?? []).map(toUiAction);
 
   const completedCount = tasks.filter((t) => t.done).length;
   const progressPercent =
@@ -53,10 +77,18 @@ export function QuickActions() {
     toggleTask(String(id));
   };
 
-  const { data: actionLabel } = useGetActionQuery();
+  const handleDeleteTask = (id: string) => {
+    deleteTask(id);
+  };
 
-  const ActionNames = actionLabel?.map((item) => item.actionName);
-  console.log(ActionNames);
+  const handleEditTask = (id: string) => {
+    const task = tasksData?.find((t) => t.id === id);
+    if (task) setEditingTask(task);
+  };
+
+  const handleDeleteAction = (id: string) => {
+    deleteAction(id);
+  };
 
   return (
     <div className="p-4 lg:p-6 space-y-5">
@@ -116,16 +148,36 @@ export function QuickActions() {
         </div>
 
         {/* Action buttons grid */}
-        <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
-          {quickActions.map((action, i) =>
-            ActionNames?.includes(action.label) ? (
-              <ActionButton
-                key={action.label}
-                action={action}
-                index={i}
-                onClick={() => setActiveModal(action)}
-              />
-            ) : null,
+        <div className="p-4">
+          {isActionsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[88px] rounded-xl bg-white/[0.03] border border-white/[0.06] animate-pulse"
+                />
+              ))}
+            </div>
+          ) : actions.length === 0 ? (
+            <EmptyState
+              icon={Zap}
+              title="No actions yet"
+              description="Create your first quick action to start logging entries fast."
+              actionLabel="New Action"
+              onAction={() => setShowNewAction(true)}
+            />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {actions.map((action, i) => (
+                <ActionButton
+                  key={action.id}
+                  action={action}
+                  index={i}
+                  onClick={() => setActiveModal(action)}
+                  onDelete={() => handleDeleteAction(action.id)}
+                />
+              ))}
+            </div>
           )}
         </div>
       </motion.div>
@@ -220,6 +272,8 @@ export function QuickActions() {
                 task={task}
                 index={i}
                 onToggle={() => handleToggle(task.id)}
+                onEdit={() => handleEditTask(String(task.id))}
+                onDelete={() => handleDeleteTask(String(task.id))}
               />
             ))}
         </div>
@@ -240,6 +294,15 @@ export function QuickActions() {
       <AnimatePresence>
         {showNewAction && (
           <NewActionModal onClose={() => setShowNewAction(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {editingTask && (
+          <EditTaskModal
+            task={editingTask}
+            onClose={() => setEditingTask(null)}
+          />
         )}
       </AnimatePresence>
     </div>

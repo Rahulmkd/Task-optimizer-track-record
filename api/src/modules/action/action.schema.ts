@@ -3,14 +3,12 @@ import { z } from "zod";
 export const createActionSchema = z
   .object({
     actionName: z.string().min(1, "Require valid Action Name").max(200),
-    userId: z.string().uuid().optional(),
   })
   .strict();
 
 export const updateActionSchema = z
   .object({
     actionName: z.string().min(1, "Require valid Action").max(200).optional(),
-    userId: z.string().uuid().nullable().optional(),
   })
   .strict();
 

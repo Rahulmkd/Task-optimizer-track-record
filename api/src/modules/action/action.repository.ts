@@ -8,24 +8,31 @@ export class ActionRepository implements IActionRepository {
   }
 
   async getActionsByUserId(userId: string) {
-    const action = await prisma.action.findMany({
+    const actions = await prisma.action.findMany({
       where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: { select: { tasks: true } },
+      },
     });
 
-    return action;
+    return actions;
   }
 
   async getActionById(actionId: string) {
     const action = await prisma.action.findUnique({
       where: { id: actionId },
+      include: {
+        _count: { select: { tasks: true } },
+      },
     });
+
     return action;
   }
 
   async updateAction(
     actionId: string,
     data: Partial<{
-      userId: string;
       actionName: string;
     }>,
   ) {
@@ -35,6 +42,10 @@ export class ActionRepository implements IActionRepository {
     });
 
     return action;
+  }
+
+  async countTasksForAction(actionId: string) {
+    return prisma.task.count({ where: { actionId } });
   }
 
   async deleteAction(actionId: string) {

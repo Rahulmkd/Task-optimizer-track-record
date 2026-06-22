@@ -18,7 +18,11 @@ export const API_PATHS = {
     BASE: ACTIONS_BASE,
     CREATE: `${ACTIONS_BASE}`,
     GET_ALL: `${ACTIONS_BASE}`,
+    GET_BY_ID: (id: string) => `${ACTIONS_BASE}/${id}`,
+    UPDATE: (id: string) => `${ACTIONS_BASE}/${id}`,
+    DELETE: (id: string) => `${ACTIONS_BASE}/${id}`,
   },
+
   TASKS: {
     BASE: TASKS_BASE,
     CREATE: `${TASKS_BASE}`,

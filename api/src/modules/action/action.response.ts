@@ -2,7 +2,7 @@ export type ActionResponseDTO = {
   id: string;
   userId: string;
   actionName: string;
-  complete: boolean;
+  taskCount: number;
   createdAt: Date;
   updatedAt: Date;
 };

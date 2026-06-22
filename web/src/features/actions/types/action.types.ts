@@ -2,6 +2,7 @@ export interface IAction {
   id: string;
   userId: string;
   actionName: string;
+  taskCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -11,8 +12,6 @@ export interface CreateActionPayload {
   actionName: string;
 }
 
-// Mirrors updateActionSchema (api/src/modules/action/action.schema.ts)
 export interface UpdateActionPayload {
-  userId: string;
-  actionName: string;
+  actionName?: string;
 }
