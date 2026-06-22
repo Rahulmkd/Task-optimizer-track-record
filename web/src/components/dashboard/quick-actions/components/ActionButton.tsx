@@ -94,7 +94,7 @@ export function ActionButton({
             "border backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20",
             hasTasks
               ? "bg-white/10 border-white/10 text-white/30 cursor-not-allowed"
-              : "bg-red-500/90 border-red-400/40 text-white hover:bg-red-500 shadow-lg shadow-red-900/40 cursor-pointer",
+              : "bg-white/10 border-red-400/40 text-white hover:bg-red-500 shadow-lg shadow-red-900/40 cursor-pointer",
           )}
         >
           <Trash2 className="h-3 w-3" />

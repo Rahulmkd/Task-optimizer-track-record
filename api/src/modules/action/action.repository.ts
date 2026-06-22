@@ -10,7 +10,7 @@ export class ActionRepository implements IActionRepository {
   async getActionsByUserId(userId: string) {
     const actions = await prisma.action.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: "asc" },
       include: {
         _count: { select: { tasks: true } },
       },
