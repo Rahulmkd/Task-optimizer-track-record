@@ -10,7 +10,9 @@ import { API_PATHS } from "@/constants/api.path";
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
 if (!API_URL) {
-  throw new Error("NEXT_PUBLIC_BACKEND_API_URL is not defined");
+  console.warn(
+    "[axios] NEXT_PUBLIC_BACKEND_API_URL is not set — API calls will fail.",
+  );
 }
 
 interface RetryRequestConfig extends InternalAxiosRequestConfig {

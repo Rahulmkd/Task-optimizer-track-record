@@ -6,13 +6,20 @@ import { fetchUser, logout, setAuthResolved } from "@/redux/slices/auth.slice";
 import { tokenService } from "@/lib/auth.token";
 import { authService } from "@/features/auth/services/auth.service";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { usePathname } from "next/navigation";
+import { ROUTES } from "@/constants/constants";
+
+const PUBLIC_ROUTES = [ROUTES.HOME, ROUTES.LOGIN, ROUTES.REGISTER];
 
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
-
   const isLoading = useAppSelector((state) => state.auth.isLoading);
-
+  const pathname = usePathname();
   const ran = useRef(false);
+
+  const isPublicRoute = PUBLIC_ROUTES.includes(
+    pathname as (typeof PUBLIC_ROUTES)[number],
+  );
 
   useEffect(() => {
     if (ran.current) return;
@@ -27,18 +34,17 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
             await dispatch(fetchUser()).unwrap();
             return;
           } catch {
-            // Token exists but may be expired
+            // In-memory token present but stale — fall through to cookie refresh
           }
         }
 
         const newAccessToken = await authService.refreshToken();
 
         if (!newAccessToken) {
-          throw new Error("Failed to refresh token ");
+          throw new Error("No access token returned from refresh");
         }
 
         tokenService.setToken(newAccessToken);
-
         await dispatch(fetchUser()).unwrap();
       } catch {
         dispatch(logout());
@@ -49,6 +55,11 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
 
     restore();
   }, [dispatch]);
+
+  // Public routes render immediately — session restore is silent/background.
+  if (isPublicRoute) {
+    return <>{children}</>;
+  }
 
   if (isLoading) {
     return (
