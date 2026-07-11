@@ -15,13 +15,34 @@ export class TaskRepository implements ITaskRepository {
     return task;
   }
 
-  async getTasksByUserId(userId: string) {
-    const tasks = await prisma.task.findMany({
-      where: { userId },
-      orderBy: { createdAt: "asc" },
-    });
+  // async getTasksByUserId(userId: string) {
+  //   const tasks = await prisma.task.findMany({
+  //     where: { userId },
+  //     orderBy: { createdAt: "asc" },
+  //   });
 
-    return tasks;
+  //   return tasks;
+  // }
+
+  async getTasksByUserId(userId: string) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(startOfDay);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return prisma.task.findMany({
+      where: {
+        userId,
+        createdAt: {
+          gte: startOfDay,
+          lt: tomorrow,
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
   }
 
   async getTaskById(taskId: string) {

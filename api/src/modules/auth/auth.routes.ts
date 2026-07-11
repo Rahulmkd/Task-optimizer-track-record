@@ -2,8 +2,6 @@ import express from "express";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
   loginUserSchema,
-  logoutUserSchema,
-  refreshTokenSchema,
   registerUserSchema,
 } from "./auth.schema.js";
 import {

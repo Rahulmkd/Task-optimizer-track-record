@@ -2,19 +2,20 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../slices/auth.slice";
 import { taskService } from "@/features/tasks/services/task.service";
 import { actionService } from "@/features/actions/services/action.service";
+import { aiService } from "@/features/ai/services/ai.service";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-
     [actionService.reducerPath]: actionService.reducer,
-
     [taskService.reducerPath]: taskService.reducer,
+    [aiService.reducerPath]: aiService.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       actionService.middleware,
       taskService.middleware,
+      aiService.middleware,
     ),
 });
 

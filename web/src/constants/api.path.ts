@@ -1,6 +1,7 @@
 const AUTH_BASE = "/api/v1/auth";
 const ACTIONS_BASE = "/api/v1/action";
 const TASKS_BASE = "/api/v1/task";
+const AI_BASE = "/api/v1/ai";
 
 export const API_PATHS = {
   AUTH: {
@@ -31,5 +32,10 @@ export const API_PATHS = {
     UPDATE: (id: string) => `${TASKS_BASE}/${id}`,
     TOGGLE: (id: string) => `${TASKS_BASE}/${id}/toggle`,
     DELETE: (id: string) => `${TASKS_BASE}/${id}`,
+  },
+
+  AI: {
+    /** POST — generate today's productivity journal for the authed user. */
+    GENERATE_JOURNAL: `${AI_BASE}/journal`,
   },
 } as const;

@@ -24,6 +24,7 @@ model User {
   refreshTokens RefreshToken[]
   actions       Action[]
   tasks         Task[]
+  journals      Journal[]
 
   @@index([email])
 }
@@ -72,4 +73,24 @@ model Task {
 
   @@index([userId])
   @@index([actionId])
+}
+
+model Journal {
+  id String @id @default(uuid())
+
+  userId String
+
+  summary String
+
+  productivityScore Int?
+
+  completedTasks Int
+
+  pendingTasks Int
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
