@@ -7,6 +7,6 @@ export interface AIJournalResponseDTO {
   completedTasks: number;
   pendingTasks: number;
   productivityScore: number;
-  suggestion: string;
+  suggestion: string | null;
   createdAt: Date;
 }

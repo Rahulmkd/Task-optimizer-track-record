@@ -50,6 +50,11 @@ class AIService {
 
     return AIMapper.toResponse(journal, parsed.suggestion);
   }
+
+  async getAllJournals(userId: string) {
+    const journals = await aiRepository.getAllJournals(userId);
+    return AIMapper.toListResponse(journals);
+  }
 }
 
 export default new AIService();

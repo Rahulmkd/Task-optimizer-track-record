@@ -1,30 +1,49 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BarChart3, TrendingUp } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/layouts/DashboardShell";
+import { Chart } from "@/components/analytics/Chart";
+import { Journal } from "@/components/analytics/Journal";
 
 export default function AnalyticsPage() {
   return (
     <DashboardShell>
+      {/* Page header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8 flex items-center justify-between"
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="mb-8"
       >
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-violet-400" />
-            Analytics
-          </h1>
-          <p className="text-white/40 text-sm mt-1">
-            Deep dive into your platform&apos;s performance metrics.
-          </p>
+        <div className="flex items-center gap-2.5 mb-1">
+          <div className="h-8 w-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
+            <BarChart3 className="h-4 w-4 text-violet-400" />
+          </div>
+          <h1 className="text-white text-xl font-bold">Analytics</h1>
         </div>
-        <span className="text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 rounded-full flex items-center gap-1.5">
-          <TrendingUp className="h-3.5 w-3.5" />
-          Updated 2 min ago
-        </span>
+        <p className="text-white/40 text-sm ml-[44px]">
+          AI-generated insights from your daily productivity journals.
+        </p>
+      </motion.div>
+
+      {/* Charts panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+        className="mb-8"
+      >
+        <Chart />
+      </motion.div>
+
+      {/* Journal history */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.16, ease: "easeOut" }}
+      >
+        <Journal />
       </motion.div>
     </DashboardShell>
   );

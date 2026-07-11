@@ -35,6 +35,13 @@ class AIRepository {
   }) {
     return prisma.journal.create({ data });
   }
+
+  async getAllJournals(userId: string) {
+    return prisma.journal.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 }
 
 export default new AIRepository();

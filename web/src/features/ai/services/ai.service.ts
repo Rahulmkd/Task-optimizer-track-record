@@ -5,11 +5,13 @@ import { ApiResponse } from "@/types/api.types";
 import { IJournalSummary } from "../types/ai.types";
 
 /**
- * RTK Query service for AI-powered features.
+ * RTK Query service for all AI-powered features.
  */
 export const aiService = createApi({
   reducerPath: "aiService",
   baseQuery: axiosBaseQuery(),
+  tagTypes: ["Journal"],
+
   endpoints: (builder) => ({
     generateJournal: builder.mutation<IJournalSummary, void>({
       query: () => ({
@@ -18,8 +20,21 @@ export const aiService = createApi({
       }),
       transformResponse: (response: ApiResponse<IJournalSummary>) =>
         response.data,
+      // After a successful generation, invalidate the journals list so
+      // the Journal history panel re-fetches and shows the new entry.
+      invalidatesTags: [{ type: "Journal", id: "LIST" }],
+    }),
+
+    getJournals: builder.query<IJournalSummary[], void>({
+      query: () => ({
+        url: API_PATHS.AI.GET_JOURNALS,
+        method: "GET",
+      }),
+      transformResponse: (response: ApiResponse<IJournalSummary[]>) =>
+        response.data,
+      providesTags: [{ type: "Journal", id: "LIST" }],
     }),
   }),
 });
 
-export const { useGenerateJournalMutation } = aiService;
+export const { useGenerateJournalMutation, useGetJournalsQuery } = aiService;

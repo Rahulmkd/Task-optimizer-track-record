@@ -1,7 +1,7 @@
 "use client";
 
 /* -------------------------------------------------------------------------- */
-/*  TASK SUMMARY MODAL                                                         */
+/*                                TASK SUMMARY MODAL                          */
 /* -------------------------------------------------------------------------- */
 
 import { useEffect } from "react";
@@ -151,6 +151,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
   const [generateJournal, { data, isLoading, isError, error, reset }] =
     useGenerateJournalMutation();
 
+  console.log(data);
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
