@@ -1,11 +1,12 @@
 import { prisma } from "../../lib/prisma.js";
 
 /**
- * AIRepository handles all database interactions for the AI module.
- */
+ * AIRepository — all database interactions for the AI/journal module.
+*/
 class AIRepository {
   /**
-   * Returns all tasks created today (midnight → 23:59:59)
+   * Returns all tasks created today (midnight → 23:59:59) for the given
+   * user, ordered chronologically so the AI sees them in creation order.
    */
   async getTodayTasks(userId: string) {
     const startOfDay = new Date();
@@ -17,15 +18,15 @@ class AIRepository {
     return prisma.task.findMany({
       where: {
         userId,
-        createdAt: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
+        createdAt: { gte: startOfDay, lte: endOfDay },
       },
       orderBy: { createdAt: "asc" },
     });
   }
 
+  /**
+   * Persists a journal entry.
+   */
   async createJournal(data: {
     userId: string;
     summary: string;
@@ -36,6 +37,10 @@ class AIRepository {
     return prisma.journal.create({ data });
   }
 
+  /**
+   * Returns all journals for the given user, newest first.
+   * Used by the Analytics / Journal page to display history.
+   */
   async getAllJournals(userId: string) {
     return prisma.journal.findMany({
       where: { userId },

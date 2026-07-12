@@ -8,19 +8,22 @@ import aiProvider from "./providers/index.js";
 import aiRepository from "./ai.repository.js";
 
 /**
- * AIService orchestrates the journal-generation pipeline:
+ * AIService — orchestrates journal generation and retrieval.
  *
- *  1. Fetch today's tasks from the database.
- *  2. Format them into readable plain text for the prompt.
- *  3. Build the prompt and send it to the active AI provider.
- *  4. Parse the AI's JSON response into a typed structure.
- *  5. Persist the analysis (minus the transient suggestion) to the Journal table.
- *  6. Return the full DTO including the suggestion for this response.
-
+ * generateJournal pipeline:
+ *  1. Fetch today's tasks from the database
+ *  2. Format them into readable plain text
+ *  3. Build the prompt and call the AI provider
+ *  4. Parse the AI's JSON response
+ *  5. Persist the analysis (excluding the transient suggestion)
+ *  6. Return the full DTO with suggestion for this response
+ *
+ * getAllJournals:
+ *  - Returns the user's full journal history, newest first
+ *  - suggestion is null for history records (never persisted)
  */
 class AIService {
   async generateJournal(userId: string) {
-    // 1. Load today's tasks
     const tasks = await aiRepository.getTodayTasks(userId);
 
     if (!tasks.length) {
@@ -31,9 +34,7 @@ class AIService {
     }
 
     const formattedTasks = TaskFormatter.format(tasks);
-
     const prompt = journalPrompt(formattedTasks);
-
     const aiResponse = await aiProvider.invoke(prompt);
 
     const parsed = JsonParser.parse(
@@ -51,6 +52,9 @@ class AIService {
     return AIMapper.toResponse(journal, parsed.suggestion);
   }
 
+  /**
+   * Fetches all journal entries for the user, newest first.
+   */
   async getAllJournals(userId: string) {
     const journals = await aiRepository.getAllJournals(userId);
     return AIMapper.toListResponse(journals);

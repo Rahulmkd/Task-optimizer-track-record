@@ -1,13 +1,10 @@
 "use client";
 
-/* -------------------------------------------------------------------------- */
-/*                                TASK SUMMARY MODAL                          */
-/* -------------------------------------------------------------------------- */
-
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertCircle,
+  BookOpen,
   CheckCircle2,
   Circle,
   Lightbulb,
@@ -20,61 +17,34 @@ import { Button } from "@/components/ui/button";
 import { useGenerateJournalMutation } from "@/features/ai/services/ai.service";
 import { IJournalSummary } from "@/features/ai/types/ai.types";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/constants";
 
 /* -------------------------------------------------------------------------- */
-/*                           PRODUCTIVITY SCORE RING                          */
+/*                         PRODUCTIVITY SCORE RING                            */
 /* -------------------------------------------------------------------------- */
 
 function ScoreRing({ score }: { score: number }) {
-  const radius = 28;
+  const radius       = 28;
   const circumference = 2 * Math.PI * radius;
-  const filled = (score / 100) * circumference;
-
-  const color =
-    score >= 75
-      ? "#34d399" // emerald
-      : score >= 50
-        ? "#a78bfa" // violet
-        : "#f87171"; // red
+  const filled        = (score / 100) * circumference;
+  const color         =
+    score >= 75 ? "#34d399" : score >= 50 ? "#a78bfa" : "#f87171";
 
   return (
-    <div className="relative h-20 w-20 flex items-center justify-center">
-      <svg
-        className="-rotate-90"
-        viewBox="0 0 72 72"
-        width={72}
-        height={72}
-        aria-hidden
-      >
-        {/* Track */}
-        <circle
-          cx="36"
-          cy="36"
-          r={radius}
-          fill="none"
-          stroke="rgba(255,255,255,0.06)"
-          strokeWidth="5"
-        />
-        {/* Fill */}
-        <motion.circle
-          cx="36"
-          cy="36"
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth="5"
-          strokeLinecap="round"
+    <div className="relative h-20 w-20 flex items-center justify-center shrink-0">
+      <svg className="-rotate-90" viewBox="0 0 72 72" width={72} height={72} aria-hidden>
+        <circle cx="36" cy="36" r={radius}
+          fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <motion.circle cx="36" cy="36" r={radius}
+          fill="none" stroke={color} strokeWidth="5" strokeLinecap="round"
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: circumference - filled }}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-        />
+          transition={{ duration: 1, delay: 0.15, ease: "easeOut" }} />
       </svg>
-      <span
-        className="absolute text-lg font-black"
-        style={{ color }}
-        aria-label={`Productivity score: ${score}`}
-      >
+      <span className="absolute text-lg font-black" style={{ color }}
+        aria-label={`Productivity score: ${score}`}>
         {score}
       </span>
     </div>
@@ -90,55 +60,53 @@ function JournalResult({ data }: { data: IJournalSummary }) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="space-y-4"
+      transition={{ duration: 0.32, ease: "easeOut" }}
+      className="space-y-3"
     >
-      {/* Score + counts row */}
-      <div className="flex items-center gap-5 p-4 rounded-xl bg-white/[0.04] border border-white/[0.07]">
+      {/* score + counts */}
+      <div className="flex items-center gap-4 p-3.5 rounded-xl bg-white/[0.04] border border-white/[0.07]">
         <ScoreRing score={data.productivityScore} />
-
-        <div className="flex-1 space-y-2">
-          <p className="text-white/50 text-xs uppercase tracking-widest font-semibold">
+        <div className="space-y-1.5">
+          <p className="text-white/40 text-[10px] font-semibold uppercase tracking-widest">
             Productivity Score
           </p>
-
-          <div className="flex items-center gap-4 text-sm">
-            <span className="flex items-center gap-1.5 text-emerald-400">
-              <CheckCircle2 className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1 text-emerald-400">
+              <CheckCircle2 className="h-3 w-3" />
               <span className="font-semibold">{data.completedTasks}</span>
-              <span className="text-white/40 font-normal">done</span>
+              <span className="text-white/35 font-normal">done</span>
             </span>
-            <span className="flex items-center gap-1.5 text-white/40">
-              <Circle className="h-3.5 w-3.5" />
-              <span className="font-semibold text-white/60">
-                {data.pendingTasks}
-              </span>
+            <span className="flex items-center gap-1 text-white/35">
+              <Circle className="h-3 w-3" />
+              <span className="font-semibold text-white/55">{data.pendingTasks}</span>
               <span className="font-normal">pending</span>
             </span>
           </div>
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="space-y-1.5">
-        <p className="text-white/40 text-xs font-semibold uppercase tracking-widest">
+      {/* summary */}
+      <div className="space-y-1">
+        <p className="text-white/35 text-[10px] font-semibold uppercase tracking-widest">
           Summary
         </p>
-        <p className="text-white/80 text-sm leading-relaxed">{data.summary}</p>
+        <p className="text-white/75 text-xs leading-relaxed">{data.summary}</p>
       </div>
 
-      {/* Suggestion */}
-      <div className="flex gap-3 p-3.5 rounded-xl bg-violet-500/[0.08] border border-violet-500/20">
-        <Lightbulb className="h-4 w-4 text-violet-400 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-violet-300 text-xs font-semibold mb-1">
-            Tomorrow&apos;s tip
-          </p>
-          <p className="text-white/60 text-sm leading-relaxed">
-            {data.suggestion}
-          </p>
+      {/* suggestion */}
+      {data.suggestion && (
+        <div className="flex gap-2.5 p-3 rounded-xl bg-violet-500/[0.08] border border-violet-500/20">
+          <Lightbulb className="h-3.5 w-3.5 text-violet-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-violet-300 text-[10px] font-semibold mb-1">
+              Tomorrow&apos;s tip
+            </p>
+            <p className="text-white/55 text-xs leading-relaxed">
+              {data.suggestion}
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </motion.div>
   );
 }
@@ -148,10 +116,11 @@ function JournalResult({ data }: { data: IJournalSummary }) {
 /* -------------------------------------------------------------------------- */
 
 export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
+
   const [generateJournal, { data, isLoading, isError, error, reset }] =
     useGenerateJournalMutation();
 
-  console.log(data);
   // Close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -161,33 +130,32 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  // Reset state when the modal unmounts so stale data doesn't flash on
-  // the next open.
-  useEffect(() => {
-    return () => {
-      reset();
-    };
-  }, [reset]);
+  // Reset mutation state on unmount so stale data doesn't flash on next open
+  useEffect(() => () => { reset(); }, [reset]);
 
-  // Extract a readable error message from RTK Query's error shape
   const errorMessage = isError
     ? ((error as { data?: { message?: string } })?.data?.message ??
       "Couldn't generate the summary. Please try again.")
     : null;
 
-  const handleGenerate = () => {
-    generateJournal();
-  };
+  const handleGenerate = () => generateJournal();
 
   const handleClose = () => {
     reset();
     onClose();
   };
 
+
+  const handleSave = () => {
+    reset();
+    onClose();
+    router.push(ROUTES.ANALYTICS);
+  };
+
   return (
     <Backdrop onClick={handleClose}>
       <ModelPanel>
-        {/* ── Header ── */}
+        {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
@@ -203,36 +171,25 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          <button
-            aria-label="Close modal"
-            onClick={handleClose}
-            className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
-          >
+          <button aria-label="Close modal" onClick={handleClose}
+            className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors">
             <X className="h-3.5 w-3.5 text-white/60" />
           </button>
         </div>
 
-        {/* ── Body ── */}
+        {/* body */}
         <div className="p-5 space-y-4">
-          {/* Idle / loading state — shown before first generation */}
           <AnimatePresence mode="wait">
+            {/* idle / loading */}
             {!data && !isError && (
-              <motion.div
-                key="idle"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <motion.div key="idle"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className={cn(
                   "rounded-xl border border-white/[0.07] bg-white/[0.03] p-6 text-center",
                   isLoading && "animate-pulse",
-                )}
-              >
-                <Sparkles
-                  className={cn(
-                    "h-8 w-8 mx-auto mb-3",
-                    isLoading ? "text-violet-400" : "text-white/20",
-                  )}
-                />
+                )}>
+                <Sparkles className={cn("h-8 w-8 mx-auto mb-3",
+                  isLoading ? "text-violet-400" : "text-white/20")} />
                 <p className="text-white/40 text-sm">
                   {isLoading
                     ? "Analysing your tasks…"
@@ -241,45 +198,63 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
               </motion.div>
             )}
 
-            {/* Error state */}
+            {/* error */}
             {isError && (
-              <motion.div
-                key="error"
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="flex items-start gap-3 p-4 rounded-xl bg-red-500/[0.08] border border-red-500/20"
-              >
+              <motion.div key="error"
+                initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="flex items-start gap-3 p-4 rounded-xl bg-red-500/[0.08] border border-red-500/20">
                 <AlertCircle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
                 <p className="text-red-300 text-sm">{errorMessage}</p>
               </motion.div>
             )}
 
-            {/* Result */}
+            {/* result */}
             {data && !isError && <JournalResult key="result" data={data} />}
           </AnimatePresence>
 
-          {/* ── Footer ── */}
+          {/* footer buttons */}
           <div className="flex gap-3 pt-1">
-            <Button
-              variant="outline"
-              className="flex-1 h-11"
-              onClick={handleClose}
-              disabled={isLoading}
-            >
-              Close
-            </Button>
+            {/* ── When summary is received: Close + Save + Regenerate ── */}
+            {data ? (
+              <>
+                <Button variant="outline" className="flex-1 h-11"
+                  onClick={handleClose} disabled={isLoading}>
+                  Close
+                </Button>
 
-            <Button
-              variant="gradient"
-              className="flex-1 h-11"
-              onClick={handleGenerate}
-              loading={isLoading}
-              disabled={isLoading}
-            >
-              {data ? "Regenerate" : "Generate Summary"}
-            </Button>
+                {/* Save navigates to Journal history so the user can review
+                    the persisted entry. The journal is already saved in the DB
+                    at generation time — this is just navigation shortcut. */}
+                <Button variant="gradient" className="flex-1 h-11"
+                  onClick={handleSave} disabled={isLoading}>
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Save to Journal
+                </Button>
+              </>
+            ) : (
+              /* ── Before generation: Close + Generate ── */
+              <>
+                <Button variant="outline" className="flex-1 h-11"
+                  onClick={handleClose} disabled={isLoading}>
+                  Close
+                </Button>
+                <Button variant="gradient" className="flex-1 h-11"
+                  onClick={handleGenerate} loading={isLoading} disabled={isLoading}>
+                  Generate Summary
+                </Button>
+              </>
+            )}
           </div>
+
+          {/* Regenerate link — shown below Save so it's accessible but secondary */}
+          {data && !isLoading && (
+            <motion.button
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              onClick={handleGenerate}
+              className="w-full text-center text-white/30 hover:text-white/60 text-xs transition-colors">
+              Regenerate
+            </motion.button>
+          )}
         </div>
       </ModelPanel>
     </Backdrop>

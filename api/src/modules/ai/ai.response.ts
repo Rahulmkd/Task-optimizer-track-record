@@ -1,5 +1,5 @@
 /**
- * The DTO returned by every AI endpoint.
+ * DTO returned for a single journal entry.
  */
 export interface AIJournalResponseDTO {
   id: string;

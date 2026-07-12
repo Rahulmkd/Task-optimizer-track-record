@@ -35,7 +35,6 @@ export const API_PATHS = {
   },
 
   AI: {
-    /** POST — generate today's productivity journal for the authed user. */
     GENERATE_JOURNAL: `${AI_BASE}/journal`,
     GET_JOURNALS: `${AI_BASE}/journals`,
   },

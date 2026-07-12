@@ -4,6 +4,9 @@ import aiController from "./ai.controller.js";
 
 /**
  * AI routes — all require an authenticated user (verifyUser middleware).
+ *
+ * POST /api/v1/ai/journal    — generate today's productivity journal
+ * GET  /api/v1/ai/journals   — fetch full journal history (newest first)
  */
 const router = Router();
 
