@@ -2,7 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "@/redux/axiosBaseQuery";
 import { API_PATHS } from "@/constants/api.path";
 import { ApiResponse } from "@/types/api.types";
-import { IJournalSummary } from "../types/ai.types";
+import { IJournalSummary, ISaveJournalRequest } from "../types/ai.types";
 
 /**
  * RTK Query service for all AI-powered features.
@@ -25,6 +25,17 @@ export const aiService = createApi({
       invalidatesTags: [{ type: "Journal", id: "LIST" }],
     }),
 
+    saveJournal: builder.mutation<IJournalSummary, ISaveJournalRequest>({
+      query: (body) => ({
+        url: API_PATHS.AI.SAVE_JOURNAL,
+        method: "POST",
+        data: body,
+      }),
+      transformResponse: (response: ApiResponse<IJournalSummary>) =>
+        response.data,
+      invalidatesTags: [{ type: "Journal", id: "LIST" }],
+    }),
+
     getJournals: builder.query<IJournalSummary[], void>({
       query: () => ({
         url: API_PATHS.AI.GET_JOURNALS,
@@ -37,4 +48,8 @@ export const aiService = createApi({
   }),
 });
 
-export const { useGenerateJournalMutation, useGetJournalsQuery } = aiService;
+export const {
+  useGenerateJournalMutation,
+  useSaveJournalMutation,
+  useGetJournalsQuery,
+} = aiService;

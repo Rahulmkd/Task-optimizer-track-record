@@ -51,22 +51,41 @@ function scoreRingColor(score: number) {
 /* -------------------------------------------------------------------------- */
 
 function MiniScoreRing({ score }: { score: number }) {
-  const r     = 14;
-  const circ  = 2 * Math.PI * r;
+  const r = 14;
+  const circ = 2 * Math.PI * r;
   const filled = (score / 100) * circ;
-  const color  = scoreRingColor(score);
+  const color = scoreRingColor(score);
 
   return (
     <div className="relative h-9 w-9 flex items-center justify-center shrink-0">
-      <svg className="-rotate-90" viewBox="0 0 34 34" width={34} height={34} aria-hidden>
-        <circle cx="17" cy="17" r={r}
-          fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="3" />
-        <motion.circle cx="17" cy="17" r={r}
-          fill="none" stroke={color} strokeWidth="3" strokeLinecap="round"
+      <svg
+        className="-rotate-90"
+        viewBox="0 0 34 34"
+        width={34}
+        height={34}
+        aria-hidden
+      >
+        <circle
+          cx="17"
+          cy="17"
+          r={r}
+          fill="none"
+          stroke="rgba(255,255,255,0.07)"
+          strokeWidth="3"
+        />
+        <motion.circle
+          cx="17"
+          cy="17"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="3"
+          strokeLinecap="round"
           strokeDasharray={circ}
           initial={{ strokeDashoffset: circ }}
           animate={{ strokeDashoffset: circ - filled }}
-          transition={{ duration: 0.7, ease: "easeOut" }} />
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        />
       </svg>
       <span className="absolute text-[9px] font-black" style={{ color }}>
         {score}
@@ -117,7 +136,12 @@ function JournalCard({
           </div>
         </div>
 
-        <span className={cn("shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border", badgeClass)}>
+        <span
+          className={cn(
+            "shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border",
+            badgeClass,
+          )}
+        >
           {scoreLabel(score)}
         </span>
       </div>
@@ -133,7 +157,9 @@ function JournalCard({
           </span>
           <span className="flex items-center gap-1 text-white/35">
             <Circle className="h-3 w-3" />
-            <span className="font-semibold text-white/50">{journal.pendingTasks}</span>
+            <span className="font-semibold text-white/50">
+              {journal.pendingTasks}
+            </span>
             <span className="font-normal">pending</span>
           </span>
         </div>
@@ -172,8 +198,10 @@ function JournalSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i}
-          className="h-32 rounded-xl bg-white/[0.03] border border-white/[0.06] animate-pulse" />
+        <div
+          key={i}
+          className="h-32 rounded-xl bg-white/[0.03] border border-white/[0.06] animate-pulse"
+        />
       ))}
     </div>
   );

@@ -13,6 +13,7 @@ const router = Router();
 router.use(verifyUser);
 
 router.post("/journal", aiController.generateJournal);
+router.post("/save", aiController.saveJournal);
 router.get("/journals", aiController.getAllJournals);
 
 export default router;

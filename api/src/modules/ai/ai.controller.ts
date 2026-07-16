@@ -27,6 +27,19 @@ class AIController {
     });
   });
 
+  saveJournal = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.id;
+    const data = req.body;
+
+    const result = await aiService.saveJournal(userId, data);
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "Journal save in Database successfully.",
+      data: result,
+    });
+  });
+
   /**
    * GET /api/v1/ai/journals
    * Return all journal entries for the authenticated user, newest first.

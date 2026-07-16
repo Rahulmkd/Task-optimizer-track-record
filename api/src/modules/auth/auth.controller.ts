@@ -112,7 +112,7 @@ export const refreshTokenController = catchAsync(
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
-      throw new AppError("No refresh token provided", 401);
+      throw new AppError("No refresh token provided", 403);
     }
 
     const result = await authService.refreshToken({ refreshToken });

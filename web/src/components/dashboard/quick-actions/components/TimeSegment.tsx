@@ -1,35 +1,32 @@
-export function TimeSegment({
-  value,
-  onUp,
-  onDown,
-  pad = false,
-}: {
-  value: number;
-  onUp: () => void;
-  onDown: () => void;
-  pad?: boolean;
-}) {
+interface TimeSegmentProps {
+  value: string | number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}
+
+export function TimeSegment({ value, min, max, onChange }: TimeSegmentProps) {
   return (
-    <div className="flex flex-col items-center group select-none">
-      <button
-        type="button"
-        onClick={onUp}
-        className="h-4 w-7 flex items-center justify-center text-white/20 hover:text-white/70 transition-colors text-[10px] leading-none"
-        aria-label="increment"
-      >
-        ▲
-      </button>
-      <span className="text-white font-semibold text-sm w-7 text-center tabular-nums">
-        {pad ? String(value).padStart(2, "0") : value}
-      </span>
-      <button
-        type="button"
-        onClick={onDown}
-        className="h-4 w-7 flex items-center justify-center text-white/20 hover:text-white/70 transition-colors text-[10px] leading-none"
-        aria-label="decrement"
-      >
-        ▼
-      </button>
-    </div>
+    <input
+      type="number"
+      min={min}
+      max={max}
+      value={value}
+      onChange={(e) => onChange(Number(e.target.value))}
+      onFocus={(e) => e.target.select()}
+      className="
+        w-10
+        bg-transparent
+        text-center
+        text-sm
+        font-semibold
+        tabular-nums
+        text-white
+        outline-none
+        [appearance:textfield]
+        [&::-webkit-inner-spin-button]:appearance-none
+        [&::-webkit-outer-spin-button]:appearance-none
+      "
+    />
   );
 }

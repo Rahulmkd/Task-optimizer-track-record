@@ -14,12 +14,14 @@ import {
   Shield,
   Bell,
   HelpCircle,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/home/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/home/journal", icon: ScrollText, label: "Journals" },
   { href: "/home/settings", icon: Settings, label: "Settings" },
   { href: "/home/profile", icon: User, label: "Profile" },
 ];
@@ -64,12 +66,17 @@ export function Sidebar() {
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group",
                 active
                   ? "bg-violet-500/15 text-violet-300 border-l-2 border-violet-500"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/5"
+                  : "text-white/40 hover:text-white/70 hover:bg-white/5",
               )}
             >
-              <item.icon className={cn("h-4 w-4 shrink-0", active && "text-violet-400")} />
+              <item.icon
+                className={cn("h-4 w-4 shrink-0", active && "text-violet-400")}
+              />
               <motion.span
-                animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
+                animate={{
+                  opacity: collapsed ? 0 : 1,
+                  width: collapsed ? 0 : "auto",
+                }}
                 className="overflow-hidden whitespace-nowrap font-medium"
               >
                 {item.label}
@@ -95,7 +102,10 @@ export function Sidebar() {
           >
             <item.icon className="h-4 w-4 shrink-0" />
             <motion.span
-              animate={{ opacity: collapsed ? 0 : 1, width: collapsed ? 0 : "auto" }}
+              animate={{
+                opacity: collapsed ? 0 : 1,
+                width: collapsed ? 0 : "auto",
+              }}
               className="overflow-hidden whitespace-nowrap"
             >
               {item.label}

@@ -152,12 +152,12 @@ export class AuthService {
     );
 
     if (!existingRefreshToken) {
-      throw new AppError("Refresh token not found or already used", 401);
+      throw new AppError("Refresh token not found or already used", 403);
     }
 
     if (existingRefreshToken.expiresAt < new Date()) {
       await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
-      throw new AppError("Refresh token has expired, please log in again", 401);
+      throw new AppError("Refresh token has expired, please log in again", 403);
     }
 
     await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);

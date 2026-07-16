@@ -4,16 +4,17 @@
  */
 export interface IJournalSummary {
   id: string;
-
   summary: string;
-
   completedTasks: number;
-
   pendingTasks: number;
-
   productivityScore: number;
-
   suggestion: string | null;
-
   createdAt: string;
+}
+
+export interface ISaveJournalRequest {
+  summary: string;
+  completedTasks: number;
+  pendingTasks: number;
+  productivityScore: number;
 }

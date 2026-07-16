@@ -41,15 +41,40 @@ class AIService {
       aiResponse.content.toString(),
     ) as JournalAIResponse;
 
-    const journal = await aiRepository.createJournal({
-      userId,
+    // const journal = await aiRepository.createJournal({
+    //   userId,
+    //   summary: parsed.summary,
+    //   completedTasks: parsed.completedTasks,
+    //   pendingTasks: parsed.pendingTasks,
+    //   productivityScore: parsed.productivityScore,
+    // });
+
+    // return AIMapper.toResponse(journal, parsed.suggestion);
+
+    return {
       summary: parsed.summary,
       completedTasks: parsed.completedTasks,
       pendingTasks: parsed.pendingTasks,
       productivityScore: parsed.productivityScore,
+      suggestion: parsed.suggestion,
+    };
+  }
+
+  async saveJournal(
+    userId: string,
+    data: {
+      summary: string;
+      completedTasks: number;
+      pendingTasks: number;
+      productivityScore: number;
+    },
+  ) {
+    const journal = await aiRepository.createJournal({
+      userId,
+      ...data,
     });
 
-    return AIMapper.toResponse(journal, parsed.suggestion);
+    return AIMapper.toResponse(journal);
   }
 
   /**

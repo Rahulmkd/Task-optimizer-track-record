@@ -25,7 +25,7 @@ interface RetryRequestConfig extends InternalAxiosRequestConfig {
 
 export const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 15000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

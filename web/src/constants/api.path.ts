@@ -36,6 +36,7 @@ export const API_PATHS = {
 
   AI: {
     GENERATE_JOURNAL: `${AI_BASE}/journal`,
+    SAVE_JOURNAL: `${AI_BASE}/save`,
     GET_JOURNALS: `${AI_BASE}/journals`,
   },
 } as const;
