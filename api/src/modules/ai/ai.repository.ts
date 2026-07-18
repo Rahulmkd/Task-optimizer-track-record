@@ -2,7 +2,7 @@ import { prisma } from "../../lib/prisma.js";
 
 /**
  * AIRepository — all database interactions for the AI/journal module.
-*/
+ */
 class AIRepository {
   /**
    * Returns all tasks created today (midnight → 23:59:59) for the given
@@ -21,6 +21,22 @@ class AIRepository {
         createdAt: { gte: startOfDay, lte: endOfDay },
       },
       orderBy: { createdAt: "asc" },
+    });
+  }
+
+  async getTodayJournal(userId: string) {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    return prisma.journal.findFirst({
+      where: {
+        userId,
+        createdAt: { gte: startOfDay, lte: endOfDay },
+      },
+      orderBy: { createdAt: "desc" },
     });
   }
 

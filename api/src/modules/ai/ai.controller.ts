@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/CatchAsync.js";
 import aiService from "./ai.service.js";
 import { sendResponse } from "../../utils/sendResponse.js";
+import { SaveJournalDTO } from "./ai.schema.js";
 
 /**
  * AIController — HTTP handlers for AI-powered features.
@@ -29,7 +30,7 @@ class AIController {
 
   saveJournal = catchAsync(async (req: Request, res: Response) => {
     const userId = req.user.id;
-    const data = req.body;
+    const data = req.body as SaveJournalDTO;
 
     const result = await aiService.saveJournal(userId, data);
 
@@ -52,7 +53,7 @@ class AIController {
 
     sendResponse(res, 200, {
       success: true,
-      message: "Journals fetched successfully.",
+      message: "Journals fetched from Database successfully.",
       data: result,
     });
   });

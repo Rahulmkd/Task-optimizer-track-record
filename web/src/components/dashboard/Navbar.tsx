@@ -8,6 +8,7 @@ import {
   Search,
   ChevronDown,
   LogOut,
+  Menu,
   Settings,
   User,
   Zap,
@@ -18,7 +19,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logoutThunk } from "@/redux/slices/auth.slice";
 import { toast } from "sonner";
 
-export function DashboardNavbar() {
+export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -32,10 +33,19 @@ export function DashboardNavbar() {
   };
 
   return (
-    <header className="h-16 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl flex items-center px-6 gap-4 sticky top-0 z-30">
+    <header className="h-16 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl flex items-center px-3 sm:px-6 gap-2 sm:gap-4 sticky top-0 z-30">
+      {/* Mobile menu toggle — opens the off-canvas sidebar drawer */}
+      <button
+        onClick={onMenuClick}
+        aria-label="Open menu"
+        className="md:hidden h-9 w-9 shrink-0 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors"
+      >
+        <Menu className="h-4 w-4 text-white/70" />
+      </button>
+
       {/* Logo */}
-      <div className="flex items-center gap-2 mr-4">
-        <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center">
+      <div className="flex items-center gap-2 mr-1 sm:mr-4">
+        <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center shrink-0">
           <Zap className="h-3.5 w-3.5 text-white" />
         </div>
         <span className="text-white font-semibold text-sm hidden sm:block">
@@ -59,7 +69,7 @@ export function DashboardNavbar() {
       <div className="flex-1" />
 
       {/* Notifications */}
-      <button className="relative h-9 w-9 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+      <button className="relative h-9 w-9 shrink-0 rounded-lg border border-white/10 bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
         <Bell className="h-4 w-4 text-white/60" />
         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-violet-500" />
       </button>
@@ -68,9 +78,9 @@ export function DashboardNavbar() {
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 hover:bg-white/10 transition-colors"
+          className="flex items-center gap-1.5 sm:gap-2.5 rounded-lg border border-white/10 bg-white/5 px-2 sm:px-3 py-2 hover:bg-white/10 transition-colors"
         >
-          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
             {user ? getInitials(user.name) : "U"}
           </div>
           <div className="hidden sm:block text-left">
@@ -89,11 +99,11 @@ export function DashboardNavbar() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/10 bg-[#0f0f18] backdrop-blur-xl shadow-xl overflow-hidden z-50"
+              className="absolute right-0 top-full mt-2 w-52 max-w-[calc(100vw-1.5rem)] rounded-xl border border-white/10 bg-[#0f0f18] backdrop-blur-xl shadow-xl overflow-hidden z-50"
             >
               <div className="p-3 border-b border-white/5">
                 <p className="text-white text-sm font-medium">{user?.name}</p>
-                <p className="text-white/40 text-xs">{user?.email}</p>
+                <p className="text-white/40 text-xs truncate">{user?.email}</p>
               </div>
               <div className="p-1">
                 {[

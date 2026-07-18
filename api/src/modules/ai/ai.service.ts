@@ -6,6 +6,7 @@ import { journalPrompt } from "./prompts/journal.prompt.js";
 import { TaskFormatter } from "./utils/taskFormatter.js";
 import aiProvider from "./providers/index.js";
 import aiRepository from "./ai.repository.js";
+import { SaveJournalDTO } from "./ai.schema.js";
 
 /**
  * AIService — orchestrates journal generation and retrieval.
@@ -41,16 +42,6 @@ class AIService {
       aiResponse.content.toString(),
     ) as JournalAIResponse;
 
-    // const journal = await aiRepository.createJournal({
-    //   userId,
-    //   summary: parsed.summary,
-    //   completedTasks: parsed.completedTasks,
-    //   pendingTasks: parsed.pendingTasks,
-    //   productivityScore: parsed.productivityScore,
-    // });
-
-    // return AIMapper.toResponse(journal, parsed.suggestion);
-
     return {
       summary: parsed.summary,
       completedTasks: parsed.completedTasks,
@@ -60,15 +51,16 @@ class AIService {
     };
   }
 
-  async saveJournal(
-    userId: string,
-    data: {
-      summary: string;
-      completedTasks: number;
-      pendingTasks: number;
-      productivityScore: number;
-    },
-  ) {
+  async saveJournal(userId: string, data: SaveJournalDTO) {
+    const existing = await aiRepository.getTodayJournal(userId);
+
+    if (existing) {
+      throw new AppError(
+        "You've already saved a journal entry for today. Check your Journal history.",
+        409,
+      );
+    }
+
     const journal = await aiRepository.createJournal({
       userId,
       ...data,

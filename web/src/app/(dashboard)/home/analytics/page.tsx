@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { BarChart3 } from "lucide-react";
 import { DashboardShell } from "@/components/layouts/DashboardShell";
 import { Chart } from "@/components/analytics/Chart";
-import { Journal } from "@/components/journalSummary/Journal";
 
 export default function AnalyticsPage() {
   return (
@@ -35,15 +34,6 @@ export default function AnalyticsPage() {
         className="mb-8"
       >
         <Chart />
-      </motion.div>
-
-      {/* Journal history */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.16, ease: "easeOut" }}
-      >
-        <Journal />
       </motion.div>
     </DashboardShell>
   );

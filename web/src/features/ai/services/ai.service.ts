@@ -2,7 +2,11 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "@/redux/axiosBaseQuery";
 import { API_PATHS } from "@/constants/api.path";
 import { ApiResponse } from "@/types/api.types";
-import { IJournalSummary, ISaveJournalRequest } from "../types/ai.types";
+import {
+  IJournalPreview,
+  IJournalSummary,
+  ISaveJournalRequest,
+} from "../types/ai.types";
 
 /**
  * RTK Query service for all AI-powered features.
@@ -13,16 +17,13 @@ export const aiService = createApi({
   tagTypes: ["Journal"],
 
   endpoints: (builder) => ({
-    generateJournal: builder.mutation<IJournalSummary, void>({
+    generateJournal: builder.mutation<IJournalPreview, void>({
       query: () => ({
         url: API_PATHS.AI.GENERATE_JOURNAL,
         method: "POST",
       }),
-      transformResponse: (response: ApiResponse<IJournalSummary>) =>
+      transformResponse: (response: ApiResponse<IJournalPreview>) =>
         response.data,
-      // After a successful generation, invalidate the journals list so
-      // the Journal history panel re-fetches and shows the new entry.
-      invalidatesTags: [{ type: "Journal", id: "LIST" }],
     }),
 
     saveJournal: builder.mutation<IJournalSummary, ISaveJournalRequest>({

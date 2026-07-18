@@ -11,6 +11,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Backdrop } from "./Backdrop";
 import { ModelPanel } from "./ModelPanel";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import {
   useGenerateJournalMutation,
   useSaveJournalMutation,
 } from "@/features/ai/services/ai.service";
-import { IJournalSummary } from "@/features/ai/types/ai.types";
+import { IJournalPreview } from "@/features/ai/types/ai.types";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/constants";
@@ -79,7 +80,7 @@ function ScoreRing({ score }: { score: number }) {
 /*                               RESULT VIEW                                  */
 /* -------------------------------------------------------------------------- */
 
-function JournalResult({ data }: { data: IJournalSummary }) {
+function JournalResult({ data }: { data: IJournalPreview }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -147,7 +148,10 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
   const [generateJournal, { data, isLoading, isError, error, reset }] =
     useGenerateJournalMutation();
 
-  const [saveJournal] = useSaveJournalMutation();
+  const [
+    saveJournal,
+    { isLoading: isSaving, isSuccess: isSaved },
+  ] = useSaveJournalMutation();
 
   // Close on Escape
   useEffect(() => {
@@ -172,7 +176,11 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
     : null;
 
   const handleGenerate = async () => {
-    await generateJournal().unwrap();
+    try {
+      await generateJournal().unwrap();
+    } catch {
+      // Error state is already surfaced via `isError`/`errorMessage` above.
+    }
   };
 
   const handleClose = () => {
@@ -181,7 +189,9 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
   };
 
   const handleSave = async () => {
-    if (!data) return;
+    // Guard against double-submits: if a save is already in flight, or
+    // this preview has already been saved once, do nothing.
+    if (!data || isSaving || isSaved) return;
 
     const payload = {
       summary: data.summary,
@@ -189,13 +199,21 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
       pendingTasks: data.pendingTasks,
       productivityScore: data.productivityScore,
     };
-   
 
-    await saveJournal(payload).unwrap();
+    try {
+      await saveJournal(payload).unwrap();
 
-    reset();
-    onClose();
-    router.push(ROUTES.ANALYTICS);
+      toast.success("Journal saved");
+      reset();
+      onClose();
+      router.push(ROUTES.ANALYTICS);
+    } catch (err) {
+      const message =
+        (err as { data?: { message?: string } })?.data?.message ??
+        "Couldn't save the journal. Please try again.";
+
+      toast.error(message);
+    }
   };
 
   return (
@@ -282,22 +300,22 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
                   variant="outline"
                   className="flex-1 h-11"
                   onClick={handleClose}
-                  disabled={isLoading}
+                  disabled={isLoading || isSaving}
                 >
                   Close
                 </Button>
 
-                {/* Save navigates to Journal history so the user can review
-                    the persisted entry. The journal is already saved in the DB
-                    at generation time — this is just navigation shortcut. */}
+                {/* Persists the previewed summary via POST /ai/save. Disabled
+                    once saved so a re-click can't create a duplicate entry. */}
                 <Button
                   variant="gradient"
                   className="flex-1 h-11"
                   onClick={handleSave}
-                  disabled={isLoading}
+                  loading={isSaving}
+                  disabled={isLoading || isSaving || isSaved}
                 >
                   <BookOpen className="h-3.5 w-3.5" />
-                  Save Journal
+                  {isSaved ? "Saved" : "Save Journal"}
                 </Button>
               </>
             ) : (
@@ -325,7 +343,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Regenerate link — shown below Save so it's accessible but secondary */}
-          {data && !isLoading && (
+          {data && !isLoading && !isSaving && (
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

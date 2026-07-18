@@ -1,14 +1,13 @@
-/**
- * Mirrors the backend's AIJournalResponseDTO
- * (api/src/modules/ai/ai.response.ts).
- */
-export interface IJournalSummary {
-  id: string;
+export interface IJournalPreview {
   summary: string;
   completedTasks: number;
   pendingTasks: number;
   productivityScore: number;
   suggestion: string | null;
+}
+
+export interface IJournalSummary extends IJournalPreview {
+  id: string;
   createdAt: string;
 }
 

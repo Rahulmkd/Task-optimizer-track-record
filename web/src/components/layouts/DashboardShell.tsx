@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { DashboardNavbar } from "@/components/dashboard/Navbar";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -10,14 +11,21 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children }: DashboardShellProps) {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
   return (
     <AuthGuard>
       <div className="min-h-screen bg-[#0a0a0f] flex flex-col">
         <GlowBackground />
-        <DashboardNavbar />
-        <div className="flex flex-1 relative z-10">
-          <Sidebar />
-          <main className="flex-1 overflow-auto p-6">{children}</main>
+        <DashboardNavbar onMenuClick={() => setMobileNavOpen(true)} />
+        <div className="flex flex-1 relative z-10 min-w-0">
+          <Sidebar
+            mobileOpen={mobileNavOpen}
+            onMobileClose={() => setMobileNavOpen(false)}
+          />
+          <main className="flex-1 min-w-0 overflow-auto p-4 sm:p-6">
+            {children}
+          </main>
         </div>
       </div>
     </AuthGuard>
