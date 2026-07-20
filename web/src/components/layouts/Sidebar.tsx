@@ -17,16 +17,18 @@ import {
   ScrollText,
   X,
   Zap,
+  ListTodo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/constants/constants";
 
 const navItems = [
-  { href: "/home", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/home/analytics", icon: BarChart3, label: "Analytics" },
-  { href: "/home/journal", icon: ScrollText, label: "Journals" },
-  { href: "/home/settings", icon: Settings, label: "Settings" },
-  { href: "/home/profile", icon: User, label: "Profile" },
+  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/my-tasks", icon: ListTodo, label: "My Tasks" },
+  { href: "/analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/journal", icon: ScrollText, label: "Journals" },
+  { href: "/settings", icon: Settings, label: "Settings" },
+  { href: "/profile", icon: User, label: "Profile" },
 ];
 
 const bottomItems = [

@@ -2,6 +2,7 @@ const AUTH_BASE = "/api/v1/auth";
 const ACTIONS_BASE = "/api/v1/action";
 const TASKS_BASE = "/api/v1/task";
 const AI_BASE = "/api/v1/ai";
+const WEEKLY_BASE = "/api/v1/weekly";
 
 export const API_PATHS = {
   AUTH: {
@@ -38,5 +39,13 @@ export const API_PATHS = {
     GENERATE_JOURNAL: `${AI_BASE}/journal`,
     SAVE_JOURNAL: `${AI_BASE}/save`,
     GET_JOURNALS: `${AI_BASE}/journals`,
+  },
+
+  WEEKLY: {
+    GET_PLAN: `${WEEKLY_BASE}`,
+    CREATE_TASK: `${WEEKLY_BASE}/tasks`,
+    UPDATE_TASK: (id: string) => `${WEEKLY_BASE}/tasks/${id}`,
+    TOGGLE_TASK: (id: string) => `${WEEKLY_BASE}/tasks/${id}/toggle`,
+    DELETE_TASK: (id: string) => `${WEEKLY_BASE}/tasks/${id}`,
   },
 } as const;

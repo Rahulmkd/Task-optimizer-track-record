@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
-import { DashboardNavbar } from "@/components/dashboard/Navbar";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { DashboardNavbar } from "@/components/layouts/Navbar";
+import { Sidebar } from "@/components/layouts/Sidebar";
 import { GlowBackground } from "@/components/shared/GlowBackground";
 
 interface DashboardShellProps {
