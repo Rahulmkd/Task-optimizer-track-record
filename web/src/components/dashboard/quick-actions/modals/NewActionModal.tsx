@@ -92,7 +92,7 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
 
           {/* Action buttons grid card panel */}
 
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
+          {/* <div className="rounded-xl border border-white/[0.06] bg-white/[0.01] p-4 space-y-3">
             <p className="text-[11px] font-medium uppercase tracking-wider text-white/30 px-0.5">
               Or choose a quick preset
             </p>
@@ -112,7 +112,7 @@ export function NewActionModal({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {error && (
             <p className="text-xs font-medium text-red-400 px-0.5 pt-0.5">

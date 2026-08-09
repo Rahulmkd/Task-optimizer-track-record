@@ -97,7 +97,7 @@ export function TodaysTasksCard() {
             </button>
           </div>
 
-          <CategoryChips />
+          {/* <CategoryChips /> */}
         </div>
 
         {/* Tasks */}

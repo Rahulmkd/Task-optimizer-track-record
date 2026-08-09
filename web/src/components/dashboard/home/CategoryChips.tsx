@@ -124,28 +124,24 @@ function CategoryChip({
         )}
       </button>
 
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!hasTasks) onDelete();
-        }}
-        title={
-          hasTasks
-            ? `Can't delete — ${action.taskCount} task${action.taskCount === 1 ? "" : "s"} still attached`
-            : "Delete category"
-        }
-        disabled={hasTasks}
-        className={cn(
-          "absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full flex items-center justify-center",
-          "bg-zinc-900 border opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-          hasTasks
-            ? "border-zinc-700 text-zinc-600 cursor-not-allowed"
-            : "border-zinc-700 text-zinc-400 hover:text-red-400 hover:border-red-500/40 cursor-pointer",
-        )}
-      >
-        <X className="h-2.5 w-2.5" />
-      </button>
+      {!hasTasks && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          title="Delete category"
+          className={cn(
+            "absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full flex items-center justify-center",
+            "bg-zinc-900 border border-zinc-700 text-zinc-400",
+            "opacity-0 group-hover:opacity-100 transition-opacity duration-200",
+            "hover:text-red-400 hover:border-red-500/40 cursor-pointer",
+          )}
+        >
+          <X className="h-2.5 w-2.5" />
+        </button>
+      )}
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { ProgressCard } from "@/components/dashboard/home/ProgressCard";
 import { UpcomingCard } from "@/components/dashboard/home/UpcomingCard";
 import { RecentActivityCard } from "@/components/dashboard/home/RecentActivityCard";
 import { TodaysTasksCard } from "@/components/dashboard/home/TodaysTasksCard";
+import { CategoryChips } from "@/components/dashboard/home/CategoryChips";
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
           <UpcomingCard />
           <RecentActivityCard />
         </div>
+        <CategoryChips />
         <TodaysTasksCard />
       </div>
     </DashboardShell>
