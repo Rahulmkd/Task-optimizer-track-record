@@ -4,13 +4,9 @@
  */
 export interface JournalAIResponse {
   summary: string;
-
   completedTasks: number;
-
   pendingTasks: number;
-
   productivityScore: number;
-
   suggestion: string;
 }
 

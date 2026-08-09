@@ -1,39 +1,25 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/layouts/DashboardShell";
-import { useAppSelector } from "@/redux/hooks";
-import { QuickActions } from "@/components/dashboard/quick-actions/QuickActions";
+import { DashboardHero } from "@/components/dashboard/home/DashboardHero";
+import { ProgressCard } from "@/components/dashboard/home/ProgressCard";
+import { UpcomingCard } from "@/components/dashboard/home/UpcomingCard";
+import { RecentActivityCard } from "@/components/dashboard/home/RecentActivityCard";
+import { TodaysTasksCard } from "@/components/dashboard/home/TodaysTasksCard";
 
 export default function HomePage() {
-  const { user } = useAppSelector((state) => state.auth);
-
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-
   return (
     <DashboardShell>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <h1 className="text-2xl font-bold text-white">
-          {greeting},{" "}
-          <span className="text-gradient">
-            {user?.name?.split(" ")[0] || "there"}
-          </span>{" "}
-        </h1>
-        <p className="text-white/40 text-sm mt-1">
-          Here&apos;s what&apos;s happening with your platform today.
-        </p>
-      </motion.div>
+      <div className="space-y-6">
+        <DashboardHero />
 
-      {/* QuickActions */}
-      <div className="mb-6">
-        <QuickActions />
+        {/* Secondary: progress, upcoming, recent activity */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <ProgressCard />
+          <UpcomingCard />
+          <RecentActivityCard />
+        </div>
+        <TodaysTasksCard />
       </div>
     </DashboardShell>
   );

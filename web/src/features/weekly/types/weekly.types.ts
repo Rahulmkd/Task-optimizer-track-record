@@ -47,7 +47,6 @@ export interface CreateWeeklyTaskPayload {
   day: WeekDay;
   priority: Priority;
   category: Category;
-  /** Duration in minutes */
   duration: number;
 }
 
