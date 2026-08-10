@@ -18,6 +18,7 @@ import {
   X,
   Zap,
   ListTodo,
+  Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/constants/constants";
@@ -25,6 +26,7 @@ import { APP_NAME } from "@/constants/constants";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/my-tasks", icon: ListTodo, label: "My Tasks" },
+  { href: "/roadmap", icon: Map, label: "Roadmap" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/journal", icon: ScrollText, label: "Journals" },
   { href: "/settings", icon: Settings, label: "Settings" },

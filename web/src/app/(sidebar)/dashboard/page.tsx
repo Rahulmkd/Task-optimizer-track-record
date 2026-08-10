@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/layouts/DashboardShell";
 import { DashboardHero } from "@/components/dashboard/home/DashboardHero";
 import { ProgressCard } from "@/components/dashboard/home/ProgressCard";
@@ -11,18 +12,26 @@ import { CategoryChips } from "@/components/dashboard/home/CategoryChips";
 export default function HomePage() {
   return (
     <DashboardShell>
-      <div className="space-y-6">
-        <DashboardHero />
+      {/* Charts panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+        className="mb-8"
+      >
+        <div className="space-y-6">
+          <DashboardHero />
 
-        {/* Secondary: progress, upcoming, recent activity */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          <ProgressCard />
-          <UpcomingCard />
-          <RecentActivityCard />
+          {/* Secondary: progress, upcoming, recent activity */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <ProgressCard />
+            <UpcomingCard />
+            <RecentActivityCard />
+          </div>
+          <CategoryChips />
+          <TodaysTasksCard />
         </div>
-        <CategoryChips />
-        <TodaysTasksCard />
-      </div>
+      </motion.div>
     </DashboardShell>
   );
 }
