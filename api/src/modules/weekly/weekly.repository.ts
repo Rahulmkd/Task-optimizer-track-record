@@ -53,6 +53,16 @@ class WeeklyRepository implements IWeeklyRepository {
     return prisma.weeklyTask.findUnique({ where: { id: taskId } });
   }
 
+  /** Used to verify a weekly plan belongs to a given user (ownership checks). */
+  async planExistsForUser(planId: string, userId: string): Promise<boolean> {
+    const plan = await prisma.weeklyPlan.findFirst({
+      where: { id: planId, userId },
+      select: { id: true },
+    });
+
+    return plan !== null;
+  }
+
   async deleteTask(taskId: string) {
     await prisma.weeklyTask.delete({ where: { id: taskId } });
   }

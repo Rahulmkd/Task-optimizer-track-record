@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma.js";
+import { getTodayRange } from "../../utils/date.helper.js";
 import { ITaskRepository } from "./task.interface.js";
 
 export class TaskRepository implements ITaskRepository {
@@ -8,36 +9,17 @@ export class TaskRepository implements ITaskRepository {
     time?: string | null;
     actionId?: string | null;
   }) {
-    const task = await prisma.task.create({
-      data,
-    });
-
-    return task;
+    return prisma.task.create({ data });
   }
 
-  // async getTasksByUserId(userId: string) {
-  //   const tasks = await prisma.task.findMany({
-  //     where: { userId },
-  //     orderBy: { createdAt: "asc" },
-  //   });
-
-  //   return tasks;
-  // }
-
+  /** Returns today's tasks for the user, in the app's configured timezone. */
   async getTasksByUserId(userId: string) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const tomorrow = new Date(startOfDay);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const { start, end } = getTodayRange();
 
     return prisma.task.findMany({
       where: {
         userId,
-        createdAt: {
-          gte: startOfDay,
-          lt: tomorrow,
-        },
+        createdAt: { gte: start, lt: end },
       },
       orderBy: {
         createdAt: "asc",
@@ -46,11 +28,9 @@ export class TaskRepository implements ITaskRepository {
   }
 
   async getTaskById(taskId: string) {
-    const task = await prisma.task.findUnique({
+    return prisma.task.findUnique({
       where: { id: taskId },
     });
-
-    return task;
   }
 
   async updateTask(
@@ -62,12 +42,10 @@ export class TaskRepository implements ITaskRepository {
       actionId: string | null;
     }>,
   ) {
-    const task = await prisma.task.update({
+    return prisma.task.update({
       where: { id: taskId },
       data,
     });
-
-    return task;
   }
 
   async deleteTask(taskId: string) {

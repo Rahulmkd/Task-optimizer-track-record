@@ -1,40 +1,33 @@
 import { prisma } from "../../lib/prisma.js";
+import { getTodayRange } from "../../utils/date.helper.js";
 
 /**
  * AIRepository — all database interactions for the AI/journal module.
  */
 class AIRepository {
   /**
-   * Returns all tasks created today (midnight → 23:59:59) for the given
-   * user, ordered chronologically so the AI sees them in creation order.
+   * Returns all tasks created today, in the app's configured timezone,
+   * ordered chronologically so the AI sees them in creation order.
    */
   async getTodayTasks(userId: string) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    const { start, end } = getTodayRange();
 
     return prisma.task.findMany({
       where: {
         userId,
-        createdAt: { gte: startOfDay, lte: endOfDay },
+        createdAt: { gte: start, lt: end },
       },
       orderBy: { createdAt: "asc" },
     });
   }
 
   async getTodayJournal(userId: string) {
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 999);
+    const { start, end } = getTodayRange();
 
     return prisma.journal.findFirst({
       where: {
         userId,
-        createdAt: { gte: startOfDay, lte: endOfDay },
+        createdAt: { gte: start, lt: end },
       },
       orderBy: { createdAt: "desc" },
     });

@@ -1,4 +1,3 @@
-import { prisma } from "../../lib/prisma.js";
 import { AppError } from "../../utils/AppError.js";
 import { WeeklyMapper } from "./weekly.mapper.js";
 import weeklyRepository from "./weekly.repository.js";
@@ -6,7 +5,6 @@ import { CreateWeeklyTaskDTO, UpdateWeeklyTaskDTO } from "./weekly.schema.js";
 
 /**
  * WeeklyService — business logic for the weekly planner.
- *
  */
 class WeeklyService {
   /** Ensure a plan exists for the week, then return the full plan+tasks. */
@@ -70,11 +68,12 @@ class WeeklyService {
 
     if (!task) throw new AppError("Weekly task not found", 404);
 
-    const plan = await prisma.weeklyPlan.findFirst({
-      where: { id: task.weeklyPlanId, userId },
-    });
+    const belongsToUser = await weeklyRepository.planExistsForUser(
+      task.weeklyPlanId,
+      userId,
+    );
 
-    if (!plan) throw new AppError("Weekly task not found", 404);
+    if (!belongsToUser) throw new AppError("Weekly task not found", 404);
 
     return task;
   }

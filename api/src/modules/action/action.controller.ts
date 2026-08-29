@@ -1,38 +1,17 @@
 import { Request, Response } from "express";
-import { AppError } from "../../utils/AppError.js";
 import { catchAsync } from "../../utils/CatchAsync.js";
 import { actionService } from "./action.container.js";
 import { sendResponse } from "../../utils/sendResponse.js";
+import { getParamId, getUserId } from "../../utils/request.helper.js";
 
 /* -------------------------------------------------------------------------- */
-/*                                  HELPERS                                   */
-/* -------------------------------------------------------------------------- */
-
-const getParamId = (req: Request): string => {
-  const id = req.params.id;
-
-  if (typeof id !== "string") {
-    throw new AppError("Invalid action id", 400);
-  }
-
-  return id;
-};
-
-const getUserId = (req: Request): string => {
-  if (!req.user?.id) {
-    throw new AppError("Unauthorized", 401);
-  }
-
-  return req.user.id;
-};
-
-/* -------------------------------------------------------------------------- */
-/*                                 CREATE TASK                                */
+/*                                CREATE ACTION                               */
 /* -------------------------------------------------------------------------- */
 
 export const createActionController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await actionService.createAction(req.user.id, req.body);
+    const userId = getUserId(req);
+    const result = await actionService.createAction(userId, req.body);
 
     sendResponse(res, 201, {
       success: true,
@@ -43,7 +22,7 @@ export const createActionController = catchAsync(
 );
 
 /* -------------------------------------------------------------------------- */
-/*                              GET ALL TASKS                                 */
+/*                               GET ALL ACTIONS                              */
 /* -------------------------------------------------------------------------- */
 
 export const getActionsController = catchAsync(
@@ -54,14 +33,14 @@ export const getActionsController = catchAsync(
 
     sendResponse(res, 200, {
       success: true,
-      message: "Action fetched successfully",
+      message: "Actions fetched successfully",
       data: result,
     });
   },
 );
 
 /* -------------------------------------------------------------------------- */
-/*                              GET TASK BY ID                                */
+/*                              GET ACTION BY ID                              */
 /* -------------------------------------------------------------------------- */
 
 export const getActionByIdController = catchAsync(
@@ -80,7 +59,7 @@ export const getActionByIdController = catchAsync(
 );
 
 /* -------------------------------------------------------------------------- */
-/*                                 UPDATE TASK                                */
+/*                                UPDATE ACTION                               */
 /* -------------------------------------------------------------------------- */
 
 export const updateActionController = catchAsync(
@@ -99,7 +78,7 @@ export const updateActionController = catchAsync(
 );
 
 /* -------------------------------------------------------------------------- */
-/*                                 DELETE TASK                                */
+/*                                DELETE ACTION                               */
 /* -------------------------------------------------------------------------- */
 
 export const deleteActionController = catchAsync(

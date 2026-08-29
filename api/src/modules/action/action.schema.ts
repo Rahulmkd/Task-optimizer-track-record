@@ -2,22 +2,20 @@ import { z } from "zod";
 
 export const createActionSchema = z
   .object({
-    actionName: z.string().min(1, "Require valid Action Name").max(200),
+    actionName: z.string().trim().min(1, "Action name is required").max(200),
   })
   .strict();
 
 export const updateActionSchema = z
   .object({
-    actionName: z.string().min(1, "Require valid Action").max(200).optional(),
+    actionName: z
+      .string()
+      .trim()
+      .min(1, "Action name is required")
+      .max(200)
+      .optional(),
   })
   .strict();
 
-export const actionIdParamSchema = z
-  .object({
-    id: z.string().uuid("Invalid Action id"),
-  })
-  .strict();
-
-export type createActionDTO = z.infer<typeof createActionSchema>;
-export type updateActionDTO = z.infer<typeof updateActionSchema>;
-export type taskIdParamDTO = z.infer<typeof actionIdParamSchema>;
+export type CreateActionDTO = z.infer<typeof createActionSchema>;
+export type UpdateActionDTO = z.infer<typeof updateActionSchema>;

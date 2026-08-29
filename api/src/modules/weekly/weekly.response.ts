@@ -13,7 +13,7 @@ export interface WeeklyTaskResponseDTO {
   updatedAt: Date;
 }
 
-/** DTO for a weekly plan with all its tasks grouped by day. */
+/** DTO for a weekly plan with all its tasks (flat list; group by `day` client-side if needed). */
 export interface WeeklyPlanResponseDTO {
   id: string;
   userId: string;

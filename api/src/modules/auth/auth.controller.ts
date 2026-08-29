@@ -4,6 +4,7 @@ import { authService } from "./auth.container.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { destroyCookies, setCookies } from "../../utils/auth.helper.js";
 import { AppError } from "../../utils/AppError.js";
+import { getUserId } from "../../utils/request.helper.js";
 
 /* -------------------------------------------------------------------------- */
 /*                                  REGISTER                                  */
@@ -11,7 +12,7 @@ import { AppError } from "../../utils/AppError.js";
 
 export const registerUserController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await authService.registerUserService(req.body);
+    const result = await authService.registerUser(req.body);
 
     setCookies(res, result.refreshToken);
 
@@ -53,7 +54,8 @@ export const loginUserController = catchAsync(
 
 export const getCurrentUserController = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await authService.getCurrentUser(req.user.id);
+    const userId = getUserId(req);
+    const result = await authService.getCurrentUser(userId);
 
     sendResponse(res, 200, {
       success: true,
@@ -69,10 +71,10 @@ export const getCurrentUserController = catchAsync(
 
 export const logoutController = catchAsync(
   async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
 
-    if (refreshToken) {
-      await authService.logout({ refreshToken });
+    if (typeof refreshToken === "string" && refreshToken) {
+      await authService.logout(refreshToken);
     }
 
     destroyCookies(res);
@@ -88,9 +90,9 @@ export const logoutController = catchAsync(
 /*                             LOGOUT ALL DEVICES                             */
 /* -------------------------------------------------------------------------- */
 
-export const logoutAllDevices = catchAsync(
+export const logoutAllDevicesController = catchAsync(
   async (req: Request, res: Response) => {
-    const userId = req.user.id;
+    const userId = getUserId(req);
 
     await authService.logoutAllDevices(userId);
 
@@ -109,13 +111,13 @@ export const logoutAllDevices = catchAsync(
 
 export const refreshTokenController = catchAsync(
   async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies?.refreshToken;
 
-    if (!refreshToken) {
+    if (typeof refreshToken !== "string" || !refreshToken) {
       throw new AppError("No refresh token provided", 403);
     }
 
-    const result = await authService.refreshToken({ refreshToken });
+    const result = await authService.refreshToken(refreshToken);
 
     // Rotate refresh token
     setCookies(res, result.refreshToken);

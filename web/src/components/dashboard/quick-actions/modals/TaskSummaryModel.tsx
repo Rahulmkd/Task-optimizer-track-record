@@ -148,10 +148,8 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
   const [generateJournal, { data, isLoading, isError, error, reset }] =
     useGenerateJournalMutation();
 
-  const [
-    saveJournal,
-    { isLoading: isSaving, isSuccess: isSaved },
-  ] = useSaveJournalMutation();
+  const [saveJournal, { isLoading: isSaving, isSuccess: isSaved }] =
+    useSaveJournalMutation();
 
   // Close on Escape
   useEffect(() => {
@@ -206,7 +204,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
       toast.success("Journal saved");
       reset();
       onClose();
-      router.push(ROUTES.ANALYTICS);
+      router.push(ROUTES.DASHBOARD);
     } catch (err) {
       const message =
         (err as { data?: { message?: string } })?.data?.message ??

@@ -1,12 +1,11 @@
 import { AppError } from "../../utils/AppError.js";
 import { AIMapper } from "./ai.mapper.js";
-import { JournalAIResponse } from "./ai.interface.js";
+import { journalAIResponseSchema, SaveJournalDTO } from "./ai.schema.js";
 import { JsonParser } from "./parsers/json.parser.js";
 import { journalPrompt } from "./prompts/journal.prompt.js";
 import { TaskFormatter } from "./utils/taskFormatter.js";
 import aiProvider from "./providers/index.js";
 import aiRepository from "./ai.repository.js";
-import { SaveJournalDTO } from "./ai.schema.js";
 
 /**
  * AIService — orchestrates journal generation and retrieval.
@@ -15,9 +14,13 @@ import { SaveJournalDTO } from "./ai.schema.js";
  *  1. Fetch today's tasks from the database
  *  2. Format them into readable plain text
  *  3. Build the prompt and call the AI provider
- *  4. Parse the AI's JSON response
- *  5. Persist the analysis (excluding the transient suggestion)
- *  6. Return the full DTO with suggestion for this response
+ *  4. Parse and validate the AI's JSON response against journalAIResponseSchema
+ *  5. Return the result to the client — nothing is persisted here
+ *
+ * Persistence happens separately: the client reviews the generated journal,
+ * then calls POST /ai/save (-> saveJournal below) to actually store it.
+ * This two-step flow is intentional — it lets the user see and discard a
+ * generation without it silently becoming a permanent journal entry.
  *
  * getAllJournals:
  *  - Returns the user's full journal history, newest first
@@ -36,19 +39,28 @@ class AIService {
 
     const formattedTasks = TaskFormatter.format(tasks);
     const prompt = journalPrompt(formattedTasks);
-    const aiResponse = await aiProvider.invoke(prompt);
 
-    const parsed = JsonParser.parse(
-      aiResponse.content.toString(),
-    ) as JournalAIResponse;
+    let aiResponse;
+    try {
+      aiResponse = await aiProvider.invoke(prompt);
+    } catch {
+      throw new AppError(
+        "The AI service is temporarily unavailable. Please try again shortly.",
+        502,
+      );
+    }
 
-    return {
-      summary: parsed.summary,
-      completedTasks: parsed.completedTasks,
-      pendingTasks: parsed.pendingTasks,
-      productivityScore: parsed.productivityScore,
-      suggestion: parsed.suggestion,
-    };
+    const parsedJson = JsonParser.parse(aiResponse.content.toString());
+    const result = journalAIResponseSchema.safeParse(parsedJson);
+
+    if (!result.success) {
+      throw new AppError(
+        "The AI returned an unexpected response. Please try again.",
+        502,
+      );
+    }
+
+    return result.data;
   }
 
   async saveJournal(userId: string, data: SaveJournalDTO) {

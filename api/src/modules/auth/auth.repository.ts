@@ -3,12 +3,15 @@ import { IAuthRepository } from "./auth.interface.js";
 
 export class AuthRepository implements IAuthRepository {
   async getUserByEmail(email: string) {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
+    return prisma.user.findUnique({
+      where: { email },
     });
-    return user;
+  }
+
+  async getUserById(userId: string) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+    });
   }
 
   async createUser(data: {
@@ -17,10 +20,7 @@ export class AuthRepository implements IAuthRepository {
     password: string;
     phoneNumber: string;
   }) {
-    const user = await prisma.user.create({
-      data,
-    });
-    return user;
+    return prisma.user.create({ data });
   }
 
   async createRefreshToken(data: {
@@ -28,44 +28,32 @@ export class AuthRepository implements IAuthRepository {
     userId: string;
     expiresAt: Date;
   }) {
-    const token = await prisma.refreshToken.create({
-      data,
-    });
-    return token;
-  }
-
-  async getUserById(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-    });
-    return user;
+    return prisma.refreshToken.create({ data });
   }
 
   async findRefreshToken(hashedRefreshToken: string) {
-    const refreshToken = await prisma.refreshToken.findUnique({
-      where: {
-        token: hashedRefreshToken,
-      },
+    return prisma.refreshToken.findUnique({
+      where: { token: hashedRefreshToken },
     });
-
-    return refreshToken;
   }
 
-  async deleteRefreshTokenById(refreshTokenId: string) {
-    await prisma.refreshToken.delete({
-      where: {
-        id: refreshTokenId,
-      },
+  async deleteRefreshTokenByToken(
+    hashedRefreshToken: string,
+  ): Promise<boolean> {
+    // deleteMany + a where clause on the unique `token` column is atomic
+    // at the database level, unlike a separate findUnique -> delete(id)
+    // pair. If two requests race on the same token, only one delete can
+    // ever match a row; the second sees count 0 and knows it lost the race.
+    const result = await prisma.refreshToken.deleteMany({
+      where: { token: hashedRefreshToken },
     });
+
+    return result.count > 0;
   }
 
   async deleteAllRefreshTokenByUserId(userId: string) {
-    await prisma.refreshToken.deleteMany({
-      where: {
-        userId,
-      },
+    return prisma.refreshToken.deleteMany({
+      where: { userId },
     });
   }
 }

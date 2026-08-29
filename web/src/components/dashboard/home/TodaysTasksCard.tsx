@@ -16,7 +16,7 @@ import { TaskSummaryModel } from "../quick-actions/modals/TaskSummaryModel";
 import { EditTaskModal } from "../quick-actions/modals/EditTaskModal";
 import { TaskRow } from "../quick-actions";
 import { Task } from "../quick-actions/types/quickActions.types";
-import { CategoryChips } from "./CategoryChips";
+
 
 const toUiTask = (task: ITask): Task => ({
   id: task.id,

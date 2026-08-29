@@ -9,7 +9,6 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   DASHBOARD: "/dashboard",
-  ANALYTICS: "/analytics",
 } as const;
 
 export const DEMO_CREDENTIALS = {

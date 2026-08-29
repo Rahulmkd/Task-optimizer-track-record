@@ -1,6 +1,7 @@
-import { IJwtPayload } from "../../types/index.js";
+import { User } from "@prisma/client";
 import { AppError } from "../../utils/AppError.js";
 import {
+  REFRESH_TOKEN_TTL_MS,
   comparePassword,
   hashPassword,
   hashRefreshToken,
@@ -12,17 +13,12 @@ import {
 } from "../../utils/Jwt.helper.js";
 import { IAuthRepository } from "./auth.interface.js";
 import { toJwtPayload, toUserResponse } from "./auth.mapper.js";
-import {
-  loginUserDTO,
-  logoutUserDTO,
-  refreshTokenDTO,
-  registerUserDTO,
-} from "./auth.schema.js";
+import { LoginUserDTO, RegisterUserDTO } from "./auth.schema.js";
 
 export class AuthService {
   constructor(private userRepo: IAuthRepository) {}
 
-  async registerUserService(data: registerUserDTO) {
+  async registerUser(data: RegisterUserDTO) {
     const { name, email, password, phoneNumber } = data;
 
     const existingUser = await this.userRepo.getUserByEmail(email);
@@ -40,62 +36,35 @@ export class AuthService {
       phoneNumber,
     });
 
-    const jwtPayload = toJwtPayload(newUser);
+    const tokens = await this.issueTokens(newUser);
 
-    const accessToken = generateAccessToken(jwtPayload);
-    const refreshToken = generateRefreshToken(jwtPayload);
-
-    const hashedRefreshToken = hashRefreshToken(refreshToken);
-
-    await this.userRepo.createRefreshToken({
-      token: hashedRefreshToken,
-      userId: newUser.id,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
-    return {
-      user: toUserResponse(newUser),
-      accessToken,
-      refreshToken,
-    };
+    return { user: toUserResponse(newUser), ...tokens };
   }
 
-  async loginUser(data: loginUserDTO) {
+  async loginUser(data: LoginUserDTO) {
     const { email, password } = data;
 
     const existingUser = await this.userRepo.getUserByEmail(email);
 
-    if (!existingUser) {
-      throw new AppError("Invalid credentials", 401);
-    }
+    // Compare against a dummy hash even when the user doesn't exist, so
+    // login takes roughly the same amount of time either way and an
+    // attacker can't use response timing to enumerate valid emails.
+    const passwordToCompare =
+      existingUser?.password ??
+      "$2b$10$CwTycUXWue0Thq9StjUM0uJ8Zi1cd7d1Xrb1SxlOK4E.OKV0mV5Ee";
 
     const isPasswordCorrect = await comparePassword(
       password,
-      existingUser.password,
+      passwordToCompare,
     );
 
-    if (!isPasswordCorrect) {
+    if (!existingUser || !isPasswordCorrect) {
       throw new AppError("Invalid credentials", 401);
     }
 
-    const jwtPayload = toJwtPayload(existingUser);
+    const tokens = await this.issueTokens(existingUser);
 
-    const accessToken = generateAccessToken(jwtPayload);
-    const refreshToken = generateRefreshToken(jwtPayload);
-
-    const hashedRefreshToken = hashRefreshToken(refreshToken);
-
-    await this.userRepo.createRefreshToken({
-      token: hashedRefreshToken,
-      userId: existingUser.id,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
-    return {
-      user: toUserResponse(existingUser),
-      accessToken,
-      refreshToken,
-    };
+    return { user: toUserResponse(existingUser), ...tokens };
   }
 
   async getCurrentUser(userId: string) {
@@ -108,44 +77,25 @@ export class AuthService {
     return toUserResponse(user);
   }
 
-  async logout(data: logoutUserDTO) {
-    const { refreshToken } = data;
+  /** Logging out with no/unknown refresh token is a no-op, not an error. */
+  async logout(refreshToken: string): Promise<void> {
     const hashedRefreshToken = hashRefreshToken(refreshToken);
-
-    const existingRefreshToken =
-      await this.userRepo.findRefreshToken(hashedRefreshToken);
-
-    if (!existingRefreshToken) {
-      return true;
-    }
-
-    await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
-    return true;
+    await this.userRepo.deleteRefreshTokenByToken(hashedRefreshToken);
   }
 
-  async logoutAllDevices(userId: string) {
+  async logoutAllDevices(userId: string): Promise<void> {
     await this.userRepo.deleteAllRefreshTokenByUserId(userId);
-
-    return true;
   }
 
-  async refreshToken(data: refreshTokenDTO) {
-    const { refreshToken } = data;
-
+  async refreshToken(oldRefreshToken: string) {
     let decoded;
     try {
-      decoded = verifyRefreshToken(refreshToken) as IJwtPayload;
-    } catch (error) {
+      decoded = verifyRefreshToken(oldRefreshToken);
+    } catch {
       throw new AppError("Invalid or expired refresh token", 403);
     }
 
-    const user = await this.userRepo.getUserById(decoded.id);
-
-    if (!user) {
-      throw new AppError("User not found", 404);
-    }
-
-    const hashedOldRefreshToken = hashRefreshToken(refreshToken);
+    const hashedOldRefreshToken = hashRefreshToken(oldRefreshToken);
 
     const existingRefreshToken = await this.userRepo.findRefreshToken(
       hashedOldRefreshToken,
@@ -155,29 +105,43 @@ export class AuthService {
       throw new AppError("Refresh token not found or already used", 403);
     }
 
+    // Atomically consume the token before doing anything else, so two
+    // concurrent requests presenting the same refresh token can't both
+    // succeed — the loser's delete affects 0 rows (see auth.repository.ts).
+    const wasDeleted = await this.userRepo.deleteRefreshTokenByToken(
+      hashedOldRefreshToken,
+    );
+
+    if (!wasDeleted) {
+      throw new AppError("Refresh token not found or already used", 403);
+    }
+
     if (existingRefreshToken.expiresAt < new Date()) {
-      await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
       throw new AppError("Refresh token has expired, please log in again", 403);
     }
 
-    await this.userRepo.deleteRefreshTokenById(existingRefreshToken.id);
+    const user = await this.userRepo.getUserById(decoded.id);
 
-    const newJwtPayload = toJwtPayload(user);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
 
-    const newAccessToken = generateAccessToken(newJwtPayload);
-    const newRefreshToken = generateRefreshToken(newJwtPayload);
+    return this.issueTokens(user);
+  }
 
-    const hashedNewRefreshToken = hashRefreshToken(newRefreshToken);
+  /** Signs a fresh token pair for a user and persists the refresh token. */
+  private async issueTokens(user: User) {
+    const jwtPayload = toJwtPayload(user);
+
+    const accessToken = generateAccessToken(jwtPayload);
+    const refreshToken = generateRefreshToken(jwtPayload);
 
     await this.userRepo.createRefreshToken({
-      token: hashedNewRefreshToken,
-      userId: decoded.id,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      token: hashRefreshToken(refreshToken),
+      userId: user.id,
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
     });
 
-    return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 }

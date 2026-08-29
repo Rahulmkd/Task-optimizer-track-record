@@ -44,6 +44,9 @@ export interface IWeeklyRepository {
   /** Find a single weekly task by id. */
   getTaskById(taskId: string): Promise<WeeklyTask | null>;
 
+  /** Whether the given plan id belongs to the given user. */
+  planExistsForUser(planId: string, userId: string): Promise<boolean>;
+
   /** Hard-delete a weekly task. */
   deleteTask(taskId: string): Promise<void>;
 }

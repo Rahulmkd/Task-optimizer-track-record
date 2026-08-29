@@ -1,12 +1,12 @@
 import { AppError } from "../../utils/AppError.js";
-import { IActionRepository } from "./action.interface.js";
+import { ActionWithTaskCount, IActionRepository } from "./action.interface.js";
 import { toActionListResponse, toActionResponse } from "./action.mapper.js";
-import { createActionDTO, updateActionDTO } from "./action.schema.js";
+import { CreateActionDTO, UpdateActionDTO } from "./action.schema.js";
 
 export class ActionService {
   constructor(private actionRepo: IActionRepository) {}
 
-  async createAction(userId: string, data: createActionDTO) {
+  async createAction(userId: string, data: CreateActionDTO) {
     const { actionName } = data;
 
     const action = await this.actionRepo.createAction({
@@ -25,30 +25,13 @@ export class ActionService {
   }
 
   async getActionById(userId: string, actionId: string) {
-    const action = await this.actionRepo.getActionById(actionId);
-
-    if (!action) {
-      throw new AppError("Action not found", 404);
-    }
-
-    // ensure a user can't read another user's action by id.
-    if (action.userId !== userId) {
-      throw new AppError("Action not found", 404);
-    }
+    const action = await this.assertOwnership(userId, actionId);
 
     return toActionResponse(action);
   }
 
-  async updateAction(userId: string, actionId: string, data: updateActionDTO) {
-    const existingAction = await this.actionRepo.getActionById(actionId);
-
-    if (!existingAction) {
-      throw new AppError("Action not found", 404);
-    }
-
-    if (existingAction.userId !== userId) {
-      throw new AppError("Action not found", 404);
-    }
+  async updateAction(userId: string, actionId: string, data: UpdateActionDTO) {
+    const existingAction = await this.assertOwnership(userId, actionId);
 
     const updatedAction = await this.actionRepo.updateAction(actionId, data);
 
@@ -56,15 +39,7 @@ export class ActionService {
   }
 
   async deleteAction(userId: string, actionId: string) {
-    const existingAction = await this.actionRepo.getActionById(actionId);
-
-    if (!existingAction) {
-      throw new AppError("Action not found", 404);
-    }
-
-    if (existingAction.userId !== userId) {
-      throw new AppError("Action not found", 404);
-    }
+    const existingAction = await this.assertOwnership(userId, actionId);
 
     const taskCount = existingAction._count.tasks;
 
@@ -74,8 +49,27 @@ export class ActionService {
         409,
       );
     }
-
     await this.actionRepo.deleteAction(actionId);
     return true;
+  }
+
+  /**
+   * Shared ownership guard used by every read/mutation. Returns 404 (not
+   * 403) whether the action is missing or belongs to someone else, so a
+   * caller can't distinguish "doesn't exist" from "not yours" and enumerate
+   * other users' action ids.
+   */
+
+  private async assertOwnership(
+    userId: string,
+    actionId: string,
+  ): Promise<ActionWithTaskCount> {
+    const action = await this.actionRepo.getActionById(actionId);
+
+    if (!action || action.userId !== userId) {
+      throw new AppError("Action not found", 404);
+    }
+
+    return action;
   }
 }

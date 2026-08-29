@@ -11,13 +11,10 @@ export interface IActionRepository {
 
   updateAction(
     actionId: string,
-
     data: Partial<{
       actionName: string;
     }>,
   ): Promise<Action>;
-
-  countTasksForAction(actionId: string): Promise<number>;
 
   deleteAction(actionId: string): Promise<void>;
 }

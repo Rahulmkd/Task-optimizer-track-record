@@ -3,6 +3,7 @@ import { verifyUser } from "../../middlewares/auth.middleware.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import {
   createWeeklyTaskSchema,
+  getWeeklyPlanSchema,
   updateWeeklyTaskSchema,
 } from "./weekly.schema.js";
 import weeklyController from "./weekly.controller.js";
@@ -20,7 +21,11 @@ const router = Router();
 
 router.use(verifyUser);
 
-router.get("/", weeklyController.getPlan);
+router.get(
+  "/",
+  validate(getWeeklyPlanSchema, "query"),
+  weeklyController.getPlan,
+);
 
 router.post(
   "/tasks",

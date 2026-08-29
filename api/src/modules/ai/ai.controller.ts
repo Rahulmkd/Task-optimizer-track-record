@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { catchAsync } from "../../utils/CatchAsync.js";
+import { getUserId } from "../../utils/request.helper.js";
 import aiService from "./ai.service.js";
 import { sendResponse } from "../../utils/sendResponse.js";
-import { SaveJournalDTO } from "./ai.schema.js";
 
 /**
  * AIController — HTTP handlers for AI-powered features.
@@ -13,11 +13,12 @@ import { SaveJournalDTO } from "./ai.schema.js";
 class AIController {
   /**
    * POST /api/v1/ai/journal
-   * Generate a daily productivity journal for the authenticated user.
-   * Reads today's tasks, sends them to the AI, persists the result, and
+   * Generates a daily productivity journal for the authenticated user from
+   * today's tasks. This does NOT persist anything — it's a preview the
+   * client can discard or send to POST /ai/save to store permanently.
    */
   generateJournal = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
+    const userId = getUserId(req);
     const result = await aiService.generateJournal(userId);
 
     sendResponse(res, 200, {
@@ -27,15 +28,18 @@ class AIController {
     });
   });
 
+  /**
+   * POST /api/v1/ai/save
+   * Persists a previously generated journal entry for today.
+   */
   saveJournal = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
-    const data = req.body as SaveJournalDTO;
+    const userId = getUserId(req);
 
-    const result = await aiService.saveJournal(userId, data);
+    const result = await aiService.saveJournal(userId, req.body);
 
     sendResponse(res, 200, {
       success: true,
-      message: "Journal save in Database successfully.",
+      message: "Journal saved successfully.",
       data: result,
     });
   });
@@ -46,12 +50,12 @@ class AIController {
    * Used by the Analytics / Journal history page.
    */
   getAllJournals = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.id;
+    const userId = getUserId(req);
     const result = await aiService.getAllJournals(userId);
 
     sendResponse(res, 200, {
       success: true,
-      message: "Journals fetched from Database successfully.",
+      message: "Journals fetched successfully.",
       data: result,
     });
   });

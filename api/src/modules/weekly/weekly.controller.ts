@@ -2,14 +2,20 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/CatchAsync.js";
 import weeklyService from "./weekly.service.js";
 import { sendResponse } from "../../utils/sendResponse.js";
+import { getParamId, getUserId } from "../../utils/request.helper.js";
+import { GetWeeklyPlanDTO } from "./weekly.schema.js";
 
 class WeeklyController {
   /**
    * GET /api/v1/weekly?weekStart=2026-07-20
+   * weekStart is validated by the `validate` middleware (query mode)
+   * before this handler runs — see weekly.routes.ts.
    */
   getPlan = catchAsync(async (req: Request, res: Response) => {
-    const { weekStart } = req.query as { weekStart: string };
-    const result = await weeklyService.getOrCreatePlan(req.user.id, weekStart);
+    const userId = getUserId(req);
+    const { weekStart } = req.query as unknown as GetWeeklyPlanDTO;
+
+    const result = await weeklyService.getOrCreatePlan(userId, weekStart);
 
     sendResponse(res, 200, {
       success: true,
@@ -23,7 +29,8 @@ class WeeklyController {
    * Create a new task, auto-creating the week plan if needed.
    */
   createTask = catchAsync(async (req: Request, res: Response) => {
-    const result = await weeklyService.createTask(req.user.id, req.body);
+    const userId = getUserId(req);
+    const result = await weeklyService.createTask(userId, req.body);
 
     sendResponse(res, 201, {
       success: true,
@@ -37,12 +44,10 @@ class WeeklyController {
    * Update any fields on a task (including completed).
    */
   updateTask = catchAsync(async (req: Request, res: Response) => {
-    const taskId = req.params.id as string;
-    const result = await weeklyService.updateTask(
-      req.user.id,
-      taskId,
-      req.body,
-    );
+    const userId = getUserId(req);
+    const taskId = getParamId(req);
+
+    const result = await weeklyService.updateTask(userId, taskId, req.body);
 
     sendResponse(res, 200, {
       success: true,
@@ -56,8 +61,10 @@ class WeeklyController {
    * Flip the completed flag.
    */
   toggleTask = catchAsync(async (req: Request, res: Response) => {
-    const taskId = req.params.id as string;
-    const result = await weeklyService.toggleTask(req.user.id, taskId);
+    const userId = getUserId(req);
+    const taskId = getParamId(req);
+
+    const result = await weeklyService.toggleTask(userId, taskId);
 
     sendResponse(res, 200, {
       success: true,
@@ -71,8 +78,10 @@ class WeeklyController {
    * Hard-delete a task.
    */
   deleteTask = catchAsync(async (req: Request, res: Response) => {
-    const taskId = req.params.id as string;
-    await weeklyService.deleteTask(req.user.id, taskId);
+    const userId = getUserId(req);
+    const taskId = getParamId(req);
+
+    await weeklyService.deleteTask(userId, taskId);
 
     sendResponse(res, 200, {
       success: true,

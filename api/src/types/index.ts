@@ -7,6 +7,4 @@ export type ApiResponse<T> = {
 export interface IJwtPayload {
   id: string;
   email: string;
-  createdAt: Date;
-  updatedAt: Date;
 }

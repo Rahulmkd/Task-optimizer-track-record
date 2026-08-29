@@ -19,6 +19,7 @@ import {
   Zap,
   ListTodo,
   Map,
+  CheckLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/constants/constants";
@@ -26,9 +27,10 @@ import { APP_NAME } from "@/constants/constants";
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/my-tasks", icon: ListTodo, label: "My Tasks" },
+  { href: "/checklist", icon: CheckLine, label: "Checklist" },
   { href: "/roadmap", icon: Map, label: "Roadmap" },
-  { href: "/analytics", icon: BarChart3, label: "Analytics" },
-  { href: "/journal", icon: ScrollText, label: "Journals" },
+  { href: "/progress", icon: BarChart3, label: "Progress" },
+  { href: "/story", icon: ScrollText, label: "My Story" },
   { href: "/settings", icon: Settings, label: "Settings" },
   { href: "/profile", icon: User, label: "Profile" },
 ];

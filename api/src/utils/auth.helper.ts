@@ -1,11 +1,15 @@
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { Response } from "express";
+import { CookieOptions, Response } from "express";
 import { NODE_ENV } from "../config/env.config.js";
 import { prisma } from "../lib/prisma.js";
 
+const SALT_ROUNDS = 10;
+
+export const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 export const hashPassword = async (password: string): Promise<string> => {
-  return bcrypt.hash(password, 10);
+  return bcrypt.hash(password, SALT_ROUNDS);
 };
 
 export const comparePassword = async (
@@ -21,21 +25,25 @@ export const hashRefreshToken = (refreshToken: string): string => {
 
 const isProduction = NODE_ENV === "production";
 
-export const setCookies = (res: Response, refreshToken: string) => {
+const refreshCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  path: "/",
+};
+
+export const setCookies = (
+  res: Response,
+  refreshToken: string,
+): void => {
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000,
+    ...refreshCookieOptions,
+    maxAge: REFRESH_TOKEN_TTL_MS,
   });
 };
 
-export const destroyCookies = (res: Response) => {
-  res.clearCookie("refreshToken", {
-    httpOnly: true,
-    secure: NODE_ENV === "production",
-    sameSite: "lax",
-  });
+export const destroyCookies = (res: Response): void => {
+  res.clearCookie("refreshToken", refreshCookieOptions);
 };
 
 export const getUserById = async (userId: string) => {

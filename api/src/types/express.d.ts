@@ -1,9 +1,9 @@
-import { IJwtPayload } from "./index.ts";
+import { IJwtPayload } from "./index.js";
 
 declare global {
   namespace Express {
     interface Request {
-      user: IJwtPayload;
+      user?: IJwtPayload;
     }
   }
 }

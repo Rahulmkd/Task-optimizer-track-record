@@ -8,27 +8,27 @@ import {
   JWT_REFRESH_TOKEN_SECRET,
 } from "../config/env.config.js";
 
-const accessTokenSecret = JWT_ACCESS_TOKEN_SECRET!;
+const accessTokenSecret = JWT_ACCESS_TOKEN_SECRET;
 const accessTokenExpiry = JWT_ACCESS_TOKEN_EXPIRY as SignOptions["expiresIn"];
-const refreshTokenSecret = JWT_REFRESH_TOKEN_SECRET!;
+const refreshTokenSecret = JWT_REFRESH_TOKEN_SECRET;
 const refreshTokenExpiry = JWT_REFRESH_TOKEN_EXPIRY as SignOptions["expiresIn"];
 
-export const generateAccessToken = (user: IJwtPayload) => {
-  return jwt.sign(user, accessTokenSecret, {
+export const generateAccessToken = (payload: IJwtPayload): string => {
+  return jwt.sign(payload, accessTokenSecret, {
     expiresIn: accessTokenExpiry,
   });
 };
 
-export const generateRefreshToken = (user: IJwtPayload) => {
-  return jwt.sign(user, refreshTokenSecret, {
+export const generateRefreshToken = (payload: IJwtPayload): string => {
+  return jwt.sign(payload, refreshTokenSecret, {
     expiresIn: refreshTokenExpiry,
   });
 };
 
-export const verifyAccessToken = (token: string) => {
-  return jwt.verify(token, accessTokenSecret);
+export const verifyAccessToken = (token: string): IJwtPayload => {
+  return jwt.verify(token, accessTokenSecret) as IJwtPayload;
 };
 
-export const verifyRefreshToken = (token: string) => {
-  return jwt.verify(token, refreshTokenSecret);
+export const verifyRefreshToken = (token: string): IJwtPayload => {
+  return jwt.verify(token, refreshTokenSecret) as IJwtPayload;
 };

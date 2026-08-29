@@ -2,23 +2,23 @@ import { NextFunction, Request, Response } from "express";
 import { ZodObject } from "zod";
 import { AppError } from "../utils/AppError.js";
 
-export const validate =  (schema: ZodObject<any>) =>
+type RequestPart = "body" | "query" | "params";
+
+const formatIssues = (issues: { path: PropertyKey[]; message: string }[]) =>
+  issues
+    .map((issue) => `${issue.path.join(".") || "value"}: ${issue.message}`)
+    .join(", ");
+
+export const validate =
+  (schema: ZodObject<any>, part: RequestPart = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(req[part]);
 
     if (!result.success) {
-      const errors = result.error.issues.map((err) => ({
-        field: err.path.join(""),
-        message: err.message,
-      }));
-
-      throw new AppError(
-        errors.map((e) => `${e.field}: ${e.message}`).join(", "),
-        400,
-      );
+      throw new AppError(formatIssues(result.error.issues), 400);
     }
 
-    req.body = result.data;
+    Object.assign(req[part] as object, result.data);
 
     next();
   };

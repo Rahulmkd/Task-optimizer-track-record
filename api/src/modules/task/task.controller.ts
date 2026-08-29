@@ -2,29 +2,7 @@ import { Request, Response } from "express";
 import { catchAsync } from "../../utils/CatchAsync.js";
 import { taskService } from "./task.container.js";
 import { sendResponse } from "../../utils/sendResponse.js";
-import { AppError } from "../../utils/AppError.js";
-
-/* -------------------------------------------------------------------------- */
-/*                                  HELPERS                                   */
-/* -------------------------------------------------------------------------- */
-
-const getParamId = (req: Request): string => {
-  const id = req.params.id;
-
-  if (typeof id !== "string") {
-    throw new AppError("Invalid task id", 400);
-  }
-
-  return id;
-};
-
-const getUserId = (req: Request): string => {
-  if (!req.user?.id) {
-    throw new AppError("Unauthorized", 401);
-  }
-
-  return req.user.id;
-};
+import { getParamId, getUserId } from "../../utils/request.helper.js";
 
 /* -------------------------------------------------------------------------- */
 /*                                 CREATE TASK                                */
