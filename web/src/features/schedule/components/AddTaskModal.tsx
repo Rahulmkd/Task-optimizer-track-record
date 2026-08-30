@@ -12,14 +12,15 @@ import {
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Backdrop } from "@/components/dashboard/quick-actions/modals/Backdrop";
-import { ModelPanel } from "@/components/dashboard/quick-actions/modals/ModalPanel";
+import { Backdrop } from "@/components/ui/Backdrop";
+import { ModalPanel } from "@/components/ui/ModalPanel";
 
 import { cn } from "@/lib/utils";
-import { Priority, WeekDay } from "@/features/planning/types/weekly.types";
-import { useCreateWeeklyTaskMutation } from "@/features/planning/services/weekly.service";
+import { Priority, WeekDay } from "@/features/schedule/types/weekly.types";
+import { useCreateWeeklyTaskMutation } from "@/features/schedule/services/weekly.service";
+import { CATEGORY_VALUES } from "../utils/next-week-schedule.utils";
 
-import { CATEGORY_VALUES } from "../next-week-schedule.utils";
+
 
 /* -------------------------------------------------------------------------- */
 /*                               CONSTANTS                                    */
@@ -156,7 +157,7 @@ export function AddTaskModal({
 
   return (
     <Backdrop onClick={onClose}>
-      <ModelPanel>
+      <ModalPanel>
         {/* ── Header ─────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
@@ -250,7 +251,9 @@ export function AddTaskModal({
               <DarkSelect
                 icon={FolderKanban}
                 value={category}
-                onChange={(v) => setCategory(v as (typeof CATEGORY_VALUES)[number])}
+                onChange={(v) =>
+                  setCategory(v as (typeof CATEGORY_VALUES)[number])
+                }
               >
                 {CATEGORY_VALUES.map((c) => (
                   <option key={c} value={c}>
@@ -299,7 +302,7 @@ export function AddTaskModal({
             </Button>
           </div>
         </div>
-      </ModelPanel>
+      </ModalPanel>
     </Backdrop>
   );
 }

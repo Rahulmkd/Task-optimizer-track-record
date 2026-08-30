@@ -12,8 +12,8 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Backdrop } from "./Backdrop";
-import { ModelPanel } from "./ModalPanel";
+import { Backdrop } from "../../../components/ui/Backdrop";
+import { ModalPanel } from "../../../components/ui/ModalPanel";
 import { Button } from "@/components/ui/button";
 import {
   useGenerateJournalMutation,
@@ -142,7 +142,7 @@ function JournalResult({ data }: { data: IJournalPreview }) {
 /*                                  MODAL                                     */
 /* -------------------------------------------------------------------------- */
 
-export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
+export function AIAssistanceModal({ onClose }: { onClose: () => void }) {
   const router = useRouter();
 
   const [generateJournal, { data, isLoading, isError, error, reset }] =
@@ -201,7 +201,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
     try {
       await saveJournal(payload).unwrap();
 
-      toast.success("Journal saved");
+      toast.success("Saved your Story");
       reset();
       onClose();
       router.push(ROUTES.DASHBOARD);
@@ -216,7 +216,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
 
   return (
     <Backdrop onClick={handleClose}>
-      <ModelPanel>
+      <ModalPanel>
         {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
@@ -313,7 +313,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
                   disabled={isLoading || isSaving || isSaved}
                 >
                   <BookOpen className="h-3.5 w-3.5" />
-                  {isSaved ? "Saved" : "Save Journal"}
+                  {isSaved ? "Saved" : "Save"}
                 </Button>
               </>
             ) : (
@@ -334,7 +334,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
                   loading={isLoading}
                   disabled={isLoading}
                 >
-                  Generate Summary
+                  Generate Story
                 </Button>
               </>
             )}
@@ -352,7 +352,7 @@ export function TaskSummaryModel({ onClose }: { onClose: () => void }) {
             </motion.button>
           )}
         </div>
-      </ModelPanel>
+      </ModalPanel>
     </Backdrop>
   );
 }

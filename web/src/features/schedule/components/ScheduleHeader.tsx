@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { CalendarDays, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
-import { getWeekRangeLabel } from "../next-week-schedule.utils";
+import { getWeekRangeLabel } from "../utils/next-week-schedule.utils";
 
 interface ScheduleHeaderProps {
   weekStart: string;

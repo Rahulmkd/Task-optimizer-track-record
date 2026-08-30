@@ -9,7 +9,7 @@ export { TaskCard } from "./components/TaskCard";
 export { HighPriorityRemaining } from "./components/HighPriorityRemaining";
 export { ScheduleSkeleton } from "./components/ScheduleSkeleton";
 export { ScheduleError } from "./components/ScheduleError";
-export { AddTaskModal } from "./actionModals/AddTaskModal";
+export { AddTaskModal } from "./components/AddTaskModal";
 
 export {
   DAY_KEYS,
@@ -22,6 +22,6 @@ export {
   getWeekRangeLabel,
   getDayDateLabel,
   getDurationLabel,
-} from "./next-week-schedule.utils";
+} from "./utils/next-week-schedule.utils";
 
-export type { CategoryFilter } from "./next-week-schedule.utils";
+export type { CategoryFilter } from "./utils/next-week-schedule.utils";

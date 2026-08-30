@@ -3,13 +3,13 @@
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useRef, useState } from "react";
-import { Backdrop } from "./Backdrop";
+import { Backdrop } from "../../../components/ui/Backdrop";
 import { Pencil, X } from "lucide-react";
-import { ModelPanel } from "./ModalPanel";
+import { ModalPanel } from "../../../components/ui/ModalPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TimeInput } from "../components/TimeInput";
+import { TimeInput } from "../../../components/ui/TimeInput";
 import { useUpdateTaskMutation } from "@/features/tasks/services/task.service";
 import { ITask } from "@/features/tasks/types/task.types";
 
@@ -64,7 +64,7 @@ export function EditTaskModal({
 
   return (
     <Backdrop onClick={onClose}>
-      <ModelPanel>
+      <ModalPanel>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
@@ -133,7 +133,7 @@ export function EditTaskModal({
             </Button>
           </div>
         </div>
-      </ModelPanel>
+      </ModalPanel>
     </Backdrop>
   );
 }

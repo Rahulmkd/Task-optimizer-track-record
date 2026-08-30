@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { CATEGORY_FILTERS, CategoryFilter } from "../utils/next-week-schedule.utils";
 
-import { CATEGORY_FILTERS, CategoryFilter } from "../next-week-schedule.utils";
+
 
 interface CategoryFilterBarProps {
   value: CategoryFilter;

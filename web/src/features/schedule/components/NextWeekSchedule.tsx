@@ -3,13 +3,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ListTodo } from "lucide-react";
-
 import { EmptyState } from "@/components/shared/EmptyState";
-import { IWeeklyTask, WeekDay } from "@/features/planning/types/weekly.types";
-import { useGetWeeklyPlanQuery } from "@/features/planning/services/weekly.service";
-
-import { CategoryFilter, DAY_KEYS, getMondayOf, shiftWeek } from "../next-week-schedule.utils";
-
+import { IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
+import { useGetWeeklyPlanQuery } from "@/features/schedule/services/weekly.service";
 import { ScheduleHeader } from "./ScheduleHeader";
 import { CategoryFilterBar } from "./CategoryFilterBar";
 import { WeekStatsStrip } from "./WeekStatsStrip";
@@ -18,13 +14,14 @@ import { WeekGrid } from "./WeekGrid";
 import { HighPriorityRemaining } from "./HighPriorityRemaining";
 import { ScheduleSkeleton } from "./ScheduleSkeleton";
 import { ScheduleError } from "./ScheduleError";
-import { AddTaskModal } from "../actionModals/AddTaskModal";
+import { AddTaskModal } from "./AddTaskModal";
+import {
+  CategoryFilter,
+  DAY_KEYS,
+  getMondayOf,
+  shiftWeek,
+} from "../utils/next-week-schedule.utils";
 
-/**
- * Root component: fetches the current week's plan and wires every small
- * piece (header, filters, stats, day grid, high-priority callout, modal)
- * together. This is the drop-in replacement for the old <WeeklyPlanner />.
- */
 export function NextWeekSchedule() {
   const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All");
@@ -84,7 +81,7 @@ export function NextWeekSchedule() {
   // Count overdue: tasks on past days (before today in the same week) that aren't completed
   const overdue = tasks.filter((t) => {
     if (t.completed || !todayDayKey) return false;
-    const idx = DAY_KEYS.indexOf(t.day);
+    const idx = DAY_KEYS.indexOf(t.day as WeekDay);
     const todayIdx = DAY_KEYS.indexOf(todayDayKey);
     return idx < todayIdx;
   }).length;

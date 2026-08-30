@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock3 } from "lucide-react";
 
-import { IWeeklyPlanStats } from "@/features/planning/types/weekly.types";
+import { IWeeklyPlanStats } from "../types/weekly.types";
 
 interface WeekStatsStripProps {
   stats: IWeeklyPlanStats;
@@ -53,9 +53,7 @@ export function WeekStatsStrip({ stats }: WeekStatsStripProps) {
       <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 flex items-center gap-3">
         <Clock3 className="h-5 w-5 text-yellow-400 shrink-0" />
         <div>
-          <p className="text-xl font-black text-yellow-400">
-            {stats.pending}
-          </p>
+          <p className="text-xl font-black text-yellow-400">{stats.pending}</p>
           <p className="text-white/40 text-[10px]">Pending</p>
         </div>
       </div>

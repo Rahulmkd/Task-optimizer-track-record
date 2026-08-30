@@ -3,8 +3,7 @@ import authReducer from "../slices/auth.slice";
 import { taskService } from "@/features/tasks/services/task.service";
 import { actionService } from "@/features/actions/services/action.service";
 import { aiService } from "@/features/story/services/ai.service";
-import { weeklyService } from "@/features/planning/services/weekly.service";
-
+import { weeklyService } from "@/features/schedule/services/weekly.service";
 
 export const store = configureStore({
   reducer: {

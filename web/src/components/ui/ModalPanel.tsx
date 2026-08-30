@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export function ModelPanel({ children }: { children: React.ReactNode }) {
+export function ModalPanel({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.94, y: 18 }}

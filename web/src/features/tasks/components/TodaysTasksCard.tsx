@@ -11,13 +11,10 @@ import {
   useToggleTaskMutation,
 } from "@/features/tasks/services/task.service";
 
-import { ITask } from "@/features/tasks/types/task.types";
-import { Task } from "../../../components/dashboard/quick-actions/types/quickActions.types";
-import { TaskRow } from "../../../components/dashboard/quick-actions";
-import { TaskSummaryModel } from "../../../components/dashboard/quick-actions/modals/TaskSummaryModal";
-import { EditTaskModal } from "../../../components/dashboard/quick-actions/modals/EditTaskModal";
-
-
+import { ITask, Task } from "@/features/tasks/types/task.types";
+import { EditTaskModal } from "./EditTaskModal";
+import { TaskRow } from "./TaskRow";
+import { AIAssistanceModal } from "@/features/story/components/AIAssistanceModal";
 
 const toUiTask = (task: ITask): Task => ({
   id: task.id,
@@ -140,7 +137,7 @@ export function TodaysTasksCard() {
       {/* Summary Modal */}
       <AnimatePresence>
         {showSummary && (
-          <TaskSummaryModel onClose={() => setShowSummary(false)} />
+          <AIAssistanceModal onClose={() => setShowSummary(false)} />
         )}
       </AnimatePresence>
 

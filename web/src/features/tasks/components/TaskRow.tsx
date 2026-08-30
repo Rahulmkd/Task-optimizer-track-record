@@ -1,7 +1,7 @@
 import { CheckCircle2, Circle, Clock, Pencil, Trash2 } from "lucide-react";
-import { Task } from "../types/quickActions.types";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { Task } from "../types/task.types";
 
 export function TaskRow({
   task,

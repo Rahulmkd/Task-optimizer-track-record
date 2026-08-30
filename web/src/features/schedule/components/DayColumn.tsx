@@ -4,15 +4,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { IWeeklyTask, WeekDay } from "@/features/planning/types/weekly.types";
+import { IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
 import {
   useDeleteWeeklyTaskMutation,
   useToggleWeeklyTaskMutation,
-} from "@/features/planning/services/weekly.service";
+} from "@/features/schedule/services/weekly.service";
 
-import { DAY_LABELS, getDayDateLabel } from "../next-week-schedule.utils";
+
 
 import { TaskCard } from "./TaskCard";
+import { DAY_LABELS, getDayDateLabel } from "../utils/next-week-schedule.utils";
 
 interface DayColumnProps {
   dayKey: WeekDay;

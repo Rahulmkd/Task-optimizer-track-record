@@ -1,10 +1,18 @@
-import { Category, WeekDay } from "@/features/planning/types/weekly.types";
+import { Category, WeekDay } from "@/features/schedule/types/weekly.types";
 
 /* -------------------------------------------------------------------------- */
 /*                              DAY CONSTANTS                                 */
 /* -------------------------------------------------------------------------- */
 
-export const DAY_KEYS: WeekDay[] = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+export const DAY_KEYS: WeekDay[] = [
+  "MON",
+  "TUE",
+  "WED",
+  "THU",
+  "FRI",
+  "SAT",
+  "SUN",
+];
 
 export const DAY_LABELS: Record<WeekDay, string> = {
   MON: "Mon",

@@ -10,18 +10,7 @@ import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/redux/hooks";
 import { useGetTasksQuery } from "@/features/tasks/services/task.service";
-import { QuickEntryModal } from "@/components/dashboard/quick-actions/modals/CreateTaskModal";
-import { QuickAction } from "@/components/dashboard/quick-actions/types/quickActions.types";
-
-const NEW_TASK_ACTION: QuickAction = {
-  id: "generic-new-task",
-  icon: Plus,
-  label: "New Task",
-  gradient: "from-violet-600 to-indigo-600",
-  glow: "rgba(139, 92, 246, 0.45)",
-  accent: "bg-violet-500",
-  isPreset: true,
-};
+import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -87,7 +76,7 @@ export function DashboardHero() {
         whileTap={{ scale: 0.98 }}
         onClick={() => setShowNewTask(true)}
         className={cn(
-          "group relative overflow-hidden flex items-center gap-2 h-9 px-4 rounded-xl text-xs font-semibold text-white",
+          "group relative overflow-hidden flex items-center gap-2 h-9 px-4 rounded-md text-xs font-semibold text-white",
           "bg-linear-to-r from-violet-600 to-indigo-600",
           "border border-violet-500/30",
           "shadow-[0_4px_16px_rgba(109,40,217,0.25)]",
@@ -111,10 +100,7 @@ export function DashboardHero() {
 
       <AnimatePresence>
         {showNewTask && (
-          <QuickEntryModal
-            action={NEW_TASK_ACTION}
-            onClose={() => setShowNewTask(false)}
-          />
+          <CreateTaskModal onClose={() => setShowNewTask(false)} />
         )}
       </AnimatePresence>
     </motion.div>

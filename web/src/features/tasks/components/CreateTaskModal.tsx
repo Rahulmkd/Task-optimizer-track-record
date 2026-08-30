@@ -3,24 +3,17 @@
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useRef, useState } from "react";
-import { QuickAction } from "../types/quickActions.types";
-import { Backdrop } from "./Backdrop";
+import { Backdrop } from "../../../components/ui/Backdrop";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
-import { TimeInput } from "../components/TimeInput";
-import { Sparkles, X } from "lucide-react";
+import { TimeInput } from "@/components/ui/TimeInput";
+import { CalendarCheck, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModelPanel } from "./ModalPanel";
+import { ModalPanel } from "../../../components/ui/ModalPanel";
 import { cn } from "@/lib/utils";
 import { useCreateTaskMutation } from "@/features/tasks/services/task.service";
 
-export function QuickEntryModal({
-  action,
-  onClose,
-}: {
-  action: QuickAction;
-  onClose: () => void;
-}) {
+export function CreateTaskModal({ onClose }: { onClose: () => void }) {
   const [details, setDetails] = useState("");
   const [time, setTime] = useState(() => {
     const now = new Date();
@@ -53,7 +46,6 @@ export function QuickEntryModal({
       await createTask({
         title: details.trim(),
         time,
-        actionId: action.isPreset ? undefined : action.id,
       }).unwrap();
 
       onClose();
@@ -64,13 +56,13 @@ export function QuickEntryModal({
 
   return (
     <Backdrop onClick={onClose}>
-      <ModelPanel>
+      <ModalPanel>
         {/* ── Gradient header ── */}
         <div
           className={cn(
             "relative flex items-center justify-between px-5 py-4",
             "bg-linear-to-r overflow-hidden",
-            action.gradient,
+            "from-violet-600 to-indigo-600",
           )}
         >
           {/* Subtle noise overlay */}
@@ -78,11 +70,11 @@ export function QuickEntryModal({
 
           <div className="relative flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-white/20 border border-white/20 shadow-inner flex items-center justify-center">
-              <action.icon className="h-5 w-5 text-white" />
+              <CalendarCheck className="h-5 w-5 text-white" />
             </div>
             <div>
               <h3 className="text-white font-bold text-base leading-none">
-                {action.label}
+                New Task
               </h3>
               <p className="text-white/60 text-xs mt-1">Quick entry</p>
             </div>
@@ -147,7 +139,7 @@ export function QuickEntryModal({
             </Button>
           </div>
         </div>
-      </ModelPanel>
+      </ModalPanel>
     </Backdrop>
   );
 }

@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, Clock3, Trash2 } from "lucide-react";
-
 import { cn } from "@/lib/utils";
-import { IWeeklyTask } from "@/features/planning/types/weekly.types";
-
-import { PRIORITY_CONFIG, getDurationLabel } from "../next-week-schedule.utils";
+import { IWeeklyTask } from "@/features/schedule/types/weekly.types";
+import {
+  getDurationLabel,
+  PRIORITY_CONFIG,
+} from "../utils/next-week-schedule.utils";
 
 interface TaskCardProps {
   task: IWeeklyTask;

@@ -23,3 +23,10 @@ export interface UpdateTaskPayload {
   completed?: boolean;
   actionId?: string | null;
 }
+
+export interface Task {
+  id: string | number;
+  label: string;
+  done: boolean;
+  time: string;
+}
