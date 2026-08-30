@@ -4,8 +4,8 @@ import axios, {
   AxiosResponse,
 } from "axios";
 
-import { tokenService } from "./auth.token";
-import { API_PATHS } from "@/constants/api.path";
+import { tokenService } from "./auth-token";
+import { API_PATHS } from "@/constants/api-paths";
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 

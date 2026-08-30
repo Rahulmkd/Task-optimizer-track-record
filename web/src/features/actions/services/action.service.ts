@@ -5,7 +5,7 @@ import {
   IAction,
   UpdateActionPayload,
 } from "../types/action.types";
-import { API_PATHS } from "@/constants/api.path";
+import { API_PATHS } from "@/constants/api-paths";
 import { ApiResponse } from "@/types/api.types";
 
 export const actionService = createApi({

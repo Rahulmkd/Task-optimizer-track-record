@@ -5,12 +5,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { Sparkles, X } from "lucide-react";
-import { ModelPanel } from "./ModelPanel";
+import { ModelPanel } from "./ModalPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCreateActionMutation } from "@/features/actions/services/action.service";
-import { quickActions } from "../data/quickActionsData";
+import { quickActions } from "../data/action.data";
 import { NewActionButton } from "../components/NewActionButton";
 
 export function NewActionModal({ onClose }: { onClose: () => void }) {

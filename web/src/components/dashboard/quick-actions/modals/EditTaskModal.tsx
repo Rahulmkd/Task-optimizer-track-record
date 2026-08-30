@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Backdrop } from "./Backdrop";
 import { Pencil, X } from "lucide-react";
-import { ModelPanel } from "./ModelPanel";
+import { ModelPanel } from "./ModalPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

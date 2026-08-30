@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "@/redux/axiosBaseQuery";
-import { API_PATHS } from "@/constants/api.path";
+import { API_PATHS } from "@/constants/api-paths";
 import { ApiResponse } from "@/types/api.types";
 import {
   CreateTaskPayload,

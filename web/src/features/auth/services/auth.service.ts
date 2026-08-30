@@ -1,7 +1,7 @@
 // src/features/auth/services/auth.service.ts
 
 import { api } from "@/lib/axios";
-import { API_PATHS } from "@/constants/api.path";
+import { API_PATHS } from "@/constants/api-paths";
 
 import { ApiResponse } from "@/types/api.types";
 

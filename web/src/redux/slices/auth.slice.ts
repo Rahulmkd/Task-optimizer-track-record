@@ -5,7 +5,7 @@ import { LoginUserFormData } from "@/features/auth/schemas/auth.schema";
 
 import { IUser, AuthResponse } from "@/features/auth/types/user.types";
 
-import { tokenService } from "@/lib/auth.token";
+import { tokenService } from "@/lib/auth-token";
 import { RegisterPayload } from "@/features/auth/types/auth.types";
 import { AxiosError } from "axios";
 
