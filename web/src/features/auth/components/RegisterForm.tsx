@@ -1,3 +1,4 @@
+"use client";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -6,10 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/constants";
 
-import {
-  registerSchema,
-  RegisterUserFormData,
-} from "../schemas/auth.schema";
+import { registerSchema, RegisterUserFormData } from "../schemas/auth.schema";
 
 import { useAppDispatch } from "@/redux/hooks";
 import { registerUserThunk } from "@/redux/slices/auth.slice";

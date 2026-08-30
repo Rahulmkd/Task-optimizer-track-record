@@ -59,3 +59,10 @@ export interface UpdateWeeklyTaskPayload {
   duration?: number;
   completed?: boolean;
 }
+
+export interface IWeeklyPlanStats {
+  progressPercent: number;
+  completed: number;
+  total: number;
+  pending: number;
+}
