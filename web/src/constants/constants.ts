@@ -9,7 +9,12 @@ export const ROUTES = {
   LOGIN: "/login",
   REGISTER: "/register",
   DASHBOARD: "/dashboard",
-  ROADMAP: "/roadmap",
+  MY_TASK: "/my-task",
+  ROADMAP: "https://cracksde.in/roadmap",
+  PROGRESS: "/progress",
+  STORY: "/story",
+  SETTINGS: "/settings",
+  PROFILE: "/profile",
 } as const;
 
 export const DEMO_CREDENTIALS = {

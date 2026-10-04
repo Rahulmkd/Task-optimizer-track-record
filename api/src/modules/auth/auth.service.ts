@@ -13,7 +13,7 @@ import {
 } from "../../utils/Jwt.helper.js";
 import { IAuthRepository } from "./auth.interface.js";
 import { toJwtPayload, toUserResponse } from "./auth.mapper.js";
-import { LoginUserDTO, RegisterUserDTO } from "./auth.schema.js";
+import { LoginUserDTO, RegisterUserDTO, UpdateProfileDTO } from "./auth.schema.js";
 
 export class AuthService {
   constructor(private userRepo: IAuthRepository) {}
@@ -75,6 +75,28 @@ export class AuthService {
     }
 
     return toUserResponse(user);
+  }
+
+  async updateProfile(userId: string, data: UpdateProfileDTO) {
+    const user = await this.userRepo.getUserById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    const updatedUser = await this.userRepo.updateUser(userId, data);
+
+    return toUserResponse(updatedUser);
+  }
+
+  async deleteAccount(userId: string): Promise<void> {
+    const user = await this.userRepo.getUserById(userId);
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    await this.userRepo.deleteUser(userId);
   }
 
   /** Logging out with no/unknown refresh token is a no-op, not an error. */

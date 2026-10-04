@@ -10,6 +10,8 @@ export const API_PATHS = {
     LOGIN: `${AUTH_BASE}/login`,
     LOGOUT: `${AUTH_BASE}/logout`,
     ME: `${AUTH_BASE}/me`,
+    UPDATE_PROFILE: `${AUTH_BASE}/me`,
+    DELETE_ACCOUNT: `${AUTH_BASE}/me`,
     CHANGE_PASSWORD: `${AUTH_BASE}/change-password`,
     FORGOT_PASSWORD: `${AUTH_BASE}/forgot-password`,
     RESET_PASSWORD: `${AUTH_BASE}/reset-password-token`,

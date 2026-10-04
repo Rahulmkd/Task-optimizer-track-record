@@ -5,7 +5,12 @@ import { API_PATHS } from "@/constants/api-paths";
 
 import { ApiResponse } from "@/types/api.types";
 
-import { AuthResponse, IUser, ResetPasswordPayload } from "../types/user.types";
+import {
+  AuthResponse,
+  IUser,
+  ResetPasswordPayload,
+  UpdateProfilePayload,
+} from "../types/user.types";
 
 import {
   LoginUserFormData,
@@ -44,6 +49,19 @@ export const authService = {
     const response = await api.get<ApiResponse<IUser>>(API_PATHS.AUTH.ME);
 
     return response.data.data;
+  },
+
+  async updateProfile(data: UpdateProfilePayload): Promise<IUser> {
+    const response = await api.patch<ApiResponse<IUser>>(
+      API_PATHS.AUTH.UPDATE_PROFILE,
+      data,
+    );
+
+    return response.data.data;
+  },
+
+  async deleteAccount(): Promise<void> {
+    await api.delete(API_PATHS.AUTH.DELETE_ACCOUNT);
   },
 
   async changePassword(data: ResetPasswordFormData): Promise<void> {

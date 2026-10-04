@@ -1,13 +1,19 @@
 import express from "express";
 import { validate } from "../../middlewares/validate.middleware.js";
-import { loginUserSchema, registerUserSchema } from "./auth.schema.js";
 import {
+  loginUserSchema,
+  registerUserSchema,
+  updateProfileSchema,
+} from "./auth.schema.js";
+import {
+  deleteAccountController,
   getCurrentUserController,
   loginUserController,
   logoutAllDevicesController,
   logoutController,
   refreshTokenController,
   registerUserController,
+  updateProfileController,
 } from "./auth.controller.js";
 import { verifyUser } from "../../middlewares/auth.middleware.js";
 
@@ -19,7 +25,17 @@ router
 
 router.route("/login").post(validate(loginUserSchema), loginUserController);
 
-router.route("/me").get(verifyUser, getCurrentUserController);
+router
+  .route("/me")
+  .get(verifyUser, getCurrentUserController)
+  .patch(verifyUser, validate(updateProfileSchema), updateProfileController)
+  .delete(verifyUser, deleteAccountController);
+
+router
+  .route("/profile")
+  .patch(verifyUser, validate(updateProfileSchema), updateProfileController);
+
+router.route("/delete-account").delete(verifyUser, deleteAccountController);
 
 router.route("/logout").post(verifyUser, logoutController);
 

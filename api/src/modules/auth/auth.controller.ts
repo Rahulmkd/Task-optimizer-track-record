@@ -66,6 +66,42 @@ export const getCurrentUserController = catchAsync(
 );
 
 /* -------------------------------------------------------------------------- */
+/*                               UPDATE PROFILE                               */
+/* -------------------------------------------------------------------------- */
+
+export const updateProfileController = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    const result = await authService.updateProfile(userId, req.body);
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "Profile updated successfully",
+      data: result,
+    });
+  },
+);
+
+/* -------------------------------------------------------------------------- */
+/*                               DELETE ACCOUNT                               */
+/* -------------------------------------------------------------------------- */
+
+export const deleteAccountController = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+
+    await authService.deleteAccount(userId);
+
+    destroyCookies(res);
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "Account deleted successfully",
+    });
+  },
+);
+
+/* -------------------------------------------------------------------------- */
 /*                                   LOGOUT                                   */
 /* -------------------------------------------------------------------------- */
 

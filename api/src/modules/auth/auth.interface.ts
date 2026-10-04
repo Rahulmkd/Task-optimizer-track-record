@@ -11,6 +11,16 @@ export interface IAuthRepository {
     phoneNumber: string;
   }): Promise<User>;
 
+  updateUser(
+    userId: string,
+    data: {
+      name?: string;
+      phoneNumber?: string;
+    },
+  ): Promise<User>;
+
+  deleteUser(userId: string): Promise<User>;
+
   createRefreshToken(data: {
     token: string;
     userId: string;

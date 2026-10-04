@@ -23,5 +23,24 @@ export const loginUserSchema = z
   })
   .strict();
 
+export const updateProfileSchema = z
+  .object({
+    name: z.string().trim().min(1, "Name cannot be empty").max(100).optional(),
+    phoneNumber: z
+      .string()
+      .trim()
+      .regex(PHONE_REGEX, "Enter a valid phone number (10-15 digits)")
+      .optional(),
+  })
+  .strict()
+  .refine(
+    (data) => data.name !== undefined || data.phoneNumber !== undefined,
+    {
+      message:
+        "At least one field (name or phoneNumber) must be provided to update",
+    },
+  );
+
 export type RegisterUserDTO = z.infer<typeof registerUserSchema>;
 export type LoginUserDTO = z.infer<typeof loginUserSchema>;
+export type UpdateProfileDTO = z.infer<typeof updateProfileSchema>;

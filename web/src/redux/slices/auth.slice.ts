@@ -3,7 +3,11 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { authService } from "@/features/auth/services/auth.service";
 import { LoginUserFormData } from "@/features/auth/schemas/auth.schema";
 
-import { IUser, AuthResponse } from "@/features/auth/types/user.types";
+import {
+  IUser,
+  AuthResponse,
+  UpdateProfilePayload,
+} from "@/features/auth/types/user.types";
 
 import { tokenService } from "@/lib/auth-token";
 import { RegisterPayload } from "@/features/auth/types/auth.types";
@@ -89,6 +93,43 @@ export const fetchUser = createAsyncThunk<IUser, void, { rejectValue: string }>(
     }
   },
 );
+
+export const updateProfileThunk = createAsyncThunk<
+  IUser,
+  UpdateProfilePayload,
+  { rejectValue: string }
+>("auth/updateProfile", async (data, { rejectWithValue }) => {
+  try {
+    const updatedUser = await authService.updateProfile(data);
+    return updatedUser;
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      message?: string;
+    }>;
+
+    return rejectWithValue(
+      axiosError.response?.data?.message ?? "Failed to update profile",
+    );
+  }
+});
+
+export const deleteAccountThunk = createAsyncThunk<
+  void,
+  void,
+  { rejectValue: string }
+>("auth/deleteAccount", async (_, { rejectWithValue }) => {
+  try {
+    await authService.deleteAccount();
+  } catch (error) {
+    const axiosError = error as AxiosError<{
+      message?: string;
+    }>;
+
+    return rejectWithValue(
+      axiosError.response?.data?.message ?? "Failed to delete account",
+    );
+  }
+});
 
 export const logoutThunk = createAsyncThunk<void, void>(
   "auth/logout",
@@ -184,6 +225,37 @@ const authSlice = createSlice({
       .addCase(registerUserThunk.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? "Registration failed";
+      })
+
+      /* ---------------------------- UPDATE PROFILE ---------------------------- */
+      .addCase(updateProfileThunk.pending, (state) => {
+        state.error = null;
+      })
+
+      .addCase(updateProfileThunk.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.error = null;
+      })
+
+      .addCase(updateProfileThunk.rejected, (state, action) => {
+        state.error = action.payload ?? "Failed to update profile";
+      })
+
+      /* ---------------------------- DELETE ACCOUNT ---------------------------- */
+      .addCase(deleteAccountThunk.pending, (state) => {
+        state.error = null;
+      })
+
+      .addCase(deleteAccountThunk.fulfilled, (state) => {
+        tokenService.clearToken();
+        state.user = null;
+        state.isAuthenticated = false;
+        state.isLoading = false;
+        state.error = null;
+      })
+
+      .addCase(deleteAccountThunk.rejected, (state, action) => {
+        state.error = action.payload ?? "Failed to delete account";
       })
 
       /* -------------------------------- LOGOUT -------------------------------- */

@@ -38,6 +38,21 @@ export const resetPasswordSchema = z
   })
   .strict();
 
+export const updateProfileSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters long")
+    .max(100, "Name is too long"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number is too long")
+    .regex(/^\+?\d{10,15}$/, "Enter a valid phone number (10-15 digits)"),
+});
+
 export type RegisterUserFormData = z.infer<typeof registerSchema>;
 export type LoginUserFormData = z.infer<typeof loginSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;

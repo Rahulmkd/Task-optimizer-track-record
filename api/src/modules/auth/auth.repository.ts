@@ -23,6 +23,39 @@ export class AuthRepository implements IAuthRepository {
     return prisma.user.create({ data });
   }
 
+  async updateUser(
+    userId: string,
+    data: { name?: string; phoneNumber?: string },
+  ) {
+    return prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+  }
+
+  async deleteUser(userId: string) {
+    return prisma.$transaction(async (tx) => {
+      await tx.refreshToken.deleteMany({ where: { userId } });
+      await tx.task.deleteMany({ where: { userId } });
+      await tx.action.deleteMany({ where: { userId } });
+      await tx.journal.deleteMany({ where: { userId } });
+
+      await tx.weeklyTask.deleteMany({
+        where: {
+          weeklyPlan: {
+            userId,
+          },
+        },
+      });
+
+      await tx.weeklyPlan.deleteMany({ where: { userId } });
+
+      return tx.user.delete({
+        where: { id: userId },
+      });
+    });
+  }
+
   async createRefreshToken(data: {
     token: string;
     userId: string;

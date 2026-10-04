@@ -107,13 +107,16 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
               </div>
               <div className="p-1">
                 {[
-                  { icon: User, label: "Profile" },
-                  { icon: Settings, label: "Settings" },
+                  { icon: User, label: "Profile", href: ROUTES.PROFILE },
+                  { icon: Settings, label: "Settings", href: ROUTES.SETTINGS },
                 ].map((item) => (
                   <button
                     key={item.label}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/5 transition-colors"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      router.push(item.href);
+                    }}
                   >
                     <item.icon className="h-4 w-4" />
                     {item.label}
