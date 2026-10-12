@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Task Optimizer - Web Frontend
 
-## Getting Started
+The Next.js 16 web application for the **Task Optimizer** platform.
 
-First, run the development server:
+For the full project overview, architecture diagrams, backend documentation, and API specifications, please refer to the [Root README.md](../../README.md).
+
+---
+
+## 🚀 Overview
+
+The frontend is built with:
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **UI Library**: React 19
+- **State Management & Data Fetching**: Redux Toolkit & RTK Query
+- **Styling**: Tailwind CSS v4 with custom dark obsidian theme
+- **Animations**: Framer Motion
+- **Icons & Notifications**: Lucide React & Sonner
+- **Form Management**: React Hook Form with Zod schemas
+
+---
+
+## 📁 Feature Structure
+
+- `src/app/(auth)`: Login and registration views with client-side form validation.
+- `src/app/(dashboard)`: Authenticated dashboard interface:
+  - `/dashboard`: Daily overview hero, upcoming timeline, and recent activity card.
+  - `/my-task`: Full daily task manager and weekly planner calendar grid.
+  - `/progress`: Custom SVG analytics (trend charts, completion rates, score distribution).
+  - `/story`: AI-powered daily journal history ("My Story").
+  - `/settings`: Application notifications, security, and appearance settings.
+  - `/profile`: User details management and account deletion with confirmation.
+- `src/features`: Modular feature folders with isolated components, services, and types.
+- `src/lib/axios.ts`: Axios instance configured with automatic refresh token rotation queue on 401 responses.
+- `src/lib/auth-token.ts`: In-memory access token storage service.
+
+---
+
+## 🛠 Getting Started
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Environment
+
+Create `.env` in `apps/web/`:
+
+```env
+NEXT_PUBLIC_BACKEND_API_URL=http://localhost:4000
+```
+
+### 3. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 Available Scripts
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev`: Starts the Next.js development server.
+- `npm run build`: Builds the production bundle.
+- `npm run start`: Runs the built production server.
+- `npm run lint`: Executes ESLint code quality checks.
