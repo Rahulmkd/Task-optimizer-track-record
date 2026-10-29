@@ -1,28 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { GlowBackground } from "@/components/shared/GlowBackground";
+import {
+  HomeNavbar,
+  HomeHero,
+  HomeShowcase,
+  HomeFeatures,
+  HomeWorkflow,
+  HomeAICoachSection,
+  HomeTechStack,
+  HomeCTA,
+  HomeFooter,
+} from "@/features/home";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col relative selection:bg-violet-500/30 selection:text-white">
+      {/* Ambient background glow and grid */}
       <GlowBackground />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 text-center"
-      >
-        <div className="flex gap-3 justify-center">
-          <Button asChild variant="outline">
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button asChild variant="gradient">
-            <Link href="/register">Register</Link>
-          </Button>
-        </div>
-      </motion.div>
+
+      {/* Responsive header navigation */}
+      <HomeNavbar />
+
+      {/* Main landing content */}
+      <main className="flex-1 relative z-10">
+        <HomeHero />
+        <HomeShowcase />
+        <HomeFeatures />
+        <HomeWorkflow />
+        <HomeAICoachSection />
+        <HomeTechStack />
+        <HomeCTA />
+      </main>
+
+      {/* Footer */}
+      <HomeFooter />
     </div>
   );
 }
