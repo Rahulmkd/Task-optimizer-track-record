@@ -7,6 +7,7 @@ import {
   Clock,
   Clock3,
   Pencil,
+  Repeat,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -70,14 +71,28 @@ export function TaskCard({
           />
         </button>
 
-        <p
-          className={cn(
-            "flex-1 text-xs font-medium leading-snug transition-colors",
-            task.completed ? "text-white/25 line-through" : "text-white/80",
+        <div className="flex-1 min-w-0">
+          <p
+            className={cn(
+              "text-xs font-medium leading-snug transition-colors",
+              task.completed ? "text-white/25 line-through" : "text-white/80",
+            )}
+          >
+            {task.title}
+          </p>
+
+          {/* Description snippet if available */}
+          {task.description && (
+            <p
+              className={cn(
+                "text-[11px] leading-tight mt-1 line-clamp-2 transition-colors",
+                task.completed ? "text-white/20 line-through" : "text-white/45",
+              )}
+            >
+              {task.description}
+            </p>
           )}
-        >
-          {task.title}
-        </p>
+        </div>
 
         {/* Action buttons (Edit & Delete) — visible on hover */}
         <div className="flex items-center gap-1 shrink-0 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
@@ -115,6 +130,17 @@ export function TaskCard({
           <Clock className="h-2.5 w-2.5" />
           {timeRangeLabel}
         </span>
+
+        {/* Recurring badge */}
+        {task.repeatWeekly && (
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-violet-500/30 bg-violet-500/10 text-violet-300"
+            title="Repeats every week"
+          >
+            <Repeat className="h-2.5 w-2.5 text-violet-400" />
+            Weekly
+          </span>
+        )}
 
         {/* Conflict warning badge if overlapping */}
         {hasConflict && !task.completed && (

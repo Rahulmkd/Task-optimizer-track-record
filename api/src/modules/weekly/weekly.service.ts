@@ -7,15 +7,18 @@ import { CreateWeeklyTaskDTO, UpdateWeeklyTaskDTO } from "./weekly.schema.js";
  * WeeklyService — business logic for the weekly planner.
  */
 class WeeklyService {
-  /** Ensure a plan exists for the week, then return the full plan+tasks. */
+  /** Ensure a plan exists for the week, sync recurring tasks, then return the full plan+tasks. */
   async getOrCreatePlan(userId: string, weekStart: string) {
-    await weeklyRepository.upsertPlan(userId, weekStart);
+    const plan = await weeklyRepository.upsertPlan(userId, weekStart);
 
-    const plan = await weeklyRepository.getPlan(userId, weekStart);
+    // Sync recurring tasks from prior weeks into this week without duplicates
+    await this.syncRecurringTasks(userId, weekStart, plan.id);
 
-    if (!plan) throw new AppError("Weekly plan not found", 404);
+    const fullPlan = await weeklyRepository.getPlan(userId, weekStart);
 
-    return WeeklyMapper.toPlanResponse(plan);
+    if (!fullPlan) throw new AppError("Weekly plan not found", 404);
+
+    return WeeklyMapper.toPlanResponse(fullPlan);
   }
 
   async createTask(userId: string, data: CreateWeeklyTaskDTO) {
@@ -58,6 +61,71 @@ class WeeklyService {
     await weeklyRepository.deleteTask(taskId);
 
     return true;
+  }
+
+  /**
+   * Syncs recurring tasks from prior weeks to target week without duplicates.
+   */
+  private async syncRecurringTasks(
+    userId: string,
+    targetWeekStart: string,
+    targetPlanId: string,
+  ) {
+    const recurringTasks = await weeklyRepository.findRecurringTasksForUser(
+      userId,
+      targetWeekStart,
+    );
+
+    if (!recurringTasks.length) return;
+
+    // Filter to tasks from weeks strictly before targetWeekStart
+    const priorRecurring = recurringTasks.filter(
+      (t) => t.weeklyPlan.weekStart < targetWeekStart,
+    );
+
+    if (!priorRecurring.length) return;
+
+    // Group by rootId (sourceTaskId or task.id) to select the latest version
+    const rootMap = new Map<string, (typeof priorRecurring)[0]>();
+    for (const task of priorRecurring) {
+      const rootId = task.sourceTaskId || task.id;
+      const existing = rootMap.get(rootId);
+      if (!existing || new Date(task.updatedAt) > new Date(existing.updatedAt)) {
+        rootMap.set(rootId, task);
+      }
+    }
+
+    // Check existing tasks in target week plan to avoid any duplicate creation
+    const currentPlan = await weeklyRepository.getPlan(userId, targetWeekStart);
+    const existingTasks = currentPlan?.weeklyTasks ?? [];
+
+    for (const [rootId, template] of rootMap.entries()) {
+      if (!template.repeatWeekly) continue;
+
+      const alreadyScheduled = existingTasks.some(
+        (t) =>
+          t.id === rootId ||
+          t.sourceTaskId === rootId ||
+          (t.title === template.title &&
+            t.day === template.day &&
+            t.startTime === template.startTime),
+      );
+
+      if (!alreadyScheduled) {
+        await weeklyRepository.createTask({
+          weeklyPlanId: targetPlanId,
+          title: template.title,
+          description: template.description,
+          day: template.day,
+          priority: template.priority,
+          category: template.category,
+          duration: template.duration,
+          startTime: template.startTime,
+          repeatWeekly: true,
+          sourceTaskId: rootId,
+        });
+      }
+    }
   }
 
   /**

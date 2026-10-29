@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   CalendarDays,
   ChevronDown,
-  Clock,
   Clock3,
   Flag,
   FolderKanban,
@@ -30,7 +29,6 @@ import {
   useUpdateWeeklyTaskMutation,
 } from "@/features/schedule/services/weekly.service";
 import {
-  calculateEndTime,
   CATEGORY_VALUES,
   DEFAULT_START_TIME,
   findConflictingTasks,
@@ -86,7 +84,7 @@ function DarkSelect({
   ariaLabel,
 }: {
   id?: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
   value: string | number;
   onChange: (v: string) => void;
   children: React.ReactNode;
@@ -100,7 +98,9 @@ function DarkSelect({
         className,
       )}
     >
-      <Icon className="h-3.5 w-3.5 text-white/30 shrink-0 pointer-events-none" />
+      {Icon && (
+        <Icon className="h-3.5 w-3.5 text-white/30 shrink-0 pointer-events-none" />
+      )}
       <select
         id={id}
         aria-label={ariaLabel}
@@ -153,6 +153,12 @@ export function AddTaskModal({
   );
   const [startTime, setStartTime] = useState<string>(
     taskToEdit?.startTime ? formatTimeDisplay(taskToEdit.startTime) : DEFAULT_START_TIME,
+  );
+  const [repeatWeekly, setRepeatWeekly] = useState(
+    taskToEdit?.repeatWeekly ?? false,
+  );
+  const [description, setDescription] = useState(
+    taskToEdit?.description ?? "",
   );
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -211,22 +217,26 @@ export function AddTaskModal({
           weekStart,
           data: {
             title: title.trim(),
+            description: description.trim() || null,
             day,
             priority,
             category,
             duration,
             startTime: selectedStartTime,
+            repeatWeekly,
           },
         }).unwrap();
       } else {
         await createTask({
           weekStart,
           title: title.trim(),
+          description: description.trim() || null,
           day,
           priority,
           category,
           duration,
           startTime: selectedStartTime,
+          repeatWeekly,
         }).unwrap();
       }
 
@@ -241,8 +251,6 @@ export function AddTaskModal({
       setIsSubmitting(false);
     }
   };
-
-  const calculatedEndTime = calculateEndTime(startTime, duration);
 
   return (
     <Backdrop onClick={onClose}>
@@ -304,8 +312,7 @@ export function AddTaskModal({
           {/* Day + Priority row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label htmlFor="wt-day" className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-                <CalendarDays className="h-3 w-3 text-white/40" />
+              <label htmlFor="wt-day" className="text-xs font-medium text-white/60">
                 Day
               </label>
               <DarkSelect
@@ -324,8 +331,7 @@ export function AddTaskModal({
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="wt-priority" className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-                <Flag className="h-3 w-3 text-white/40" />
+              <label htmlFor="wt-priority" className="text-xs font-medium text-white/60">
                 Priority
               </label>
               <DarkSelect
@@ -344,27 +350,31 @@ export function AddTaskModal({
             </div>
           </div>
 
-          {/* Start Time + Duration row */}
+          {/* Category + Duration row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label htmlFor="wt-start-time" className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-                <Clock className="h-3 w-3 text-violet-400" />
-                Start Time
+              <label htmlFor="wt-category" className="text-xs font-medium text-white/60">
+                Category
               </label>
-              <ModernTimeSelect
-                id="wt-start-time"
-                value={startTime}
-                onChange={(v) => setStartTime(v)}
-                day={day}
-                existingTasks={existingTasks}
-                taskDuration={duration}
-                currentTaskId={taskToEdit?.id}
-              />
+              <DarkSelect
+                id="wt-category"
+                icon={FolderKanban}
+                value={category}
+                onChange={(v) =>
+                  setCategory(v as Category)
+                }
+                ariaLabel="Category selection"
+              >
+                {CATEGORY_VALUES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </DarkSelect>
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="wt-duration" className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-                <Clock3 className="h-3 w-3 text-white/40" />
+              <label htmlFor="wt-duration" className="text-xs font-medium text-white/60">
                 Duration
               </label>
               <DarkSelect
@@ -383,46 +393,64 @@ export function AddTaskModal({
             </div>
           </div>
 
-          {/* End Time / Schedule calculation helper badge */}
-          <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-violet-500/[0.08] border border-violet-500/20 text-xs">
-            <div className="flex items-center gap-1.5 text-violet-200">
-              <Clock className="h-3.5 w-3.5 text-violet-400 shrink-0" />
-              <span>
-                Schedule:{" "}
-                <span className="font-semibold text-white">
-                  {formatTimeDisplay(startTime)} – {calculatedEndTime}
-                </span>
-              </span>
-            </div>
-            <span className="text-[11px] text-violet-300/70 font-medium">
-              Ends at {calculatedEndTime}
-            </span>
-          </div>
-
-          {/* Category row */}
+          {/* Start time (full width) */}
           <div className="space-y-1.5">
-            <label htmlFor="wt-category" className="flex items-center gap-1.5 text-xs font-medium text-white/60">
-              <FolderKanban className="h-3 w-3 text-white/40" />
-              Category
+            <label htmlFor="wt-start-time" className="text-xs font-medium text-white/60">
+              Start time
             </label>
-            <DarkSelect
-              id="wt-category"
-              icon={FolderKanban}
-              value={category}
-              onChange={(v) =>
-                setCategory(v as Category)
-              }
-              ariaLabel="Category selection"
-            >
-              {CATEGORY_VALUES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </DarkSelect>
+            <ModernTimeSelect
+              id="wt-start-time"
+              value={startTime}
+              onChange={(v) => setStartTime(v)}
+              day={day}
+              existingTasks={existingTasks}
+              taskDuration={duration}
+              currentTaskId={taskToEdit?.id}
+            />
           </div>
 
-          {/* Schedule conflict warning banner */}
+          {/* Repeat every week */}
+          <div className="flex items-center gap-2.5 pt-0.5">
+            <button
+              type="button"
+              role="checkbox"
+              aria-checked={repeatWeekly}
+              onClick={() => setRepeatWeekly((prev) => !prev)}
+              className={cn(
+                "h-4 w-4 rounded-full border transition-all flex items-center justify-center cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50",
+                repeatWeekly
+                  ? "bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"
+                  : "border-white/30 bg-transparent hover:border-white/50",
+              )}
+            >
+              {repeatWeekly && (
+                <span className="h-1.5 w-1.5 rounded-full bg-white" />
+              )}
+            </button>
+            <label
+              onClick={() => setRepeatWeekly((prev) => !prev)}
+              className="text-xs text-white/90 cursor-pointer select-none font-normal"
+            >
+              Repeat every week
+            </label>
+          </div>
+
+          {/* Description (optional) */}
+          <div className="space-y-1.5">
+            <label htmlFor="wt-description" className="text-xs font-medium text-white/60">
+              Description (optional)
+            </label>
+            <textarea
+              id="wt-description"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add notes or instructions..."
+              className="w-full min-h-[76px] rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs text-white/90 placeholder:text-white/30 outline-none transition-colors focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/30 resize-none"
+            />
+          </div>
+
+          {/* Schedule conflict warning banner (if any) */}
           {conflictingTasks.length > 0 && (
             <div className="flex items-start gap-2.5 p-3 rounded-xl border border-amber-500/30 bg-amber-500/[0.08] text-amber-200 text-xs animate-in fade-in duration-200">
               <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
@@ -447,7 +475,7 @@ export function AddTaskModal({
           <div className="flex gap-3 pt-2">
             <Button
               variant="outline"
-              className="flex-1 h-11"
+              className="flex-1 h-11 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10"
               onClick={onClose}
               disabled={isLoading}
             >
@@ -455,7 +483,7 @@ export function AddTaskModal({
             </Button>
             <Button
               variant="gradient"
-              className="flex-1 h-11"
+              className="flex-1 h-11 rounded-full"
               onClick={handleSave}
               disabled={!title.trim() || isLoading}
               loading={isLoading}

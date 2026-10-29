@@ -27,11 +27,14 @@ class WeeklyRepository implements IWeeklyRepository {
   async createTask(data: {
     weeklyPlanId: string;
     title: string;
+    description?: string | null;
     day: string;
     priority: string;
     category: string;
     duration: number;
-    startTime?: string;
+    startTime?: string | null;
+    repeatWeekly?: boolean;
+    sourceTaskId?: string | null;
   }) {
     return prisma.weeklyTask.create({ data });
   }
@@ -40,11 +43,14 @@ class WeeklyRepository implements IWeeklyRepository {
     taskId: string,
     data: Partial<{
       title: string;
+      description: string | null;
       day: string;
       priority: string;
       category: string;
       duration: number;
       startTime: string;
+      repeatWeekly: boolean;
+      sourceTaskId: string | null;
       completed: boolean;
     }>,
   ) {
@@ -67,6 +73,29 @@ class WeeklyRepository implements IWeeklyRepository {
 
   async deleteTask(taskId: string) {
     await prisma.weeklyTask.delete({ where: { id: taskId } });
+  }
+
+  async findRecurringTasksForUser(
+    userId: string,
+    beforeOrOnWeekStart?: string,
+  ) {
+    return prisma.weeklyTask.findMany({
+      where: {
+        repeatWeekly: true,
+        weeklyPlan: {
+          userId,
+          ...(beforeOrOnWeekStart
+            ? { weekStart: { lte: beforeOrOnWeekStart } }
+            : {}),
+        },
+      },
+      include: {
+        weeklyPlan: {
+          select: { weekStart: true },
+        },
+      },
+      orderBy: { createdAt: "asc" },
+    });
   }
 }
 

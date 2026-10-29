@@ -3,12 +3,15 @@ export interface WeeklyTaskResponseDTO {
   id: string;
   weeklyPlanId: string;
   title: string;
+  description?: string | null;
   day: string;
   priority: string;
   category: string;
   /** Duration in minutes */
   duration: number;
   startTime: string;
+  repeatWeekly: boolean;
+  sourceTaskId?: string | null;
   completed: boolean;
   createdAt: Date;
   updatedAt: Date;

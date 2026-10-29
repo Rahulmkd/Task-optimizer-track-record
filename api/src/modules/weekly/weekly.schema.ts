@@ -29,11 +29,13 @@ export const createWeeklyTaskSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "weekStart must be YYYY-MM-DD"),
     title: z.string().min(1, "Title is required").max(200),
+    description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS),
     priority: z.enum(PRIORITIES).default("MEDIUM"),
     category: z.enum(CATEGORIES).default("Other"),
     duration: z.number().int().min(15).max(480).default(60),
     startTime: z.string().max(20).optional().default("09:00 AM"),
+    repeatWeekly: z.boolean().optional().default(false),
   })
   .strict();
 
@@ -41,11 +43,13 @@ export const createWeeklyTaskSchema = z
 export const updateWeeklyTaskSchema = z
   .object({
     title: z.string().min(1).max(200).optional(),
+    description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS).optional(),
     priority: z.enum(PRIORITIES).optional(),
     category: z.enum(CATEGORIES).optional(),
     duration: z.number().int().min(15).max(480).optional(),
     startTime: z.string().max(20).optional(),
+    repeatWeekly: z.boolean().optional(),
     completed: z.boolean().optional(),
   })
   .strict();

@@ -22,11 +22,14 @@ export interface IWeeklyRepository {
   createTask(data: {
     weeklyPlanId: string;
     title: string;
+    description?: string | null;
     day: string;
     priority: string;
     category: string;
     duration: number;
-    startTime?: string;
+    startTime?: string | null;
+    repeatWeekly?: boolean;
+    sourceTaskId?: string | null;
   }): Promise<WeeklyTask>;
 
   /** Update fields on an existing weekly task. */
@@ -34,11 +37,14 @@ export interface IWeeklyRepository {
     taskId: string,
     data: Partial<{
       title: string;
+      description: string | null;
       day: string;
       priority: string;
       category: string;
       duration: number;
       startTime: string;
+      repeatWeekly: boolean;
+      sourceTaskId: string | null;
       completed: boolean;
     }>,
   ): Promise<WeeklyTask>;
@@ -51,4 +57,10 @@ export interface IWeeklyRepository {
 
   /** Hard-delete a weekly task. */
   deleteTask(taskId: string): Promise<void>;
+
+  /** Find all recurring tasks for a user created on or before a given weekStart. */
+  findRecurringTasksForUser(
+    userId: string,
+    beforeOrOnWeekStart?: string,
+  ): Promise<(WeeklyTask & { weeklyPlan: { weekStart: string } })[]>;
 }

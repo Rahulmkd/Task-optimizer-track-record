@@ -3,11 +3,14 @@ export interface IWeeklyTask {
   id: string;
   weeklyPlanId: string;
   title: string;
+  description?: string | null;
   day: string;
   priority: string;
   category: string;
   duration: number;
   startTime?: string;
+  repeatWeekly?: boolean;
+  sourceTaskId?: string | null;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
@@ -47,21 +50,25 @@ export type Category =
 export interface CreateWeeklyTaskPayload {
   weekStart: string;
   title: string;
+  description?: string | null;
   day: WeekDay;
   priority: Priority;
   category: Category;
   duration: number;
   startTime?: string;
+  repeatWeekly?: boolean;
 }
 
 /** PATCH /api/v1/weekly/tasks/:id */
 export interface UpdateWeeklyTaskPayload {
   title?: string;
+  description?: string | null;
   day?: WeekDay;
   priority?: Priority;
   category?: Category;
   duration?: number;
   startTime?: string;
+  repeatWeekly?: boolean;
   completed?: boolean;
 }
 
