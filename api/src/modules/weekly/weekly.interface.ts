@@ -26,6 +26,7 @@ export interface IWeeklyRepository {
     priority: string;
     category: string;
     duration: number;
+    startTime?: string;
   }): Promise<WeeklyTask>;
 
   /** Update fields on an existing weekly task. */
@@ -37,6 +38,7 @@ export interface IWeeklyRepository {
       priority: string;
       category: string;
       duration: number;
+      startTime: string;
       completed: boolean;
     }>,
   ): Promise<WeeklyTask>;

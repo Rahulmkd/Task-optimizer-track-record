@@ -8,6 +8,7 @@ export interface WeeklyTaskResponseDTO {
   category: string;
   /** Duration in minutes */
   duration: number;
+  startTime: string;
   completed: boolean;
   createdAt: Date;
   updatedAt: Date;

@@ -18,6 +18,7 @@ export class WeeklyMapper {
       priority: task.priority,
       category: task.category,
       duration: task.duration,
+      startTime: task.startTime ?? "09:00 AM",
       completed: task.completed,
       createdAt: task.createdAt,
       updatedAt: task.updatedAt,

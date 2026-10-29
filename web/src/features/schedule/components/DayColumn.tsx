@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
@@ -10,10 +11,14 @@ import {
   useToggleWeeklyTaskMutation,
 } from "@/features/schedule/services/weekly.service";
 
-
-
 import { TaskCard } from "./TaskCard";
-import { DAY_LABELS, getDayDateLabel } from "../utils/next-week-schedule.utils";
+import {
+  DAY_LABELS,
+  getDayDateLabel,
+  getOverlappingTaskIds,
+  getTimeRangeLabel,
+  sortTasksChronologically,
+} from "../utils/next-week-schedule.utils";
 
 interface DayColumnProps {
   dayKey: WeekDay;
@@ -22,6 +27,7 @@ interface DayColumnProps {
   tasks: IWeeklyTask[];
   isToday: boolean;
   onAdd: () => void;
+  onEditTask?: (task: IWeeklyTask) => void;
 }
 
 export function DayColumn({
@@ -31,11 +37,18 @@ export function DayColumn({
   tasks,
   isToday,
   onAdd,
+  onEditTask,
 }: DayColumnProps) {
   const [toggleTask] = useToggleWeeklyTaskMutation();
   const [deleteTask] = useDeleteWeeklyTaskMutation();
 
   const completedCount = tasks.filter((t) => t.completed).length;
+
+  // Chronological ordering within the day
+  const sortedTasks = useMemo(() => sortTasksChronologically(tasks), [tasks]);
+
+  // Set of task IDs that overlap with another task on this day
+  const conflictIds = useMemo(() => getOverlappingTaskIds(tasks), [tasks]);
 
   return (
     <div
@@ -90,10 +103,10 @@ export function DayColumn({
         </div>
       </div>
 
-      {/* tasks */}
+      {/* tasks in chronological order */}
       <div className="flex-1 p-2 space-y-2 min-h-[80px]">
         <AnimatePresence>
-          {tasks.length === 0 ? (
+          {sortedTasks.length === 0 ? (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -102,14 +115,24 @@ export function DayColumn({
               No tasks
             </motion.p>
           ) : (
-            tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onToggle={() => toggleTask({ id: task.id, weekStart })}
-                onDelete={() => deleteTask({ id: task.id, weekStart })}
-              />
-            ))
+            sortedTasks.map((task) => {
+              const hasConflict = conflictIds.has(task.id);
+              return (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  hasConflict={hasConflict}
+                  conflictTooltip={
+                    hasConflict
+                      ? `Conflict: This task's time (${getTimeRangeLabel(task.startTime, task.duration)}) overlaps with another task on ${DAY_LABELS[dayKey]}`
+                      : undefined
+                  }
+                  onToggle={() => toggleTask({ id: task.id, weekStart })}
+                  onEdit={() => onEditTask?.(task)}
+                  onDelete={() => deleteTask({ id: task.id, weekStart })}
+                />
+              );
+            })
           )}
         </AnimatePresence>
       </div>

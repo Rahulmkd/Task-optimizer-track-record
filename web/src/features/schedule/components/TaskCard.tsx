@@ -1,23 +1,42 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, Clock3, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  Clock3,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IWeeklyTask } from "@/features/schedule/types/weekly.types";
 import {
   getDurationLabel,
+  getTimeRangeLabel,
   PRIORITY_CONFIG,
 } from "../utils/next-week-schedule.utils";
 
 interface TaskCardProps {
   task: IWeeklyTask;
+  hasConflict?: boolean;
+  conflictTooltip?: string;
   onToggle: () => void;
+  onEdit?: () => void;
   onDelete: () => void;
 }
 
-export function TaskCard({ task, onToggle, onDelete }: TaskCardProps) {
+export function TaskCard({
+  task,
+  hasConflict = false,
+  conflictTooltip,
+  onToggle,
+  onEdit,
+  onDelete,
+}: TaskCardProps) {
   const p = PRIORITY_CONFIG[task.priority] ?? PRIORITY_CONFIG.MEDIUM;
   const durationLabel = getDurationLabel(task.duration);
+  const timeRangeLabel = getTimeRangeLabel(task.startTime, task.duration);
 
   return (
     <motion.div
@@ -26,10 +45,12 @@ export function TaskCard({ task, onToggle, onDelete }: TaskCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       className={cn(
-        "group rounded-xl border p-3 transition-colors duration-200",
+        "group relative rounded-xl border p-3 transition-all duration-200",
         task.completed
           ? "border-white/[0.06] bg-white/[0.02]"
-          : "border-white/10 bg-white/[0.04] hover:border-white/20",
+          : hasConflict
+            ? "border-amber-500/40 bg-amber-500/[0.04] hover:border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.06)]"
+            : "border-white/10 bg-white/[0.04] hover:border-white/20",
       )}
     >
       {/* title row */}
@@ -58,14 +79,53 @@ export function TaskCard({ task, onToggle, onDelete }: TaskCardProps) {
           {task.title}
         </p>
 
-        {/* delete — visible on hover */}
-        <button
-          onClick={onDelete}
-          aria-label="Delete task"
-          className="ml-auto opacity-0 group-hover:opacity-100 text-white/25 hover:text-red-400 transition-all shrink-0"
+        {/* Action buttons (Edit & Delete) — visible on hover */}
+        <div className="flex items-center gap-1 shrink-0 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <button
+              onClick={onEdit}
+              aria-label="Edit task"
+              className="text-white/30 hover:text-violet-300 transition-colors p-0.5"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
+          )}
+
+          <button
+            onClick={onDelete}
+            aria-label="Delete task"
+            className="text-white/30 hover:text-red-400 transition-colors p-0.5"
+          >
+            <Trash2 className="h-3 w-3" />
+          </button>
+        </div>
+      </div>
+
+      {/* Scheduled Time Banner / Badge */}
+      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border",
+            task.completed
+              ? "text-white/25 bg-white/[0.02] border-white/[0.05]"
+              : "text-violet-300 bg-violet-500/10 border-violet-500/20",
+          )}
+          title={`Scheduled: ${timeRangeLabel}`}
         >
-          <Trash2 className="h-3 w-3" />
-        </button>
+          <Clock className="h-2.5 w-2.5" />
+          {timeRangeLabel}
+        </span>
+
+        {/* Conflict warning badge if overlapping */}
+        {hasConflict && !task.completed && (
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border text-amber-400 bg-amber-500/15 border-amber-500/30 animate-pulse"
+            title={conflictTooltip ?? "Schedule conflict: overlaps with another task"}
+          >
+            <AlertTriangle className="h-2.5 w-2.5 text-amber-400" />
+            Conflict
+          </span>
+        )}
       </div>
 
       {/* meta row */}

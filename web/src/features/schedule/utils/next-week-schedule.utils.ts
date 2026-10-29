@@ -1,4 +1,4 @@
-import { Category, WeekDay } from "@/features/schedule/types/weekly.types";
+import { Category, IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
 
 /* -------------------------------------------------------------------------- */
 /*                              DAY CONSTANTS                                 */
@@ -32,9 +32,11 @@ export const DAY_LABELS: Record<WeekDay, string> = {
  * "Add Task" dropdown can never drift out of sync with each other. */
 export const CATEGORY_VALUES: Category[] = [
   "Study",
+  "Work",
+  "Personal",
+  "Health",
   "Fitness",
   "Nutrition",
-  "Personal",
   "Career",
   "Other",
 ];
@@ -101,9 +103,7 @@ export function getWeekRangeLabel(weekStart: string): string {
 }
 
 /**
- * Day-of-month + month label for a specific day offset from weekStart,
- * e.g. "15 Aug". The previous version hardcoded the " Jul" suffix, which
- * showed the wrong month for every week that wasn't in July.
+ * Day-of-month + month label for a specific day offset from weekStart.
  */
 export function getDayDateLabel(weekStart: string, offset: number): string {
   const d = new Date(weekStart);
@@ -123,4 +123,183 @@ export function getDurationLabel(minutes: number): string {
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
   return `${hours}h${rest ? ` ${rest}m` : ""}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           TIME & SCHEDULING HELPERS                        */
+/* -------------------------------------------------------------------------- */
+
+export interface TimeSlotOption {
+  value: string; // e.g. "09:00 AM"
+  label: string; // e.g. "9:00 AM"
+  minutes: number;
+}
+
+/**
+ * Generates 30-minute interval slots from 6:00 AM to 11:30 PM.
+ */
+export function generateTimeSlots(): TimeSlotOption[] {
+  const slots: TimeSlotOption[] = [];
+  // 6:00 AM (360 min) to 11:30 PM (1410 min)
+  for (let m = 6 * 60; m <= 23 * 60 + 30; m += 30) {
+    const hours24 = Math.floor(m / 60);
+    const mins = m % 60;
+    const period = hours24 >= 12 ? "PM" : "AM";
+    const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+    const padMin = String(mins).padStart(2, "0");
+    const padHour = String(hours12).padStart(2, "0");
+
+    slots.push({
+      value: `${padHour}:${padMin} ${period}`,
+      label: `${hours12}:${padMin} ${period}`,
+      minutes: m,
+    });
+  }
+  return slots;
+}
+
+export const TIME_SLOTS: TimeSlotOption[] = generateTimeSlots();
+
+export const DEFAULT_START_TIME = "09:00 AM";
+
+/**
+ * Parses any time string ("09:00 AM", "9:00 AM", "09:00", "21:30") into minutes from midnight (0..1439).
+ * Defaults to 540 (9:00 AM) if invalid or omitted.
+ */
+export function parseTimeToMinutes(timeStr?: string | null): number {
+  if (!timeStr || typeof timeStr !== "string") return 540;
+
+  const trimmed = timeStr.trim();
+  const ampmMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!ampmMatch) return 540;
+
+  let hours = parseInt(ampmMatch[1], 10);
+  const minutes = parseInt(ampmMatch[2], 10);
+  const modifier = ampmMatch[3]?.toUpperCase();
+
+  if (modifier === "PM" && hours < 12) {
+    hours += 12;
+  } else if (modifier === "AM" && hours === 12) {
+    hours = 0;
+  }
+
+  const total = (hours % 24) * 60 + (minutes % 60);
+  return Number.isNaN(total) ? 540 : total;
+}
+
+/**
+ * Converts minutes from midnight into 12-hour AM/PM string, e.g. 540 -> "9:00 AM".
+ */
+export function minutesToTime12(totalMinutes: number): string {
+  const normalized = ((totalMinutes % 1440) + 1440) % 1440;
+  const hours24 = Math.floor(normalized / 60);
+  const mins = normalized % 60;
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+  return `${hours12}:${String(mins).padStart(2, "0")} ${period}`;
+}
+
+/**
+ * Formats a time string into clean 12-hour AM/PM display string (e.g. "9:00 AM").
+ */
+export function formatTimeDisplay(timeStr?: string | null): string {
+  return minutesToTime12(parseTimeToMinutes(timeStr));
+}
+
+/**
+ * Calculates end time given a start time and duration in minutes.
+ */
+export function calculateEndTime(
+  startTimeStr?: string | null,
+  durationMinutes: number = 60,
+): string {
+  const startMinutes = parseTimeToMinutes(startTimeStr);
+  const endMinutes = startMinutes + durationMinutes;
+  return minutesToTime12(endMinutes);
+}
+
+/**
+ * Formats a time range, e.g. "9:00 AM – 10:00 AM".
+ */
+export function getTimeRangeLabel(
+  startTimeStr?: string | null,
+  durationMinutes: number = 60,
+): string {
+  const start = formatTimeDisplay(startTimeStr);
+  const end = calculateEndTime(startTimeStr, durationMinutes);
+  return `${start} – ${end}`;
+}
+
+/**
+ * Checks if two tasks overlap in time.
+ * Overlap occurs if startA < endB AND startB < endA.
+ */
+export function checkTasksOverlap(
+  taskA: { startTime?: string; duration: number },
+  taskB: { startTime?: string; duration: number },
+): boolean {
+  const startA = parseTimeToMinutes(taskA.startTime);
+  const endA = startA + (taskA.duration || 60);
+  const startB = parseTimeToMinutes(taskB.startTime);
+  const endB = startB + (taskB.duration || 60);
+
+  return startA < endB && startB < endA;
+}
+
+/**
+ * Finds all tasks on the same day that conflict with the given candidate task.
+ */
+export function findConflictingTasks(
+  candidate: {
+    id?: string;
+    day: string;
+    startTime?: string;
+    duration: number;
+  },
+  tasks: IWeeklyTask[],
+): IWeeklyTask[] {
+  return tasks.filter((t) => {
+    if (candidate.id && t.id === candidate.id) return false;
+    if (t.day !== candidate.day) return false;
+    return checkTasksOverlap(candidate, t);
+  });
+}
+
+/**
+ * Returns a Set of task IDs for all tasks that have scheduling conflicts with another task on the same day.
+ */
+export function getOverlappingTaskIds(tasks: IWeeklyTask[]): Set<string> {
+  const conflictIds = new Set<string>();
+
+  // Group by day
+  const byDay: Record<string, IWeeklyTask[]> = {};
+  for (const task of tasks) {
+    if (!byDay[task.day]) byDay[task.day] = [];
+    byDay[task.day].push(task);
+  }
+
+  for (const dayTasks of Object.values(byDay)) {
+    for (let i = 0; i < dayTasks.length; i++) {
+      for (let j = i + 1; j < dayTasks.length; j++) {
+        if (checkTasksOverlap(dayTasks[i], dayTasks[j])) {
+          conflictIds.add(dayTasks[i].id);
+          conflictIds.add(dayTasks[j].id);
+        }
+      }
+    }
+  }
+
+  return conflictIds;
+}
+
+/**
+ * Sorts tasks in chronological order by start time, then by creation date.
+ */
+export function sortTasksChronologically(tasks: IWeeklyTask[]): IWeeklyTask[] {
+  return [...tasks].sort((a, b) => {
+    const timeA = parseTimeToMinutes(a.startTime);
+    const timeB = parseTimeToMinutes(b.startTime);
+    if (timeA !== timeB) return timeA - timeB;
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
 }

@@ -27,6 +27,7 @@ export function NextWeekSchedule() {
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All");
   const [showAddTask, setShowAddTask] = useState(false);
   const [preselectedDay, setPreselectedDay] = useState<WeekDay | undefined>();
+  const [taskToEdit, setTaskToEdit] = useState<IWeeklyTask | undefined>();
 
   const { data: plan, isLoading, isError } = useGetWeeklyPlanQuery(weekStart);
 
@@ -51,18 +52,27 @@ export function NextWeekSchedule() {
   const handleNextWeek = () => setWeekStart((w) => shiftWeek(w, 1));
 
   const handleAddForDay = (day: WeekDay) => {
+    setTaskToEdit(undefined);
     setPreselectedDay(day);
     setShowAddTask(true);
   };
 
   const handleOpenAddTask = () => {
+    setTaskToEdit(undefined);
     setPreselectedDay(undefined);
+    setShowAddTask(true);
+  };
+
+  const handleEditTask = (task: IWeeklyTask) => {
+    setTaskToEdit(task);
+    setPreselectedDay(task.day as WeekDay);
     setShowAddTask(true);
   };
 
   const handleCloseAddTask = () => {
     setShowAddTask(false);
     setPreselectedDay(undefined);
+    setTaskToEdit(undefined);
   };
 
   if (isLoading) return <ScheduleSkeleton />;
@@ -117,17 +127,20 @@ export function NextWeekSchedule() {
           categoryFilter={categoryFilter}
           todayDayKey={todayDayKey}
           onAddForDay={handleAddForDay}
+          onEditTask={handleEditTask}
         />
       )}
 
       <HighPriorityRemaining tasks={tasks} />
 
-      {/* ── Add Task Modal ──────────────────────────────────────────── */}
+      {/* ── Add / Edit Task Modal ──────────────────────────────────────────── */}
       <AnimatePresence>
         {showAddTask && (
           <AddTaskModal
             weekStart={weekStart}
             defaultDay={preselectedDay}
+            taskToEdit={taskToEdit}
+            existingTasks={tasks}
             onClose={handleCloseAddTask}
           />
         )}

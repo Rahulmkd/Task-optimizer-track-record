@@ -4,9 +4,11 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
 const PRIORITIES = ["HIGH", "MEDIUM", "LOW"] as const;
 const CATEGORIES = [
   "Study",
+  "Work",
+  "Personal",
+  "Health",
   "Fitness",
   "Nutrition",
-  "Personal",
   "Career",
   "Other",
 ] as const;
@@ -31,6 +33,7 @@ export const createWeeklyTaskSchema = z
     priority: z.enum(PRIORITIES).default("MEDIUM"),
     category: z.enum(CATEGORIES).default("Other"),
     duration: z.number().int().min(15).max(480).default(60),
+    startTime: z.string().max(20).optional().default("09:00 AM"),
   })
   .strict();
 
@@ -42,6 +45,7 @@ export const updateWeeklyTaskSchema = z
     priority: z.enum(PRIORITIES).optional(),
     category: z.enum(CATEGORIES).optional(),
     duration: z.number().int().min(15).max(480).optional(),
+    startTime: z.string().max(20).optional(),
     completed: z.boolean().optional(),
   })
   .strict();

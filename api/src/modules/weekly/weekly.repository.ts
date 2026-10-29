@@ -31,6 +31,7 @@ class WeeklyRepository implements IWeeklyRepository {
     priority: string;
     category: string;
     duration: number;
+    startTime?: string;
   }) {
     return prisma.weeklyTask.create({ data });
   }
@@ -43,6 +44,7 @@ class WeeklyRepository implements IWeeklyRepository {
       priority: string;
       category: string;
       duration: number;
+      startTime: string;
       completed: boolean;
     }>,
   ) {

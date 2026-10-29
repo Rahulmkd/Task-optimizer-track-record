@@ -7,6 +7,7 @@ export interface IWeeklyTask {
   priority: string;
   category: string;
   duration: number;
+  startTime?: string;
   completed: boolean;
   createdAt: string;
   updatedAt: string;
@@ -34,9 +35,11 @@ export type WeekDay = "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
 export type Priority = "HIGH" | "MEDIUM" | "LOW";
 export type Category =
   | "Study"
+  | "Work"
+  | "Personal"
+  | "Health"
   | "Fitness"
   | "Nutrition"
-  | "Personal"
   | "Career"
   | "Other";
 
@@ -48,6 +51,7 @@ export interface CreateWeeklyTaskPayload {
   priority: Priority;
   category: Category;
   duration: number;
+  startTime?: string;
 }
 
 /** PATCH /api/v1/weekly/tasks/:id */
@@ -57,6 +61,7 @@ export interface UpdateWeeklyTaskPayload {
   priority?: Priority;
   category?: Category;
   duration?: number;
+  startTime?: string;
   completed?: boolean;
 }
 

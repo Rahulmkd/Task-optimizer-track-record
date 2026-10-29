@@ -110,6 +110,7 @@ model WeeklyTask {
   priority     String @default("MEDIUM")
   category     String
   duration     Int    @default(60)
+  startTime    String? @default("09:00 AM")
 
   completed Boolean @default(false)
 

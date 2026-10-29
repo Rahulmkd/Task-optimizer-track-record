@@ -12,6 +12,7 @@ interface WeekGridProps {
   categoryFilter: CategoryFilter;
   todayDayKey: WeekDay | null;
   onAddForDay: (day: WeekDay) => void;
+  onEditTask?: (task: IWeeklyTask) => void;
 }
 
 export function WeekGrid({
@@ -20,6 +21,7 @@ export function WeekGrid({
   categoryFilter,
   todayDayKey,
   onAddForDay,
+  onEditTask,
 }: WeekGridProps) {
   const filterByCategory = (dayTasks: IWeeklyTask[]) =>
     categoryFilter === "All"
@@ -47,6 +49,7 @@ export function WeekGrid({
             tasks={dayTasks}
             isToday={dayKey === todayDayKey}
             onAdd={() => onAddForDay(dayKey)}
+            onEditTask={onEditTask}
           />
         );
       })}
