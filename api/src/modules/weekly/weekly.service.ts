@@ -85,19 +85,38 @@ class WeeklyService {
     let aiResponse;
     try {
       aiResponse = await aiProvider.invoke(prompt);
-    } catch {
+    } catch (err: unknown) {
+      console.error("[generateAIWeeklyPlan] AI Provider error:", err);
+      const errMsg = (err as Error)?.message || "Unknown error";
       throw new AppError(
-        "The AI service is temporarily unavailable. Please try again shortly.",
+        `AI Service error: ${errMsg}. Please check your AI API key and provider configuration.`,
         502,
       );
     }
 
-    const parsedJson = JsonParser.parse(aiResponse.content.toString());
+    let parsedJson: unknown;
+    try {
+      parsedJson = JsonParser.parse(aiResponse.content.toString());
+    } catch (err: unknown) {
+      console.error("[generateAIWeeklyPlan] JsonParser error:", err);
+      throw new AppError(
+        "The AI returned a response format we could not understand. Please try again.",
+        502,
+      );
+    }
+
     const validation = aiWeeklyPlanResponseSchema.safeParse(parsedJson);
 
     if (!validation.success) {
+      console.error(
+        "[generateAIWeeklyPlan] Validation failed:",
+        validation.error.issues,
+      );
+      const errorMsg = validation.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; ");
       throw new AppError(
-        "The AI returned an unexpected response structure. Please try again.",
+        `The AI generated a response with unexpected fields (${errorMsg}). Please try again.`,
         502,
       );
     }

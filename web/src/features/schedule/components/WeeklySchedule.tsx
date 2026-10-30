@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { ListTodo } from "lucide-react";
-import { EmptyState } from "@/components/shared/EmptyState";
+import { Sparkles } from "lucide-react";
 import {
   IWeeklyPlanStats,
   IWeeklyTask,
@@ -19,6 +18,7 @@ import { HighPriorityRemaining } from "./HighPriorityRemaining";
 import { ScheduleSkeleton } from "./ScheduleSkeleton";
 import { ScheduleError } from "./ScheduleError";
 import { AddTaskModal } from "./AddTaskModal";
+import { AIWeeklyPlanModal } from "./AIWeeklyPlanModal";
 import {
   CategoryFilter,
   DAY_KEYS,
@@ -26,15 +26,22 @@ import {
   getMondayOf,
   shiftWeek,
 } from "../utils/weekly-schedule.utils";
+import { Button } from "@/components/ui/button";
 
 export function WeeklySchedule() {
   const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All");
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
   const [preselectedDay, setPreselectedDay] = useState<WeekDay | undefined>();
   const [taskToEdit, setTaskToEdit] = useState<IWeeklyTask | undefined>();
 
-  const { data: plan, isLoading, isError } = useGetWeeklyPlanQuery(weekStart);
+  const {
+    data: plan,
+    isLoading,
+    isError,
+    refetch,
+  } = useGetWeeklyPlanQuery(weekStart);
 
   const tasks = useMemo<IWeeklyTask[]>(() => plan?.tasks ?? [], [plan?.tasks]);
 
@@ -119,6 +126,7 @@ export function WeeklySchedule() {
         onPrevWeek={handlePrevWeek}
         onNextWeek={handleNextWeek}
         onAddTask={handleOpenAddTask}
+        onOpenAI={() => setShowAIModal(true)}
       />
 
       <CategoryFilterBar
@@ -133,13 +141,38 @@ export function WeeklySchedule() {
 
       {/* ── Day columns ─────────────────────────────────────────────── */}
       {tasks.length === 0 ? (
-        <EmptyState
-          icon={ListTodo}
-          title="No tasks this week"
-          description="Add your first task to start planning your week."
-          actionLabel="Add Task"
-          onAction={handleOpenAddTask}
-        />
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 sm:p-12 text-center space-y-4">
+          <div className="h-12 w-12 rounded-xl bg-violet-600/15 border border-violet-500/20 text-violet-400 flex items-center justify-center mx-auto">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <div className="space-y-1 max-w-sm mx-auto">
+            <h3 className="text-sm sm:text-base font-bold text-white">
+              No tasks scheduled this week
+            </h3>
+            <p className="text-xs text-white/50">
+              Generate a personalized Monday–Sunday timetable using AI, or
+              add your first task manually.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Button
+              type="button"
+              onClick={() => setShowAIModal(true)}
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.25)] flex items-center gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Generate with AI</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleOpenAddTask}
+              className="border-white/10 text-white/80 hover:text-white text-xs rounded-xl"
+            >
+              Add Task Manually
+            </Button>
+          </div>
+        </div>
       ) : (
         <WeekGrid
           tasks={tasks}
@@ -157,12 +190,27 @@ export function WeeklySchedule() {
       <AnimatePresence>
         {showAddTask && (
           <AddTaskModal
-            key={taskToEdit ? `edit-${taskToEdit.id}` : `add-${preselectedDay ?? "all"}`}
+            key={
+              taskToEdit
+                ? `edit-${taskToEdit.id}`
+                : `add-${preselectedDay ?? "all"}`
+            }
             weekStart={weekStart}
             defaultDay={preselectedDay}
             taskToEdit={taskToEdit}
             existingTasks={tasks}
             onClose={handleCloseAddTask}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── AI Weekly Plan Modal ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showAIModal && (
+          <AIWeeklyPlanModal
+            weekStart={weekStart}
+            onClose={() => setShowAIModal(false)}
+            onPlanApproved={() => refetch()}
           />
         )}
       </AnimatePresence>

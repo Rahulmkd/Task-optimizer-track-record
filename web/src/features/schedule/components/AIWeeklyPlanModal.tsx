@@ -129,9 +129,17 @@ export function AIWeeklyPlanModal({
       setStep("preview");
       toast.success("AI Weekly Schedule generated! Review before saving.");
     } catch (err: unknown) {
+      console.error("[AIWeeklyPlanModal] Generation error:", err);
+      const anyErr = err as {
+        data?: { message?: string };
+        error?: string;
+        message?: string;
+      };
       const msg =
-        (err as { data?: { message?: string } })?.data?.message ||
-        "Failed to generate weekly schedule. Please try again.";
+        anyErr?.data?.message ||
+        anyErr?.error ||
+        anyErr?.message ||
+        "Could not generate weekly schedule. Please ensure the backend server is running.";
       toast.error(msg);
     }
   };
@@ -316,9 +324,10 @@ export function AIWeeklyPlanModal({
                   <div>
                     <p className="font-semibold">Generation failed</p>
                     <p className="text-red-200/70 mt-0.5">
-                      {(genError as { data?: { message?: string } })?.data
-                        ?.message ||
-                        "Could not generate schedule. Please refine your inputs and try again."}
+                      {(genError as { data?: { message?: string }; error?: string })
+                        ?.data?.message ||
+                        (genError as { error?: string })?.error ||
+                        "Could not generate schedule. Please verify the backend server is running and try again."}
                     </p>
                   </div>
                 </div>
