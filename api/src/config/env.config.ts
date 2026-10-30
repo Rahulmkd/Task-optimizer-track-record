@@ -25,8 +25,8 @@ const envSchema = z.object({
     .min(1, "JWT_REFRESH_TOKEN_EXPIRY is required"),
 
   AI_PROVIDER: z.enum(["gemini", "groq"]).default("gemini"),
-  GEMINI_API_KEY: z.string().optional().default(""),
-  GROQ_API_KEY: z.string().optional().default(""),
+  GEMINI_API_KEY: z.string().trim().optional().default(""),
+  GROQ_API_KEY: z.string().trim().optional().default(""),
 
   APP_TIMEZONE_OFFSET_MINUTES: z.coerce.number().int().default(330),
 });

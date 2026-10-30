@@ -40,6 +40,7 @@ export const weeklyService = createApi({
         url: API_PATHS.WEEKLY.GENERATE_PLAN,
         method: "POST",
         data,
+        timeout: 60000,
       }),
       transformResponse: (response: ApiResponse<AIWeeklyPlanPreview>) =>
         response.data,

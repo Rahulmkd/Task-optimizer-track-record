@@ -7,32 +7,41 @@ interface AxiosArgs {
   method: AxiosRequestConfig["method"];
   data?: unknown;
   params?: unknown;
+  timeout?: number;
 }
 
 interface AxiosErrorResponse {
   status?: number;
   data?: unknown;
+  error?: string;
 }
 
 export const axiosBaseQuery =
   (): BaseQueryFn<AxiosArgs, unknown, AxiosErrorResponse> =>
-  async ({ url, method, data, params }) => {
+  async ({ url, method, data, params, timeout }) => {
     try {
       const result = await api({
         url,
         method,
         data,
         params,
+        ...(timeout ? { timeout } : {}),
       });
 
       return { data: result.data };
     } catch (error) {
-      const err = error as AxiosError;
+      const err = error as AxiosError<{ message?: string; error?: string }>;
+
+      const status = err.response?.status ?? 500;
+      const data = err.response?.data ?? err.message;
+      const errorMsg =
+        err.response?.data?.message || err.response?.data?.error || err.message;
 
       return {
         error: {
-          status: err.response?.status ?? 500,
-          data: err.response?.data ?? err.message,
+          status,
+          data,
+          error: errorMsg,
         },
       };
     }

@@ -3,6 +3,26 @@ import { z } from "zod";
 export const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
 export const PRIORITIES = ["HIGH", "MEDIUM", "LOW"] as const;
 
+const priorityPreprocess = z.preprocess((val) => {
+  if (typeof val === "string") {
+    const upper = val.toUpperCase().trim();
+    if (upper === "HIGH" || upper === "MEDIUM" || upper === "LOW") return upper;
+    if (upper.includes("HIGH") || upper === "URGENT") return "HIGH";
+    if (upper.includes("LOW")) return "LOW";
+  }
+  return "MEDIUM";
+}, z.enum(PRIORITIES)).default("MEDIUM");
+
+const durationPreprocess = (fallback = 60) =>
+  z.preprocess((val) => {
+    if (typeof val === "number") return Math.round(val);
+    if (typeof val === "string") {
+      const match = val.match(/\d+/);
+      if (match) return parseInt(match[0], 10);
+    }
+    return fallback;
+  }, z.number().int().min(15).max(720).default(fallback));
+
 /** GET /api/v1/weekly?weekStart=2026-07-20 */
 export const getWeeklyPlanSchema = z
   .object({
@@ -18,12 +38,12 @@ export const createWeeklyTaskSchema = z
     weekStart: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/, "weekStart must be YYYY-MM-DD"),
-    title: z.string().min(1, "Title is required").max(200),
+    title: z.string().trim().min(1, "Title is required").max(200),
     description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS),
-    priority: z.enum(PRIORITIES).default("MEDIUM"),
+    priority: priorityPreprocess,
     category: z.string().trim().min(1, "Category is required").max(50).default("General"),
-    duration: z.number().int().min(15).max(720).default(60),
+    duration: durationPreprocess(60),
     startTime: z.string().max(20).optional().default("09:00 AM"),
     repeatWeekly: z.boolean().optional().default(false),
   })
@@ -32,12 +52,12 @@ export const createWeeklyTaskSchema = z
 /** PATCH /api/v1/weekly/tasks/:id */
 export const updateWeeklyTaskSchema = z
   .object({
-    title: z.string().min(1).max(200).optional(),
+    title: z.string().trim().min(1).max(200).optional(),
     description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS).optional(),
-    priority: z.enum(PRIORITIES).optional(),
+    priority: priorityPreprocess.optional(),
     category: z.string().trim().min(1).max(50).optional(),
-    duration: z.number().int().min(15).max(720).optional(),
+    duration: durationPreprocess(60).optional(),
     startTime: z.string().max(20).optional(),
     repeatWeekly: z.boolean().optional(),
     completed: z.boolean().optional(),
@@ -81,15 +101,7 @@ export const aiTaskItemSchema = z.object({
     if (typeof val === "string" && val.trim().length > 0) return val.trim();
     return "General";
   }, z.string().trim().min(1).max(50)).default("General"),
-  priority: z.preprocess((val) => {
-    if (typeof val === "string") {
-      const upper = val.toUpperCase().trim();
-      if (upper === "HIGH" || upper === "MEDIUM" || upper === "LOW") return upper;
-      if (upper.includes("HIGH") || upper === "URGENT") return "HIGH";
-      if (upper.includes("LOW")) return "LOW";
-    }
-    return "MEDIUM";
-  }, z.enum(PRIORITIES)).default("MEDIUM"),
+  priority: priorityPreprocess,
   repeatWeekly: z.preprocess((val) => {
     if (typeof val === "boolean") return val;
     if (typeof val === "string") return val.toLowerCase() !== "false";
@@ -119,9 +131,9 @@ export const bulkSaveTaskItemSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(200),
   description: z.string().max(2000).optional().nullable(),
   day: z.enum(DAYS),
-  priority: z.enum(PRIORITIES).default("MEDIUM"),
+  priority: priorityPreprocess,
   category: z.string().trim().min(1, "Category is required").max(50).default("General"),
-  duration: z.number().int().min(15).max(720).default(60),
+  duration: durationPreprocess(60),
   startTime: z.string().max(20).default("09:00 AM"),
   repeatWeekly: z.boolean().default(true),
   completed: z.boolean().optional().default(false),

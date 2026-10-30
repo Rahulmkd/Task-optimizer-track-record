@@ -131,12 +131,13 @@ export function AIWeeklyPlanModal({
     } catch (err: unknown) {
       console.error("[AIWeeklyPlanModal] Generation error:", err);
       const anyErr = err as {
-        data?: { message?: string };
+        data?: { message?: string; error?: string };
         error?: string;
         message?: string;
       };
       const msg =
         anyErr?.data?.message ||
+        anyErr?.data?.error ||
         anyErr?.error ||
         anyErr?.message ||
         "Could not generate weekly schedule. Please ensure the backend server is running.";
@@ -178,8 +179,17 @@ export function AIWeeklyPlanModal({
       onPlanApproved?.();
       onClose();
     } catch (err: unknown) {
+      console.error("[AIWeeklyPlanModal] Save error:", err);
+      const anyErr = err as {
+        data?: { message?: string; error?: string };
+        error?: string;
+        message?: string;
+      };
       const msg =
-        (err as { data?: { message?: string } })?.data?.message ||
+        anyErr?.data?.message ||
+        anyErr?.data?.error ||
+        anyErr?.error ||
+        anyErr?.message ||
         "Failed to save weekly schedule. Please try again.";
       toast.error(msg);
     }
@@ -324,8 +334,9 @@ export function AIWeeklyPlanModal({
                   <div>
                     <p className="font-semibold">Generation failed</p>
                     <p className="text-red-200/70 mt-0.5">
-                      {(genError as { data?: { message?: string }; error?: string })
+                      {(genError as { data?: { message?: string; error?: string }; error?: string })
                         ?.data?.message ||
+                        (genError as { data?: { error?: string } })?.data?.error ||
                         (genError as { error?: string })?.error ||
                         "Could not generate schedule. Please verify the backend server is running and try again."}
                     </p>
