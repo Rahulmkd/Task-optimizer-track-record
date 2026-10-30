@@ -4,16 +4,13 @@ import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { Roadmapsh } from "@/features/roadmap/components/roadmap";
 
-export default function Roadmap() {
+export default function RoadmapPage() {
   return (
     <DashboardShell>
-      {/* Page header */}
-
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-        className="mb-8"
+        transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <Roadmapsh />
       </motion.div>

@@ -3,14 +3,13 @@
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useRef, useState } from "react";
-import { Backdrop } from "../../../components/ui/Backdrop";
+import { Backdrop } from "@/components/ui/Backdrop";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { TimeInput } from "@/components/ui/TimeInput";
-import { CalendarCheck, Sparkles, X } from "lucide-react";
+import { CalendarCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ModalPanel } from "../../../components/ui/ModalPanel";
-import { cn } from "@/lib/utils";
+import { ModalPanel } from "@/components/ui/ModalPanel";
 import { useCreateTaskMutation } from "@/features/tasks/services/task.service";
 
 export function CreateTaskModal({ onClose }: { onClose: () => void }) {
@@ -21,7 +20,6 @@ export function CreateTaskModal({ onClose }: { onClose: () => void }) {
   });
 
   const [error, setError] = useState<string | null>(null);
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -39,7 +37,6 @@ export function CreateTaskModal({ onClose }: { onClose: () => void }) {
 
   const handleSave = async () => {
     if (!details.trim()) return;
-
     setError(null);
 
     try {
@@ -50,56 +47,50 @@ export function CreateTaskModal({ onClose }: { onClose: () => void }) {
 
       onClose();
     } catch {
-      setError("Couldn't save this entry. Please try again.");
+      setError("Couldn't save this task. Please try again.");
     }
   };
 
   return (
     <Backdrop onClick={onClose}>
       <ModalPanel>
-        {/* ── Gradient header ── */}
-        <div
-          className={cn(
-            "relative flex items-center justify-between px-5 py-4",
-            "bg-linear-to-r overflow-hidden",
-            "from-violet-600 to-indigo-600",
-          )}
-        >
-          {/* Subtle noise overlay */}
-          <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]" />
-
-          <div className="relative flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-white/20 border border-white/20 shadow-inner flex items-center justify-center">
-              <CalendarCheck className="h-5 w-5 text-white" />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#0e0e16]">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+              <CalendarCheck className="h-4.5 w-4.5" />
             </div>
             <div>
-              <h3 className="text-white font-bold text-base leading-none">
-                New Task
+              <h3 className="text-white text-sm font-bold leading-none">
+                Create Daily Task
               </h3>
-              <p className="text-white/60 text-xs mt-1">Quick entry</p>
+              <p className="text-white/45 text-xs mt-1">
+                Schedule a focus block for today
+              </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="relative h-8 w-8 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 flex items-center justify-center transition-colors"
+            aria-label="Close dialog"
+            className="h-8 w-8 rounded-lg bg-white/[0.04] hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
           >
-            <X className="h-3.5 w-3.5 text-white" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* ── Body ── */}
+        {/* Body */}
         <div className="p-5 space-y-4">
           <FormField
             id="qa-details"
-            label="Details"
+            label="Task Title / Details"
             required
             error={error ?? undefined}
           >
             <Input
               ref={inputRef}
               id="qa-details"
-              placeholder="What did you do?"
+              placeholder="e.g. Implement user profile API endpoint"
               value={details}
               onChange={(e) => {
                 setDetails(e.target.value);
@@ -109,33 +100,30 @@ export function CreateTaskModal({ onClose }: { onClose: () => void }) {
             />
           </FormField>
 
-          {/* ── Premium time picker ── */}
-          <FormField id="qa-time" label="Time">
+          {/* Time picker */}
+          <FormField id="qa-time" label="Scheduled Time (IST)">
             <TimeInput value={time} onChange={setTime} />
           </FormField>
 
-          <p className="flex items-center gap-1.5 text-xs text-white/30">
-            <Sparkles className="h-3 w-3 text-violet-400/60" />
-            Head to the Tracker for full logging options.
-          </p>
-
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-2">
             <Button
+              type="button"
               variant="outline"
-              className="flex-1 h-11"
+              className="flex-1"
               onClick={onClose}
               disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
+              type="button"
               variant="gradient"
-              className="flex-1 h-11"
+              className="flex-1"
               onClick={handleSave}
               disabled={!details.trim() || isLoading}
               loading={isLoading}
             >
-              Save
+              Create Task
             </Button>
           </div>
         </div>

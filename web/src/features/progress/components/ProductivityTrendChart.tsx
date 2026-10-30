@@ -5,7 +5,6 @@ import { TrendingUp } from "lucide-react";
 import {
   formatProgressDate,
   getProgressScoreColor,
-  getProgressScoreLabel,
 } from "../utils/progress.utils";
 import { TrendIndicator } from "./TrendIndicator";
 import { IJournalSummary } from "@/features/story/types/ai.types";
@@ -75,27 +74,26 @@ export function ProductivityTrendChart({
   const trend = latestScore - previousScore;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.035]">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-xl">
       {/* ------------------------------------------------------------------ */}
       {/* HEADER                                                             */}
       {/* ------------------------------------------------------------------ */}
 
-      <div className="flex flex-col gap-3 border-b border-white/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-b border-white/[0.08] p-4 sm:p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-400/10 bg-violet-400/10">
-            <TrendingUp className="h-4 w-4 text-violet-400" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-500/20 bg-violet-600/15 text-violet-400">
+            <TrendingUp className="h-4.5 w-4.5" />
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-white">Productivity trend</h3>
-
-            <p className="mt-0.5 text-[11px] text-white/35">
-              Your daily productivity score
+            <h3 className="text-sm font-bold text-white">Productivity Trend</h3>
+            <p className="mt-0.5 text-xs text-white/50">
+              Daily trajectory over logged sessions
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 self-end sm:self-auto">
           <div className="text-right">
             <p
               className={`text-lg font-black ${getProgressScoreColor(
@@ -105,12 +103,12 @@ export function ProductivityTrendChart({
               {latestScore}
             </p>
 
-            <p className="text-[9px] uppercase tracking-wider text-white/25">
-              latest
+            <p className="text-[10px] uppercase font-bold tracking-wider text-white/45">
+              Latest Score
             </p>
           </div>
 
-          <div className="h-7 w-px bg-white/[0.08]" />
+          <div className="h-7 w-px bg-white/10" />
 
           <TrendIndicator value={trend} />
         </div>
@@ -120,11 +118,11 @@ export function ProductivityTrendChart({
       {/* CHART                                                              */}
       {/* ------------------------------------------------------------------ */}
 
-      <div className="px-2 pb-3 pt-4 sm:px-4">
-        <div className="w-full overflow-x-auto">
+      <div className="px-2 pb-4 pt-4 sm:px-4">
+        <div className="w-full overflow-x-auto custom-scrollbar">
           <svg
             viewBox={`0 0 ${W} ${H}`}
-            className="h-auto min-w-[520px] w-full"
+            className="h-auto min-w-[500px] w-full"
             role="img"
             aria-label="Productivity score trend"
           >
@@ -136,8 +134,7 @@ export function ProductivityTrendChart({
                 x2="0"
                 y2="1"
               >
-                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.24" />
-
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.28" />
                 <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
               </linearGradient>
             </defs>
@@ -153,7 +150,7 @@ export function ProductivityTrendChart({
                     y1={y}
                     x2={W - PAD.right}
                     y2={y}
-                    stroke="rgba(255,255,255,0.055)"
+                    stroke="rgba(255,255,255,0.06)"
                     strokeWidth="1"
                   />
 
@@ -161,8 +158,9 @@ export function ProductivityTrendChart({
                     x={PAD.left - 8}
                     y={y + 3}
                     textAnchor="end"
-                    fill="rgba(255,255,255,0.25)"
-                    fontSize="9"
+                    fill="rgba(255,255,255,0.35)"
+                    fontSize="10"
+                    fontWeight="500"
                   >
                     {value}
                   </text>
@@ -173,50 +171,49 @@ export function ProductivityTrendChart({
             {/* Area */}
             {areaPath && (
               <motion.path
-                d={areaPath}
-                fill="url(#productivity-area-gradient)"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.7 }}
+                transition={{ duration: 0.6 }}
+                d={areaPath}
+                fill="url(#productivity-area-gradient)"
               />
             )}
 
             {/* Line */}
-            <motion.path
-              d={linePath}
-              fill="none"
-              stroke="#8b5cf6"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{
-                duration: 1,
-                ease: "easeOut",
-              }}
-            />
+            {linePath && (
+              <motion.path
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, ease: "easeInOut" }}
+                d={linePath}
+                fill="none"
+                stroke="#8b5cf6"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
 
             {/* Points */}
             {points.map((point, index) => (
-              <g key={`${point.date}-${index}`}>
-                <circle cx={point.x} cy={point.y} r="7" fill="transparent" />
-
+              <g key={index}>
                 <circle
                   cx={point.x}
                   cy={point.y}
-                  r="3.5"
-                  fill="#8b5cf6"
-                  stroke="#0b0b10"
+                  r="4"
+                  fill="#0e0e16"
+                  stroke="#8b5cf6"
                   strokeWidth="2"
                 />
 
+                {/* Date labels */}
                 <text
                   x={point.x}
-                  y={H - 10}
+                  y={H - PAD.bottom + 18}
                   textAnchor="middle"
-                  fill="rgba(255,255,255,0.3)"
+                  fill="rgba(255,255,255,0.4)"
                   fontSize="9"
+                  fontWeight="500"
                 >
                   {formatProgressDate(point.date)}
                 </text>
@@ -224,24 +221,6 @@ export function ProductivityTrendChart({
             ))}
           </svg>
         </div>
-      </div>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* FOOTER                                                             */}
-      {/* ------------------------------------------------------------------ */}
-
-      <div className="flex items-center justify-between border-t border-white/[0.06] px-4 py-3">
-        <span className="text-[10px] text-white/30">
-          Showing last {data.length} days
-        </span>
-
-        <span
-          className={`text-[10px] font-semibold ${getProgressScoreColor(
-            latestScore,
-          )}`}
-        >
-          {getProgressScoreLabel(latestScore)}
-        </span>
       </div>
     </div>
   );

@@ -1,15 +1,20 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
-
+import { Sparkles } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
 
-export function TodayStoryEmpty() {
+interface TodayStoryEmptyProps {
+  onGenerateClick?: () => void;
+}
+
+export function TodayStoryEmpty({ onGenerateClick }: TodayStoryEmptyProps) {
   return (
     <EmptyState
-      icon={BookOpen}
-      title="No journal entries yet"
-      description="Generate your first AI summary from the Dashboard to see entries here."
+      icon={Sparkles}
+      title="No story entries generated yet"
+      description="Run the AI Coach to analyze today's completed and pending tasks, calculate your productivity score, and write your first story."
+      actionLabel={onGenerateClick ? "Generate Today's Story" : undefined}
+      onAction={onGenerateClick}
     />
   );
 }

@@ -1,3 +1,5 @@
+"use client";
+
 /* -------------------------------------------------------------------------- */
 /*                          SHARED MODAL PRIMITIVES                           */
 /* -------------------------------------------------------------------------- */
@@ -16,7 +18,7 @@ export function Backdrop({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
       onClick={onClick}
     >
       {children}

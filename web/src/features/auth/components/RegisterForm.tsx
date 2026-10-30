@@ -66,22 +66,20 @@ export default function RegisterForm() {
     },
   });
 
-  const password = watch("password");
+  const password = watch("password") || "";
 
   const onSubmit = async (data: RegisterUserFormData) => {
     clearErrors("root");
     try {
       const payload = {
-        name: data.name,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phoneNumber: data.phoneNumber?.trim() || "",
         password: data.password,
       };
 
       await dispatch(registerUserThunk(payload)).unwrap();
-
-      toast.success("Account created successfully");
-
+      toast.success("Account created successfully!");
       router.replace(ROUTES.DASHBOARD);
     } catch (error) {
       const message =
@@ -89,10 +87,9 @@ export default function RegisterForm() {
           ? error
           : error instanceof Error
             ? error.message
-            : "Registration failed";
+            : "Registration failed. Please try again.";
 
       toast.error(message);
-
       setError("root", {
         type: "server",
         message,
@@ -101,9 +98,9 @@ export default function RegisterForm() {
   };
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5">
       {errors.root?.message && (
-        <div className="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs sm:text-sm text-red-400 font-medium animate-fade-in">
           {errors.root.message}
         </div>
       )}
@@ -115,14 +112,13 @@ export default function RegisterForm() {
         error={errors.name?.message}
       >
         <div className="relative">
-          <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
-
+          <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
           <Input
             id="name"
             type="text"
             autoComplete="name"
             placeholder="Alex Johnson"
-            className="pl-9"
+            className="pl-10"
             error={errors.name?.message}
             {...register("name")}
           />
@@ -136,14 +132,13 @@ export default function RegisterForm() {
         error={errors.email?.message}
       >
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
-
+          <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
           <Input
             id="email"
             type="email"
             autoComplete="email"
             placeholder="you@company.com"
-            className="pl-9"
+            className="pl-10"
             error={errors.email?.message}
             {...register("email", {
               onChange: () => clearErrors("root"),
@@ -159,14 +154,13 @@ export default function RegisterForm() {
         error={errors.phoneNumber?.message}
       >
         <div className="relative">
-          <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
-
+          <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
           <Input
             id="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="Enter your phone number"
-            className="pl-9"
+            placeholder="+1 (555) 000-0000"
+            className="pl-10"
             error={errors.phoneNumber?.message}
             {...register("phoneNumber")}
           />
@@ -190,15 +184,14 @@ export default function RegisterForm() {
         />
       </FormField>
 
-      {password && (
+      {password.length > 0 && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
-          className="space-y-2 rounded-xl border border-white/10 bg-white/5 p-3"
+          className="space-y-1.5 rounded-xl border border-white/10 bg-white/[0.03] p-3 text-xs"
         >
           {passwordRequirements.map((requirement) => {
             const met = requirement.test(password);
-
             return (
               <div key={requirement.label} className="flex items-center gap-2">
                 {met ? (
@@ -206,12 +199,7 @@ export default function RegisterForm() {
                 ) : (
                   <XCircle className="h-3.5 w-3.5 shrink-0 text-white/20" />
                 )}
-
-                <span
-                  className={`text-xs ${
-                    met ? "text-white/60" : "text-white/30"
-                  }`}
-                >
+                <span className={met ? "text-white/80 font-medium" : "text-white/40"}>
                   {requirement.label}
                 </span>
               </div>
@@ -240,45 +228,28 @@ export default function RegisterForm() {
         variant="gradient"
         size="lg"
         disabled={isSubmitting}
-        className="w-full group"
+        className="w-full group font-semibold mt-2"
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
-            Creating account...
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>Creating account...</span>
+            <Loader2 className="h-4 w-4 animate-spin" />
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
-            Create account
+            <span>Create Account</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </span>
         )}
       </Button>
 
-      <p className="text-center text-sm text-white/40">
+      <p className="text-center text-xs text-white/50 pt-2">
         Already have an account?{" "}
         <Link
           href="/login"
-          className="font-medium text-violet-400 transition-colors hover:text-violet-300"
+          className="font-semibold text-violet-400 hover:text-violet-300 transition-colors underline-offset-4 hover:underline"
         >
           Sign in
-        </Link>
-      </p>
-
-      <p className="text-center text-xs text-white/25">
-        By creating an account you agree to our{" "}
-        <Link
-          href="/terms"
-          className="underline transition-colors hover:text-white/40"
-        >
-          Terms
-        </Link>{" "}
-        and{" "}
-        <Link
-          href="/privacy"
-          className="underline transition-colors hover:text-white/40"
-        >
-          Privacy Policy
         </Link>
       </p>
     </form>

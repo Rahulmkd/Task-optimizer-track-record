@@ -5,7 +5,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
-  Clock3,
   Pencil,
   Repeat,
   Trash2,
@@ -59,14 +58,14 @@ export function TaskCard({
         <button
           onClick={onToggle}
           aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
-          className="mt-0.5 shrink-0"
+          className="mt-0.5 shrink-0 cursor-pointer focus:outline-none"
         >
           <CheckCircle2
             className={cn(
               "h-4 w-4 transition-colors",
               task.completed
                 ? "text-emerald-400 drop-shadow-[0_0_4px_rgba(52,211,153,0.5)]"
-                : "text-white/20 hover:text-white/50",
+                : "text-white/30 hover:text-white/60",
             )}
           />
         </button>
@@ -74,8 +73,8 @@ export function TaskCard({
         <div className="flex-1 min-w-0">
           <p
             className={cn(
-              "text-xs font-medium leading-snug transition-colors",
-              task.completed ? "text-white/25 line-through" : "text-white/80",
+              "text-xs font-semibold leading-snug transition-colors",
+              task.completed ? "text-white/40 line-through" : "text-white/85",
             )}
           >
             {task.title}
@@ -86,7 +85,7 @@ export function TaskCard({
             <p
               className={cn(
                 "text-[11px] leading-tight mt-1 line-clamp-2 transition-colors",
-                task.completed ? "text-white/20 line-through" : "text-white/45",
+                task.completed ? "text-white/30 line-through" : "text-white/50",
               )}
             >
               {task.description}
@@ -94,13 +93,14 @@ export function TaskCard({
           )}
         </div>
 
-        {/* Action buttons (Edit & Delete) — visible on hover */}
-        <div className="flex items-center gap-1 shrink-0 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Action buttons (Edit & Delete) — accessible on mobile, reveal on desktop hover */}
+        <div className="flex items-center gap-1 shrink-0 ml-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity">
           {onEdit && (
             <button
               onClick={onEdit}
               aria-label="Edit task"
-              className="text-white/30 hover:text-violet-300 transition-colors p-0.5"
+              title="Edit task"
+              className="p-1 rounded-md text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             >
               <Pencil className="h-3 w-3" />
             </button>
@@ -109,77 +109,58 @@ export function TaskCard({
           <button
             onClick={onDelete}
             aria-label="Delete task"
-            className="text-white/30 hover:text-red-400 transition-colors p-0.5"
+            title="Delete task"
+            className="p-1 rounded-md text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
           >
             <Trash2 className="h-3 w-3" />
           </button>
         </div>
       </div>
 
-      {/* Scheduled Time Banner / Badge */}
-      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border",
-            task.completed
-              ? "text-white/25 bg-white/[0.02] border-white/[0.05]"
-              : "text-violet-300 bg-violet-500/10 border-violet-500/20",
+      {/* conflict warning badge */}
+      {hasConflict && (
+        <div
+          title={conflictTooltip}
+          className="mt-2 flex items-center gap-1 text-[10px] text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md"
+        >
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          <span className="truncate">Schedule overlap</span>
+        </div>
+      )}
+
+      {/* metadata footer */}
+      <div className="mt-2.5 flex items-center justify-between text-[10px] text-white/45 pt-2 border-t border-white/[0.04] gap-1 flex-wrap">
+        <div className="flex items-center gap-1 text-violet-300 font-mono">
+          <Clock className="h-2.5 w-2.5 text-violet-400" />
+          <span>{timeRangeLabel}</span>
+        </div>
+
+        <div className="flex items-center gap-1.5 ml-auto">
+          {task.repeatWeekly && (
+            <span
+              title="Recurring task"
+              className="flex items-center text-white/40 hover:text-white/60"
+            >
+              <Repeat className="h-2.5 w-2.5" />
+            </span>
           )}
-          title={`Scheduled: ${timeRangeLabel}`}
-        >
-          <Clock className="h-2.5 w-2.5" />
-          {timeRangeLabel}
-        </span>
 
-        {/* Recurring badge */}
-        {task.repeatWeekly && (
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-md border border-violet-500/30 bg-violet-500/10 text-violet-300"
-            title="Repeats every week"
-          >
-            <Repeat className="h-2.5 w-2.5 text-violet-400" />
-            Weekly
+          {/* duration badge */}
+          <span className="px-1.5 py-0.5 rounded bg-white/[0.05] border border-white/5 font-mono text-[9px] text-white/60">
+            {durationLabel}
           </span>
-        )}
 
-        {/* Conflict warning badge if overlapping */}
-        {hasConflict && !task.completed && (
+          {/* priority badge */}
           <span
-            className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md border text-amber-400 bg-amber-500/15 border-amber-500/30 animate-pulse"
-            title={conflictTooltip ?? "Schedule conflict: overlaps with another task"}
+            className={cn(
+              "px-1.5 py-0.5 rounded text-[9px] font-semibold border flex items-center gap-1",
+              p.badge,
+            )}
           >
-            <AlertTriangle className="h-2.5 w-2.5 text-amber-400" />
-            Conflict
+            <span className={cn("h-1 w-1 rounded-full", p.dot)} />
+            {p.label}
           </span>
-        )}
-      </div>
-
-      {/* meta row */}
-      <div className="mt-2 flex items-center gap-2 flex-wrap">
-        {/* priority dot badge */}
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border",
-            p.badge,
-          )}
-        >
-          <span className={cn("h-1 w-1 rounded-full", p.dot)} />
-          {p.label}
-        </span>
-
-        {/* duration */}
-        <span className="flex items-center gap-0.5 text-[10px] text-white/30">
-          <Clock3 className="h-2.5 w-2.5" />
-          {durationLabel}
-        </span>
-
-        {/* category */}
-        <span
-          className="inline-flex items-center text-[10px] text-white/50 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.08]"
-          title={`Category: ${task.category}`}
-        >
-          {task.category}
-        </span>
+        </div>
       </div>
     </motion.div>
   );

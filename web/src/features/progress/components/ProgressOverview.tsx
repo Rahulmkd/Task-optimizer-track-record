@@ -28,7 +28,6 @@ export function ProgressOverview({ journals }: ProgressOverviewProps) {
   );
 
   const totalTasks = completed + pending;
-
   const completionRate = calculateCompletionRate(completed, pending);
 
   const averageScore = journals.length
@@ -39,32 +38,31 @@ export function ProgressOverview({ journals }: ProgressOverviewProps) {
     : 0;
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-white/[0.035] p-4 sm:p-5">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-5 sm:p-6 shadow-xl space-y-5">
       {/* ------------------------------------------------------------------ */}
       {/* HEADER                                                             */}
       {/* ------------------------------------------------------------------ */}
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-violet-400" />
-
-            <h3 className="text-sm font-bold text-white">Progress overview</h3>
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-xl bg-violet-600/15 border border-violet-500/20 flex items-center justify-center text-violet-400">
+              <Target className="h-4.5 w-4.5" />
+            </div>
+            <h3 className="text-sm font-bold text-white">Aggregated Progress Overview</h3>
           </div>
 
-          <p className="mt-1 text-[11px] text-white/35">
-            A quick look at your overall productivity
+          <p className="mt-1 text-xs text-white/50">
+            Holistic metrics across your entire task and sprint history
           </p>
         </div>
 
         {/* Latest Date */}
         {latest && (
-          <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.025] px-3 py-2">
-            <CalendarDays className="h-3.5 w-3.5 text-white/30" />
-
-            <span className="text-[10px] text-white/40">Latest</span>
-
-            <span className="text-[10px] font-semibold text-white">
+          <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-1.5 self-start sm:self-auto text-xs">
+            <CalendarDays className="h-3.5 w-3.5 text-violet-400" />
+            <span className="text-white/45">Last log:</span>
+            <span className="font-semibold text-white">
               {formatProgressFullDate(latest.createdAt)}
             </span>
           </div>
@@ -72,19 +70,15 @@ export function ProgressOverview({ journals }: ProgressOverviewProps) {
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* PROGRESS DATA                                                      */}
+      {/* PROGRESS DATA GRID                                                 */}
       {/* ------------------------------------------------------------------ */}
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {/* ---------------------------------------------------------------- */}
-        {/* TASK COMPLETION                                                  */}
-        {/* ---------------------------------------------------------------- */}
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] text-white/35">Task completion</span>
-
-            <span className="text-xs font-bold text-emerald-400">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+        {/* TASK COMPLETION */}
+        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-white/50 font-medium">Completion Ratio</span>
+            <span className="font-bold text-emerald-400">
               {completionRate}%
             </span>
           </div>
@@ -96,24 +90,20 @@ export function ProgressOverview({ journals }: ProgressOverviewProps) {
                 width: `${completionRate}%`,
               }}
               transition={{ duration: 0.7 }}
-              className="h-full rounded-full bg-emerald-400"
+              className="h-full rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
             />
           </div>
+
+          <p className="text-[11px] text-white/40">
+            {completed} of {totalTasks} tasks fulfilled
+          </p>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* AVERAGE SCORE                                                    */}
-        {/* ---------------------------------------------------------------- */}
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-[10px] text-white/35">Average score</span>
-
-            <span
-              className={`text-xs font-bold ${getProgressScoreColor(
-                averageScore,
-              )}`}
-            >
+        {/* AVERAGE SCORE */}
+        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-white/50 font-medium">Mean Score</span>
+            <span className={`font-bold ${getProgressScoreColor(averageScore)}`}>
               {averageScore}
             </span>
           </div>
@@ -125,43 +115,33 @@ export function ProgressOverview({ journals }: ProgressOverviewProps) {
                 width: `${averageScore}%`,
               }}
               transition={{ duration: 0.7 }}
-              className={`h-full rounded-full ${getProgressScoreBackground(
-                averageScore,
-              )}`}
+              className={`h-full rounded-full ${getProgressScoreBackground(averageScore)}`}
             />
           </div>
+
+          <p className="text-[11px] text-white/40">
+            Across {journals.length} journaled sessions
+          </p>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* COMPLETED                                                        */}
-        {/* ---------------------------------------------------------------- */}
-
-        <div className="rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-
-            <span className="text-[10px] text-white/35">Completed</span>
+        {/* TOTAL COMPLETED */}
+        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+          <div className="flex items-center gap-1.5 text-xs text-white/50 font-medium">
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Total Completed</span>
           </div>
-
-          <p className="mt-2 text-lg font-black text-white">{completed}</p>
-
-          <p className="text-[9px] text-white/25">{totalTasks} total tasks</p>
+          <p className="text-xl font-extrabold text-white">{completed}</p>
+          <p className="text-[11px] text-white/40">Successfully checked off</p>
         </div>
 
-        {/* ---------------------------------------------------------------- */}
-        {/* PENDING                                                          */}
-        {/* ---------------------------------------------------------------- */}
-
-        <div className="rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
-          <div className="flex items-center gap-2">
-            <CircleAlert className="h-4 w-4 text-amber-400" />
-
-            <span className="text-[10px] text-white/35">Pending</span>
+        {/* TOTAL REMAINING / PENDING */}
+        <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
+          <div className="flex items-center gap-1.5 text-xs text-white/50 font-medium">
+            <CircleAlert className="h-3.5 w-3.5 text-amber-400" />
+            <span>Carried Forward</span>
           </div>
-
-          <p className="mt-2 text-lg font-black text-white">{pending}</p>
-
-          <p className="text-[9px] text-white/25">tasks remaining</p>
+          <p className="text-xl font-extrabold text-white">{pending}</p>
+          <p className="text-[11px] text-white/40">Pending execution</p>
         </div>
       </div>
     </div>

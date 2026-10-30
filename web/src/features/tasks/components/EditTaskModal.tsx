@@ -3,13 +3,13 @@
 /* -------------------------------------------------------------------------- */
 
 import { useEffect, useRef, useState } from "react";
-import { Backdrop } from "../../../components/ui/Backdrop";
+import { Backdrop } from "@/components/ui/Backdrop";
 import { Pencil, X } from "lucide-react";
-import { ModalPanel } from "../../../components/ui/ModalPanel";
+import { ModalPanel } from "@/components/ui/ModalPanel";
 import { FormField } from "@/components/shared/FormField";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TimeInput } from "../../../components/ui/TimeInput";
+import { TimeInput } from "@/components/ui/TimeInput";
 import { useUpdateTaskMutation } from "@/features/tasks/services/task.service";
 import { ITask } from "@/features/tasks/types/task.types";
 
@@ -27,7 +27,6 @@ export function EditTaskModal({
     return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   });
   const [error, setError] = useState<string | null>(null);
-
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -66,25 +65,26 @@ export function EditTaskModal({
     <Backdrop onClick={onClose}>
       <ModalPanel>
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.08] bg-[#0e0e16]">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
-              <Pencil className="h-4 w-4 text-blue-400" />
+            <div className="h-9 w-9 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
+              <Pencil className="h-4.5 w-4.5" />
             </div>
             <div>
-              <h3 className="text-white text-sm font-semibold leading-none">
+              <h3 className="text-white text-sm font-bold leading-none">
                 Edit Task
               </h3>
-              <p className="text-white/40 text-xs mt-1 truncate max-w-[220px]">
+              <p className="text-white/45 text-xs mt-1 truncate max-w-[220px]">
                 {task.title}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+            aria-label="Close dialog"
+            className="h-8 w-8 rounded-lg bg-white/[0.04] hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
           >
-            <X className="h-3.5 w-3.5 text-white/60" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
@@ -92,14 +92,13 @@ export function EditTaskModal({
         <div className="p-5 space-y-4">
           <FormField
             id="et-title"
-            label="Task title"
+            label="Task Title"
             required
             error={error ?? undefined}
           >
             <Input
               ref={inputRef}
               id="et-title"
-              placeholder="What did you do?"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
@@ -109,27 +108,29 @@ export function EditTaskModal({
             />
           </FormField>
 
-          <FormField id="et-time" label="Time">
+          <FormField id="et-time" label="Scheduled Time (IST)">
             <TimeInput value={time} onChange={setTime} />
           </FormField>
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-2">
             <Button
+              type="button"
               variant="outline"
-              className="flex-1 h-11"
+              className="flex-1"
               onClick={onClose}
               disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
+              type="button"
               variant="gradient"
-              className="flex-1 h-11"
+              className="flex-1"
               onClick={handleSave}
               disabled={!title.trim() || isLoading}
               loading={isLoading}
             >
-              Save changes
+              Save Changes
             </Button>
           </div>
         </div>

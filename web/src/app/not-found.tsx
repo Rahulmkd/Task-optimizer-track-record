@@ -2,35 +2,50 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft } from "lucide-react";
+import { Home, ArrowLeft, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlowBackground } from "@/components/shared/GlowBackground";
+import { ROUTES } from "@/constants/constants";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center px-4 relative selection:bg-violet-500/30 selection:text-white">
       <GlowBackground />
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 text-center"
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="relative z-10 text-center max-w-md w-full p-8 rounded-3xl border border-white/10 bg-[#0e0e16]/80 backdrop-blur-2xl shadow-2xl shadow-black/80"
       >
-        <p className="text-8xl font-bold text-gradient mb-4">404</p>
-        <h1 className="text-2xl font-bold text-white mb-2">Page not found</h1>
-        <p className="text-white/40 mb-8 max-w-sm mx-auto">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        <div className="h-16 w-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 mx-auto mb-5 shadow-[0_0_30px_rgba(139,92,246,0.25)]">
+          <Zap className="h-8 w-8" />
+        </div>
+
+        <p className="text-7xl sm:text-8xl font-black text-gradient tracking-tight mb-2">
+          404
         </p>
-        <div className="flex gap-3 justify-center">
-          <Button asChild variant="outline">
-            <Link href="/">
+
+        <h1 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
+          Page Not Found
+        </h1>
+
+        <p className="text-white/50 text-xs sm:text-sm mb-7 leading-relaxed">
+          The destination you requested doesn&apos;t exist or has been relocated within the application.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button asChild variant="outline" size="default" className="w-full sm:w-auto">
+            <Link href={ROUTES.DASHBOARD}>
               <ArrowLeft className="h-4 w-4" />
-              Go back
+              <span>Back to Dashboard</span>
             </Link>
           </Button>
-          <Button asChild variant="gradient">
-            <Link href="/">
+
+          <Button asChild variant="gradient" size="default" className="w-full sm:w-auto">
+            <Link href={ROUTES.HOME}>
               <Home className="h-4 w-4" />
-              Home
+              <span>Home Page</span>
             </Link>
           </Button>
         </div>

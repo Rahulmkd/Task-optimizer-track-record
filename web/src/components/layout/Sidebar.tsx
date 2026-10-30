@@ -12,8 +12,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Bell,
-  HelpCircle,
   ScrollText,
   X,
   Zap,
@@ -22,7 +20,7 @@ import {
   Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { APP_NAME } from "@/constants/constants";
+import { APP_NAME, ROUTES } from "@/constants/constants";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -36,9 +34,8 @@ const navItems = [
 ];
 
 const bottomItems = [
-  { href: "#", icon: Shield, label: "Security" },
-  { href: "#", icon: Bell, label: "Notifications" },
-  { href: "#", icon: HelpCircle, label: "Help" },
+  { href: ROUTES.SETTINGS, icon: Shield, label: "Security & Privacy" },
+  { href: ROUTES.PROFILE, icon: User, label: "Account Overview" },
 ];
 
 /* -------------------------------------------------------------------------- */
@@ -55,9 +52,12 @@ function NavList({
   const pathname = usePathname();
 
   return (
-    <>
+    <div className="flex flex-col h-full justify-between overflow-y-auto custom-scrollbar">
       {/* Main nav */}
-      <nav className="flex-1 p-3 space-y-1 mt-4">
+      <nav className="p-3 space-y-1.5 mt-2">
+        <div className={cn("px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-white/35", collapsed && "sr-only")}>
+          Workspace
+        </div>
         {navItems.map((item) => {
           const active = pathname === item.href;
           return (
@@ -66,29 +66,29 @@ function NavList({
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 group",
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium transition-all duration-200 group relative",
                 active
-                  ? "bg-violet-500/15 text-violet-300 border-l-2 border-violet-500"
-                  : "text-white/40 hover:text-white/70 hover:bg-white/5",
+                  ? "bg-violet-600/15 text-white border border-violet-500/30 shadow-sm shadow-violet-950/30 font-semibold"
+                  : "text-white/60 hover:text-white hover:bg-white/[0.06]",
               )}
             >
               <item.icon
-                className={cn("h-4 w-4 shrink-0", active && "text-violet-400")}
+                className={cn(
+                  "h-4 w-4 shrink-0 transition-colors",
+                  active ? "text-violet-400" : "text-white/50 group-hover:text-white/80"
+                )}
               />
               <motion.span
                 animate={{
                   opacity: collapsed ? 0 : 1,
                   width: collapsed ? 0 : "auto",
                 }}
-                className="overflow-hidden whitespace-nowrap font-medium"
+                className="overflow-hidden whitespace-nowrap"
               >
                 {item.label}
               </motion.span>
               {active && !collapsed && (
-                <motion.div
-                  layoutId="active-indicator"
-                  className="ml-auto h-1.5 w-1.5 rounded-full bg-violet-400"
-                />
+                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_#a78bfa]" />
               )}
             </Link>
           );
@@ -96,15 +96,18 @@ function NavList({
       </nav>
 
       {/* Bottom nav */}
-      <div className="p-3 border-t border-white/5 space-y-1">
+      <div className="p-3 border-t border-white/[0.06] space-y-1 mt-auto">
+        <div className={cn("px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-white/30", collapsed && "sr-only")}>
+          Support
+        </div>
         {bottomItems.map((item) => (
           <Link
             key={item.label}
             href={item.href}
             onClick={onNavigate}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+            className="flex items-center gap-3 rounded-xl px-3 py-2 text-xs text-white/45 hover:text-white/80 hover:bg-white/[0.05] transition-all"
           >
-            <item.icon className="h-4 w-4 shrink-0" />
+            <item.icon className="h-4 w-4 shrink-0 text-white/40" />
             <motion.span
               animate={{
                 opacity: collapsed ? 0 : 1,
@@ -117,7 +120,7 @@ function NavList({
           </Link>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -167,20 +170,20 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
     <>
       {/* ── Desktop: collapsible inline sidebar (md and up) ───────────── */}
       <motion.aside
-        animate={{ width: collapsed ? 64 : 220 }}
-        transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="hidden md:flex flex-col h-full border-r border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl relative shrink-0"
+        animate={{ width: collapsed ? 68 : 236 }}
+        transition={{ duration: 0.22, ease: "easeInOut" }}
+        className="hidden md:flex flex-col h-full border-r border-white/[0.08] bg-[#0a0a0f]/90 backdrop-blur-xl relative shrink-0 z-20"
       >
-        {/* Toggle */}
+        {/* Toggle button */}
         <button
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-white/10 bg-[#0a0a0f] flex items-center justify-center z-10 hover:bg-white/10 transition-colors"
+          className="absolute -right-3 top-5 h-6 w-6 rounded-full border border-white/10 bg-[#0e0e16] flex items-center justify-center z-30 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer shadow-md text-white/60 hover:text-white"
         >
           {collapsed ? (
-            <ChevronRight className="h-3 w-3 text-white/50" />
+            <ChevronRight className="h-3 w-3" />
           ) : (
-            <ChevronLeft className="h-3 w-3 text-white/50" />
+            <ChevronLeft className="h-3 w-3" />
           )}
         </button>
 
@@ -197,7 +200,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.18 }}
-              className="md:hidden fixed inset-0 bg-black/65 backdrop-blur-sm z-40"
+              className="md:hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-40"
               onClick={onMobileClose}
               aria-hidden
             />
@@ -211,14 +214,14 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
               role="dialog"
               aria-modal="true"
               aria-label="Navigation menu"
-              className="md:hidden fixed inset-y-0 left-0 z-50 flex w-[78vw] max-w-[280px] flex-col border-r border-white/10 bg-[#0a0a0f] shadow-[0_0_64px_rgba(0,0,0,0.6)]"
+              className="md:hidden fixed inset-y-0 left-0 z-50 flex w-[82vw] max-w-[280px] flex-col border-r border-white/10 bg-[#0a0a0f] shadow-2xl shadow-black"
             >
-              <div className="flex items-center justify-between h-16 px-4 border-b border-white/5 shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-lg bg-violet-600 flex items-center justify-center">
-                    <Zap className="h-3.5 w-3.5 text-white" />
+              <div className="flex items-center justify-between h-16 px-4 border-b border-white/[0.08] shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-violet-600 flex items-center justify-center shadow-md shadow-violet-950/40">
+                    <Zap className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-white font-bold text-sm tracking-tight">
                     {APP_NAME}
                   </span>
                 </div>
@@ -226,9 +229,9 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
                 <button
                   onClick={onMobileClose}
                   aria-label="Close menu"
-                  className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+                  className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors cursor-pointer text-white/70 hover:text-white"
                 >
-                  <X className="h-3.5 w-3.5 text-white/60" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 

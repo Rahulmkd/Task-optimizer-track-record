@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Sparkles } from "lucide-react";
+import { CheckCircle2, Sparkles, Plus, ListTodo } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/EmptyState";
 import {
@@ -13,8 +13,10 @@ import {
 
 import { ITask, Task } from "@/features/tasks/types/task.types";
 import { EditTaskModal } from "./EditTaskModal";
+import { CreateTaskModal } from "./CreateTaskModal";
 import { TaskRow } from "./TaskRow";
 import { AIAssistanceModal } from "@/features/story/components/AIAssistanceModal";
+import { Button } from "@/components/ui/button";
 
 const toUiTask = (task: ITask): Task => ({
   id: task.id,
@@ -25,6 +27,7 @@ const toUiTask = (task: ITask): Task => ({
 
 export function TodaysTasksCard() {
   const [showSummary, setShowSummary] = useState(false);
+  const [showNewTask, setShowNewTask] = useState(false);
   const [editingTask, setEditingTask] = useState<ITask | null>(null);
 
   const { data: tasksData, isLoading, isError } = useGetTasksQuery();
@@ -33,7 +36,6 @@ export function TodaysTasksCard() {
   const [deleteTask] = useDeleteTaskMutation();
 
   const tasks: Task[] = (tasksData ?? []).map(toUiTask);
-
   const completedCount = tasks.filter((task) => task.done).length;
 
   const handleToggle = (id: string | number) => {
@@ -46,7 +48,6 @@ export function TodaysTasksCard() {
 
   const handleEditTask = (id: string) => {
     const task = tasksData?.find((task) => task.id === id);
-
     if (task) {
       setEditingTask(task);
     }
@@ -55,67 +56,84 @@ export function TodaysTasksCard() {
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 18 }}
+        initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
-          duration: 0.38,
-          delay: 0.08,
-          ease: [0.16, 1, 0.3, 1],
+          duration: 0.35,
+          delay: 0.05,
+          ease: "easeOut",
         }}
-        className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl"
+        className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl shadow-xl"
       >
         {/* Header */}
-        <div className="border-b border-white/[0.06] px-5 py-4">
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-emerald-500/20 bg-emerald-500/15">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-              </div>
-
-              <div>
-                <h3 className="text-sm font-semibold leading-none text-white">
-                  Today&apos;s Tasks
-                </h3>
-
-                <p className="mt-1 text-xs text-white/40">
-                  {isLoading
-                    ? "Loading…"
-                    : `${completedCount} of ${tasks.length} complete`}
-                </p>
-              </div>
+        <div className="border-b border-white/[0.08] px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-500/20 bg-emerald-500/15 text-emerald-400">
+              <CheckCircle2 className="h-4.5 w-4.5" />
             </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-bold leading-tight text-white">
+                  Today&apos;s Active Tasks
+                </h3>
+                <span className="text-[11px] font-semibold text-white/50 bg-white/[0.05] border border-white/10 px-2 py-0.5 rounded-full">
+                  {isLoading ? "…" : `${completedCount}/${tasks.length}`}
+                </span>
+              </div>
+
+              <p className="mt-0.5 text-xs text-white/45">
+                {isLoading
+                  ? "Loading tasks…"
+                  : `${tasks.length - completedCount} tasks remaining today`}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNewTask(true)}
+              className="text-xs font-semibold h-8"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Add Task</span>
+            </Button>
 
             <button
               type="button"
               onClick={() => setShowSummary(true)}
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium text-violet-300 bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/15 transition-colors duration-200 shrink-0"
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold text-violet-300 bg-violet-500/15 border border-violet-500/30 hover:bg-violet-500/25 transition-all shrink-0 cursor-pointer shadow-sm shadow-violet-950/40"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              AI Summary
+              <Sparkles className="h-3.5 w-3.5 text-violet-400" />
+              <span>AI Summary</span>
             </button>
           </div>
-
-          {/* <CategoryChips /> */}
         </div>
 
-        {/* Tasks */}
-        <div className="space-y-px p-3">
+        {/* Tasks List */}
+        <div className="p-3 sm:p-4 space-y-1">
           {isLoading && (
-            <div className="px-3 py-8 text-center text-sm text-white/30">
-              Loading your tasks…
+            <div className="py-12 text-center text-xs text-white/40">
+              Loading your schedule…
             </div>
           )}
 
           {isError && (
-            <div className="px-3 py-8 text-center text-sm text-red-400/80">
-              Couldn&apos;t load tasks. Please try again.
+            <div className="py-12 text-center text-xs text-red-400">
+              Couldn&apos;t load tasks right now. Please refresh the page.
             </div>
           )}
 
           {!isLoading && !isError && tasks.length === 0 && (
             <EmptyState
-              title="No tasks yet"
-              description="Use Quick Actions above to log your first entry."
+              icon={ListTodo}
+              title="No tasks scheduled today"
+              description="Plan your day with precision by adding your first task block."
+              actionLabel="Add Your First Task"
+              onAction={() => setShowNewTask(true)}
             />
           )}
 
@@ -133,6 +151,13 @@ export function TodaysTasksCard() {
             ))}
         </div>
       </motion.div>
+
+      {/* Quick Entry Modal */}
+      <AnimatePresence>
+        {showNewTask && (
+          <CreateTaskModal onClose={() => setShowNewTask(false)} />
+        )}
+      </AnimatePresence>
 
       {/* Summary Modal */}
       <AnimatePresence>
