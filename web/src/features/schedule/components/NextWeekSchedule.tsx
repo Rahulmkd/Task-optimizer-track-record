@@ -4,7 +4,11 @@ import { useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { ListTodo } from "lucide-react";
 import { EmptyState } from "@/components/shared/EmptyState";
-import { IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
+import {
+  IWeeklyPlanStats,
+  IWeeklyTask,
+  WeekDay,
+} from "@/features/schedule/types/weekly.types";
 import { useGetWeeklyPlanQuery } from "@/features/schedule/services/weekly.service";
 import { ScheduleHeader } from "./ScheduleHeader";
 import { CategoryFilterBar } from "./CategoryFilterBar";
@@ -32,6 +36,19 @@ export function NextWeekSchedule() {
 
   const { data: plan, isLoading, isError } = useGetWeeklyPlanQuery(weekStart);
 
+  const tasks = useMemo<IWeeklyTask[]>(() => plan?.tasks ?? [], [plan?.tasks]);
+
+  const stats = useMemo<IWeeklyPlanStats>(() => {
+    return (
+      plan?.stats ?? {
+        total: 0,
+        completed: 0,
+        pending: 0,
+        progressPercent: 0,
+      }
+    );
+  }, [plan?.stats]);
+
   // Derive today's day key for highlighting
   const todayDayKey = useMemo<WeekDay | null>(() => {
     const todayMonday = getMondayOf(new Date());
@@ -48,6 +65,21 @@ export function NextWeekSchedule() {
     ];
     return keys[jsDay];
   }, [weekStart]);
+
+  // Dynamic categories list
+  const dynamicCategories = useMemo(() => {
+    return ["All", ...getAllCategories(tasks)];
+  }, [tasks]);
+
+  // Count overdue: tasks on past days (before today in the same week) that aren't completed
+  const overdue = useMemo(() => {
+    return tasks.filter((t) => {
+      if (t.completed || !todayDayKey) return false;
+      const idx = DAY_KEYS.indexOf(t.day as WeekDay);
+      const todayIdx = DAY_KEYS.indexOf(todayDayKey);
+      return idx < todayIdx;
+    }).length;
+  }, [tasks, todayDayKey]);
 
   const handlePrevWeek = () => setWeekStart((w) => shiftWeek(w, -1));
   const handleNextWeek = () => setWeekStart((w) => shiftWeek(w, 1));
@@ -79,27 +111,6 @@ export function NextWeekSchedule() {
   if (isLoading) return <ScheduleSkeleton />;
 
   if (isError) return <ScheduleError />;
-
-  const tasks: IWeeklyTask[] = plan?.tasks ?? [];
-
-  const stats = plan?.stats ?? {
-    total: 0,
-    completed: 0,
-    pending: 0,
-    progressPercent: 0,
-  };
-
-  // Count overdue: tasks on past days (before today in the same week) that aren't completed
-  const overdue = tasks.filter((t) => {
-    if (t.completed || !todayDayKey) return false;
-    const idx = DAY_KEYS.indexOf(t.day as WeekDay);
-    const todayIdx = DAY_KEYS.indexOf(todayDayKey);
-    return idx < todayIdx;
-  }).length;
-
-  const dynamicCategories = useMemo(() => {
-    return ["All", ...getAllCategories(tasks)];
-  }, [tasks]);
 
   return (
     <div className="space-y-5">

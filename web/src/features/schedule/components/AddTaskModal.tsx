@@ -141,16 +141,21 @@ export function AddTaskModal({
   onClose,
 }: AddTaskModalProps) {
   // ── dynamic categories state ───────────────────────────────────────────
-  const [categories, setCategories] = useState<string[]>(() => {
-    const all = getAllCategories(existingTasks);
-    if (taskToEdit?.category && !all.includes(taskToEdit.category)) {
-      return [...all, taskToEdit.category];
-    }
-    return all;
-  });
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
   const [categoryError, setCategoryError] = useState<string | null>(null);
+
+  // Derived available categories list without cascading setState in effects
+  const editCategory = taskToEdit?.category;
+  const categories = useMemo(() => {
+    const base = getAllCategories(existingTasks);
+    const set = new Set([...base, ...customCategories]);
+    if (editCategory) {
+      set.add(editCategory);
+    }
+    return Array.from(set);
+  }, [existingTasks, customCategories, editCategory]);
 
   // ── form state ──────────────────────────────────────────────────────────
   const [title, setTitle] = useState(taskToEdit?.title ?? "");
@@ -160,9 +165,11 @@ export function AddTaskModal({
   const [priority, setPriority] = useState<Priority>(
     (taskToEdit?.priority as Priority) ?? "MEDIUM",
   );
-  const [category, setCategory] = useState<Category>(
-    taskToEdit?.category ?? (categories[0] || "Study"),
-  );
+  const [category, setCategory] = useState<Category>(() => {
+    if (taskToEdit?.category) return taskToEdit.category;
+    const initialCategories = getAllCategories(existingTasks);
+    return initialCategories[0] || "Study";
+  });
   const [duration, setDuration] = useState<number>(
     taskToEdit?.duration ?? 60,
   );
@@ -186,13 +193,6 @@ export function AddTaskModal({
     return () => clearTimeout(t);
   }, []);
 
-  // Ensure taskToEdit's category is in categories list
-  useEffect(() => {
-    if (taskToEdit?.category && !categories.includes(taskToEdit.category)) {
-      setCategories((prev) => [...prev, taskToEdit.category]);
-    }
-  }, [taskToEdit?.category, categories]);
-
   // Escape to close
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -206,18 +206,19 @@ export function AddTaskModal({
   const [updateTask, { isLoading: isUpdating }] = useUpdateWeeklyTaskMutation();
   const isLoading = isCreating || isUpdating || isSubmitting;
 
+  const editTaskId = taskToEdit?.id;
   // Detect time conflicts with other tasks on the selected day
   const conflictingTasks = useMemo(() => {
     return findConflictingTasks(
       {
-        id: taskToEdit?.id,
+        id: editTaskId,
         day,
         startTime,
         duration,
       },
       existingTasks,
     );
-  }, [taskToEdit?.id, day, startTime, duration, existingTasks]);
+  }, [editTaskId, day, startTime, duration, existingTasks]);
 
   const handleCreateCategory = (customName?: string | unknown): string | null => {
     const raw = typeof customName === "string" ? customName : newCategoryName;
@@ -230,9 +231,8 @@ export function AddTaskModal({
       setCategoryError("Category name must be 50 characters or less.");
       return null;
     }
-    const updated = saveCustomCategory(trimmed);
-    const combined = Array.from(new Set([...categories, ...updated, trimmed]));
-    setCategories(combined);
+    saveCustomCategory(trimmed);
+    setCustomCategories((prev) => Array.from(new Set([...prev, trimmed])));
     setCategory(trimmed);
     setNewCategoryName("");
     setIsCreatingCategory(false);
@@ -567,29 +567,31 @@ export function AddTaskModal({
           </div>
 
           {/* Repeat every week */}
-          <div className="flex items-center gap-2.5 pt-0.5">
+          <div className="pt-0.5">
             <button
               type="button"
               role="checkbox"
+              id="wt-repeat"
               aria-checked={repeatWeekly}
               onClick={() => setRepeatWeekly((prev) => !prev)}
-              className={cn(
-                "h-4 w-4 rounded-full border transition-all flex items-center justify-center cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50",
-                repeatWeekly
-                  ? "bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"
-                  : "border-white/30 bg-transparent hover:border-white/50",
-              )}
+              className="flex items-center gap-2.5 cursor-pointer outline-none group"
             >
-              {repeatWeekly && (
-                <span className="h-1.5 w-1.5 rounded-full bg-white" />
-              )}
+              <div
+                className={cn(
+                  "h-4 w-4 rounded-full border transition-all flex items-center justify-center shrink-0 group-focus-visible:ring-2 group-focus-visible:ring-violet-500/50",
+                  repeatWeekly
+                    ? "bg-violet-600 border-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"
+                    : "border-white/30 bg-transparent group-hover:border-white/50",
+                )}
+              >
+                {repeatWeekly && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                )}
+              </div>
+              <span className="text-xs text-white/90 select-none font-normal">
+                Repeat every week
+              </span>
             </button>
-            <label
-              onClick={() => setRepeatWeekly((prev) => !prev)}
-              className="text-xs text-white/90 cursor-pointer select-none font-normal"
-            >
-              Repeat every week
-            </label>
           </div>
 
           {/* Description (optional) */}
@@ -616,7 +618,7 @@ export function AddTaskModal({
                 <p className="text-amber-200/80 text-[11px] leading-relaxed">
                   This task overlaps with{" "}
                   <span className="font-medium text-white">
-                    "{conflictingTasks[0].title}"
+                    &ldquo;{conflictingTasks[0].title}&rdquo;
                   </span>{" "}
                   ({getTimeRangeLabel(conflictingTasks[0].startTime, conflictingTasks[0].duration)})
                   {conflictingTasks.length > 1
