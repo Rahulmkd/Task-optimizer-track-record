@@ -37,7 +37,7 @@ import {
   getAllCategories,
   getTimeRangeLabel,
   saveCustomCategory,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 import { ModernTimeSelect } from "./ModernTimeSelect";
 
 /* -------------------------------------------------------------------------- */

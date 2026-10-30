@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import {
   CATEGORY_FILTERS,
   CategoryFilter,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 
 interface CategoryFilterBarProps {
   value: CategoryFilter;

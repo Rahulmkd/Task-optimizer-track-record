@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CalendarDays, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { getWeekRangeLabel } from "../utils/next-week-schedule.utils";
+import { getWeekRangeLabel } from "../utils/weekly-schedule.utils";
 
 interface ScheduleHeaderProps {
   weekStart: string;
@@ -33,7 +33,7 @@ export function ScheduleHeader({
           </div>
           <div>
             <h2 className="text-white text-sm font-bold leading-none">
-              Next Week Schedule
+              Weekly Schedule
             </h2>
             <p className="text-white/40 text-xs mt-1">
               Organise your entire week in one place.

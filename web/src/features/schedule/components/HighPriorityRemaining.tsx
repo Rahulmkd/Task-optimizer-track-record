@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Flame } from "lucide-react";
 import { IWeeklyTask, WeekDay } from "../types/weekly.types";
-import { DAY_LABELS } from "../utils/next-week-schedule.utils";
+import { DAY_LABELS } from "../utils/weekly-schedule.utils";
 
 
 

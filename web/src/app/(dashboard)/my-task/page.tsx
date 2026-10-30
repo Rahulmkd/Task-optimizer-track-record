@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 import { TodaysTasksCard } from "@/features/tasks/components/TodaysTasksCard";
-import { NextWeekSchedule } from "@/features/schedule";
+import { WeeklySchedule } from "@/features/schedule";
 import { MyTaskHeader } from "@/features/tasks/components/MyTaskHeader";
 
 export default function myTasks() {
@@ -17,7 +17,7 @@ export default function myTasks() {
         <div className="space-y-6">
           <MyTaskHeader />
           <TodaysTasksCard />
-          <NextWeekSchedule />
+          <WeeklySchedule />
         </div>
       </motion.div>
     </DashboardShell>

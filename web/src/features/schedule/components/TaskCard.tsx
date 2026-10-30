@@ -16,7 +16,7 @@ import {
   getDurationLabel,
   getTimeRangeLabel,
   PRIORITY_CONFIG,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 
 interface TaskCardProps {
   task: IWeeklyTask;

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 import { DayColumn } from "./DayColumn";
-import { CategoryFilter, DAY_KEYS } from "../utils/next-week-schedule.utils";
+import { CategoryFilter, DAY_KEYS } from "../utils/weekly-schedule.utils";
 import { IWeeklyTask, WeekDay } from "../types/weekly.types";
 
 interface WeekGridProps {

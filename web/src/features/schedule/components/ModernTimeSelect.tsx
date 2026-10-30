@@ -24,7 +24,7 @@ import {
   parseTimeToMinutes,
   TIME_SLOTS,
   TimeSlotOption,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 
 type PeriodFilter = "ALL" | "MORNING" | "AFTERNOON" | "EVENING";
 

@@ -18,7 +18,7 @@ import {
   getOverlappingTaskIds,
   getTimeRangeLabel,
   sortTasksChronologically,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 
 interface DayColumnProps {
   dayKey: WeekDay;

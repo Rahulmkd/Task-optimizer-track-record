@@ -25,9 +25,9 @@ import {
   getAllCategories,
   getMondayOf,
   shiftWeek,
-} from "../utils/next-week-schedule.utils";
+} from "../utils/weekly-schedule.utils";
 
-export function NextWeekSchedule() {
+export function WeeklySchedule() {
   const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("All");
   const [showAddTask, setShowAddTask] = useState(false);

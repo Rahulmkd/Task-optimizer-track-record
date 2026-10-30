@@ -1,4 +1,4 @@
-export { NextWeekSchedule } from "./components/NextWeekSchedule";
+export { WeeklySchedule, WeeklySchedule as NextWeekSchedule } from "./components/WeeklySchedule";
 export { ScheduleHeader } from "./components/ScheduleHeader";
 export { CategoryFilterBar } from "./components/CategoryFilterBar";
 export { WeekStatsStrip } from "./components/WeekStatsStrip";
@@ -22,6 +22,6 @@ export {
   getWeekRangeLabel,
   getDayDateLabel,
   getDurationLabel,
-} from "./utils/next-week-schedule.utils";
+} from "./utils/weekly-schedule.utils";
 
-export type { CategoryFilter } from "./utils/next-week-schedule.utils";
+export type { CategoryFilter } from "./utils/weekly-schedule.utils";
