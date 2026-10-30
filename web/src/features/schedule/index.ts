@@ -1,3 +1,5 @@
+export { WeeklyTasksDashboard } from "./components/WeeklyTasksDashboard";
+export { AIWeeklyPlanModal } from "./components/AIWeeklyPlanModal";
 export { WeeklySchedule, WeeklySchedule as NextWeekSchedule } from "./components/WeeklySchedule";
 export { ScheduleHeader } from "./components/ScheduleHeader";
 export { CategoryFilterBar } from "./components/CategoryFilterBar";

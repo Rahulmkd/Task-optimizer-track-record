@@ -3,7 +3,7 @@ import { catchAsync } from "../../utils/CatchAsync.js";
 import weeklyService from "./weekly.service.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 import { getParamId, getUserId } from "../../utils/request.helper.js";
-import { GetWeeklyPlanDTO } from "./weekly.schema.js";
+import { DeleteWeeklyPlanDTO, GetWeeklyPlanDTO } from "./weekly.schema.js";
 
 class WeeklyController {
   /**
@@ -86,6 +86,53 @@ class WeeklyController {
     sendResponse(res, 200, {
       success: true,
       message: "Weekly task deleted successfully.",
+    });
+  });
+
+  /**
+   * POST /api/v1/weekly/generate
+   * AI-powered weekly timetable generation (preview).
+   */
+  generateAIPlan = catchAsync(async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    const result = await weeklyService.generateAIWeeklyPlan(userId, req.body);
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "AI weekly plan generated successfully.",
+      data: result,
+    });
+  });
+
+  /**
+   * POST /api/v1/weekly/bulk-save
+   * Approve and bulk save weekly tasks to database.
+   */
+  bulkSaveTasks = catchAsync(async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    const result = await weeklyService.bulkSaveTasks(userId, req.body);
+
+    sendResponse(res, 201, {
+      success: true,
+      message: "Weekly plan approved and saved successfully.",
+      data: result,
+    });
+  });
+
+  /**
+   * DELETE /api/v1/weekly/plan?weekStart=YYYY-MM-DD
+   * Delete an entire weekly plan.
+   */
+  deletePlan = catchAsync(async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    const { weekStart } = req.query as unknown as DeleteWeeklyPlanDTO;
+
+    const result = await weeklyService.deletePlan(userId, weekStart);
+
+    sendResponse(res, 200, {
+      success: true,
+      message: "Weekly plan deleted successfully.",
+      data: result,
     });
   });
 }

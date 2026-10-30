@@ -10,6 +10,7 @@ export interface WeeklyTaskResponseDTO {
   /** Duration in minutes */
   duration: number;
   startTime: string;
+  endTime?: string;
   repeatWeekly: boolean;
   sourceTaskId?: string | null;
   completed: boolean;

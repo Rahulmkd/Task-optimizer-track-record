@@ -9,6 +9,7 @@ export interface IWeeklyTask {
   category: string;
   duration: number;
   startTime?: string;
+  endTime?: string;
   repeatWeekly?: boolean;
   sourceTaskId?: string | null;
   completed: boolean;
@@ -69,4 +70,48 @@ export interface IWeeklyPlanStats {
   completed: number;
   total: number;
   pending: number;
+}
+
+// ── AI Weekly Plan Generation & Bulk Save ───────────────────────────────────
+
+export interface AITaskItem {
+  title: string;
+  description?: string | null;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  category: string;
+  priority: Priority;
+  repeatWeekly: boolean;
+}
+
+export interface AIWeeklyPlanPreview {
+  summary: string;
+  studyRotation?: string | null;
+  weekdaySchedule: AITaskItem[];
+  saturdaySchedule: AITaskItem[];
+  sundaySchedule: AITaskItem[];
+  expandedTasks: (AITaskItem & { day: WeekDay })[];
+}
+
+export interface GenerateWeeklyPlanPayload {
+  routineContext: string;
+  instructions?: string;
+  weekStart?: string;
+}
+
+export interface BulkSaveWeeklyTasksPayload {
+  weekStart: string;
+  replaceExisting?: boolean;
+  tasks: {
+    title: string;
+    description?: string | null;
+    day: WeekDay;
+    priority: Priority;
+    category: string;
+    duration: number;
+    startTime: string;
+    repeatWeekly?: boolean;
+    completed?: boolean;
+  }[];
 }

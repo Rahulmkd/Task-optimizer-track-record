@@ -4,12 +4,18 @@ import {
   WeeklyPlanResponseDTO,
   WeeklyTaskResponseDTO,
 } from "./weekly.response.js";
+import { minutesToTime12, parseTimeToMinutes } from "./weekly.time.js";
 
 /**
  * WeeklyMapper — converts Prisma model instances into clean API response DTOs.
  */
 export class WeeklyMapper {
   static toTaskResponse(task: WeeklyTask): WeeklyTaskResponseDTO {
+    const startTime = task.startTime ?? "09:00 AM";
+    const startMins = parseTimeToMinutes(startTime);
+    const endMins = startMins + (task.duration || 60);
+    const endTime = minutesToTime12(endMins);
+
     return {
       id: task.id,
       weeklyPlanId: task.weeklyPlanId,
@@ -19,7 +25,8 @@ export class WeeklyMapper {
       priority: task.priority,
       category: task.category,
       duration: task.duration,
-      startTime: task.startTime ?? "09:00 AM",
+      startTime,
+      endTime,
       repeatWeekly: task.repeatWeekly ?? false,
       sourceTaskId: task.sourceTaskId ?? null,
       completed: task.completed,
