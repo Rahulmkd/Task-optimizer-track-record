@@ -1,7 +1,13 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export function ModalPanel({ children }: { children: React.ReactNode }) {
+export function ModalPanel({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.94, y: 18 }}
@@ -14,6 +20,7 @@ export function ModalPanel({ children }: { children: React.ReactNode }) {
         "bg-[#0e0e16]",
         // outer glow
         "shadow-[0_0_0_1px_rgba(139,92,246,0.08),0_24px_64px_rgba(0,0,0,0.7)]",
+        className,
       )}
       onClick={(e) => e.stopPropagation()}
     >

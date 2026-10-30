@@ -146,6 +146,7 @@ export function NextWeekSchedule() {
       <AnimatePresence>
         {showAddTask && (
           <AddTaskModal
+            key={taskToEdit ? `edit-${taskToEdit.id}` : `add-${preselectedDay ?? "all"}`}
             weekStart={weekStart}
             defaultDay={preselectedDay}
             taskToEdit={taskToEdit}

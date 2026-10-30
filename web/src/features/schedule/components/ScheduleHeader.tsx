@@ -32,9 +32,9 @@ export function ScheduleHeader({
             <CalendarDays className="h-4 w-4 text-violet-400" />
           </div>
           <div>
-            <h1 className="text-white text-sm font-bold leading-none">
+            <h2 className="text-white text-sm font-bold leading-none">
               Next Week Schedule
-            </h1>
+            </h2>
             <p className="text-white/40 text-xs mt-1">
               Organise your entire week in one place.
             </p>
@@ -45,7 +45,7 @@ export function ScheduleHeader({
           variant="gradient"
           size="sm"
           onClick={onAddTask}
-          className="shrink-0 self-start sm:self-auto"
+          className="shrink-0 self-start sm:self-auto cursor-pointer shadow-[0_3px_12px_rgba(109,40,217,0.22)] hover:shadow-[0_4px_16px_rgba(109,40,217,0.4)] transition-all"
         >
           <Plus className="h-3.5 w-3.5" />
           Add Task
@@ -57,20 +57,20 @@ export function ScheduleHeader({
         <button
           onClick={onPrevWeek}
           aria-label="Previous week"
-          className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-white transition-colors cursor-pointer"
         >
           <ChevronLeft className="h-4 w-4" />
           <span className="hidden sm:inline">Previous</span>
         </button>
 
-        <h2 className="text-white text-xs font-semibold">
+        <span className="text-white text-xs font-semibold">
           {getWeekRangeLabel(weekStart)}
-        </h2>
+        </span>
 
         <button
           onClick={onNextWeek}
           aria-label="Next week"
-          className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-white/50 hover:text-white transition-colors cursor-pointer"
         >
           <span className="hidden sm:inline">Next</span>
           <ChevronRight className="h-4 w-4" />

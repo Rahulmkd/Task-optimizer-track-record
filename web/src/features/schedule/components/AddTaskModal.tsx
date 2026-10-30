@@ -109,7 +109,7 @@ function DarkSelect({
         aria-label={ariaLabel}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex-1 bg-transparent text-white/80 text-xs outline-none cursor-pointer appearance-none [&>option]:bg-[#121217] [&>option]:text-white pr-4"
+        className="flex-1 min-w-0 bg-transparent text-white/80 text-xs outline-none cursor-pointer appearance-none [&>option]:bg-[#121217] [&>option]:text-white pr-4 truncate"
       >
         {children}
       </select>
@@ -254,13 +254,17 @@ export function AddTaskModal({
     let selectedCategory = category;
     if (isCreatingCategory) {
       const trimmed = newCategoryName.trim();
-      if (!trimmed) {
-        setCategoryError("Please enter a category name or click Cancel.");
-        return;
-      }
-      const created = handleCreateCategory(trimmed);
-      if (created) {
-        selectedCategory = created;
+      if (trimmed) {
+        const created = handleCreateCategory(trimmed);
+        if (created) {
+          selectedCategory = created;
+        }
+      } else {
+        setIsCreatingCategory(false);
+        setCategoryError(null);
+        if (!selectedCategory || selectedCategory === "__CREATE_NEW__") {
+          selectedCategory = categories[0] || "Study";
+        }
       }
     }
 
@@ -317,11 +321,11 @@ export function AddTaskModal({
 
   return (
     <Backdrop onClick={onClose}>
-      <ModalPanel>
-        {/* ── Header ─────────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+      <ModalPanel className="max-h-[90vh] flex flex-col my-auto">
+        {/* ── Pinned Header ─────────────────────────────────────────── */}
+        <div className="shrink-0 flex items-center justify-between px-5 py-4 border-b border-white/[0.06] bg-[#0e0e16]">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-violet-500/15 border border-violet-500/20 flex items-center justify-center shrink-0">
               <Sparkles className="h-4 w-4 text-violet-400" />
             </div>
             <div>
@@ -339,14 +343,14 @@ export function AddTaskModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors"
+            className="h-8 w-8 rounded-lg bg-white/[0.05] hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="h-3.5 w-3.5 text-white/60" />
           </button>
         </div>
 
-        {/* ── Body ───────────────────────────────────────────────────── */}
-        <div className="p-5 space-y-4 max-h-[calc(90vh-130px)] overflow-y-auto">
+        {/* ── Scrollable Body ───────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent]">
           {/* Title input */}
           <FormField
             id="wt-title"
@@ -476,14 +480,14 @@ export function AddTaskModal({
                           setCategoryError(null);
                         }
                       }}
-                      placeholder="e.g. Design, Reading..."
-                      className="flex-1 h-10 rounded-xl border border-violet-500/50 bg-white/[0.06] px-3 text-xs text-white placeholder:text-white/30 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30"
+                      placeholder="e.g. Design, Reading"
+                      className="flex-1 min-w-0 h-10 rounded-xl border border-violet-500/50 bg-white/[0.06] px-3 text-xs text-white placeholder:text-white/30 outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30"
                     />
                     <button
                       type="button"
                       onClick={() => handleCreateCategory()}
                       disabled={!newCategoryName.trim()}
-                      className="h-10 px-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                      className="h-10 px-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-40 text-white text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
                     >
                       <Check className="h-3.5 w-3.5" />
                       <span>Add</span>
@@ -546,7 +550,7 @@ export function AddTaskModal({
             </div>
           </div>
 
-          {/* Start time (full width) */}
+          {/* Start time (inline expandable - no layout overlap or clipping) */}
           <div className="space-y-1.5">
             <label htmlFor="wt-start-time" className="text-xs font-medium text-white/60">
               Start time
@@ -623,27 +627,27 @@ export function AddTaskModal({
               </div>
             </div>
           )}
+        </div>
 
-          {/* Footer buttons */}
-          <div className="flex gap-3 pt-2">
-            <Button
-              variant="outline"
-              className="flex-1 h-11 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="gradient"
-              className="flex-1 h-11 rounded-full"
-              onClick={handleSave}
-              disabled={!title.trim() || isLoading}
-              loading={isLoading}
-            >
-              {taskToEdit ? "Save Changes" : "Save Task"}
-            </Button>
-          </div>
+        {/* ── Pinned Footer (Always visible, never overlapped) ───────── */}
+        <div className="shrink-0 p-4 sm:p-5 border-t border-white/[0.06] bg-[#0e0e16]/95 backdrop-blur-sm flex gap-3">
+          <Button
+            variant="outline"
+            className="flex-1 h-11 rounded-full border-white/20 bg-transparent text-white hover:bg-white/10 cursor-pointer"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="gradient"
+            className="flex-1 h-11 rounded-full cursor-pointer shadow-[0_3px_12px_rgba(109,40,217,0.25)]"
+            onClick={handleSave}
+            disabled={!title.trim() || isLoading}
+            loading={isLoading}
+          >
+            {taskToEdit ? "Save Changes" : "Save Task"}
+          </Button>
         </div>
       </ModalPanel>
     </Backdrop>
