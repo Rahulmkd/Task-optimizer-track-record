@@ -10,6 +10,7 @@ export const ROUTES = {
   REGISTER: "/register",
   DASHBOARD: "/dashboard",
   MY_TASK: "/my-task",
+  WEEKLY_TASKS: "/weekly-tasks",
   ROADMAP: "https://cracksde.vercel.app/",
   PROGRESS: "/progress",
   STORY: "/story",

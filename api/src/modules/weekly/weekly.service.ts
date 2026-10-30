@@ -1,7 +1,19 @@
 import { AppError } from "../../utils/AppError.js";
 import { WeeklyMapper } from "./weekly.mapper.js";
 import weeklyRepository from "./weekly.repository.js";
-import { CreateWeeklyTaskDTO, UpdateWeeklyTaskDTO } from "./weekly.schema.js";
+import {
+  AITaskItem,
+  aiWeeklyPlanResponseSchema,
+  BulkSaveWeeklyTasksDTO,
+  CreateWeeklyTaskDTO,
+  DAYS,
+  GenerateWeeklyPlanDTO,
+  UpdateWeeklyTaskDTO,
+} from "./weekly.schema.js";
+import aiProvider from "../ai/providers/index.js";
+import { JsonParser } from "../ai/parsers/json.parser.js";
+import { weeklyPlannerPrompt } from "../ai/prompts/weeklyPlanner.prompt.js";
+import { calculateDuration } from "./weekly.time.js";
 
 /**
  * WeeklyService — business logic for the weekly planner.
@@ -61,6 +73,155 @@ class WeeklyService {
     await weeklyRepository.deleteTask(taskId);
 
     return true;
+  }
+
+  /**
+   * Generates a preview AI weekly schedule based on user's routine context and instructions.
+   * Does NOT persist to DB until explicitly approved.
+   */
+  async generateAIWeeklyPlan(userId: string, data: GenerateWeeklyPlanDTO) {
+    const prompt = weeklyPlannerPrompt(data.routineContext, data.instructions);
+
+    let aiResponse;
+    try {
+      aiResponse = await aiProvider.invoke(prompt);
+    } catch (err: unknown) {
+      console.error("[generateAIWeeklyPlan] AI Provider error:", err);
+      const errMsg = (err as Error)?.message || "Unknown error";
+      throw new AppError(
+        `AI Service error: ${errMsg}. Please check your AI API key and provider configuration.`,
+        502,
+      );
+    }
+
+    let parsedJson: unknown;
+    try {
+      parsedJson = JsonParser.parse(aiResponse.content.toString());
+    } catch (err: unknown) {
+      console.error("[generateAIWeeklyPlan] JsonParser error:", err);
+      throw new AppError(
+        "The AI returned a response format we could not understand. Please try again.",
+        502,
+      );
+    }
+
+    const validation = aiWeeklyPlanResponseSchema.safeParse(parsedJson);
+
+    if (!validation.success) {
+      console.error(
+        "[generateAIWeeklyPlan] Validation failed:",
+        validation.error.issues,
+      );
+      const errorMsg = validation.error.issues
+        .map((i) => `${i.path.join(".")}: ${i.message}`)
+        .join("; ");
+      throw new AppError(
+        `The AI generated a response with unexpected fields (${errorMsg}). Please try again.`,
+        502,
+      );
+    }
+
+    const plan = validation.data;
+
+    const normalizeItem = (item: AITaskItem) => {
+      const duration =
+        item.duration && item.duration > 0
+          ? item.duration
+          : calculateDuration(item.startTime, item.endTime);
+
+      return {
+        title: item.title,
+        description: item.description ?? null,
+        startTime: item.startTime,
+        endTime: item.endTime,
+        duration,
+        category: item.category || "General",
+        priority: item.priority || "MEDIUM",
+        repeatWeekly: item.repeatWeekly ?? true,
+      };
+    };
+
+    const normalizedWeekday = plan.weekdaySchedule.map(normalizeItem);
+    const normalizedSaturday = plan.saturdaySchedule.map(normalizeItem);
+    const normalizedSunday = plan.sundaySchedule.map(normalizeItem);
+
+    // Expand into individual tasks for MON..SUN
+    const weekdays: (typeof DAYS)[number][] = [
+      "MON",
+      "TUE",
+      "WED",
+      "THU",
+      "FRI",
+    ];
+    const expandedTasks: Array<
+      ReturnType<typeof normalizeItem> & { day: (typeof DAYS)[number] }
+    > = [];
+
+    for (const day of weekdays) {
+      for (const item of normalizedWeekday) {
+        expandedTasks.push({ ...item, day });
+      }
+    }
+    for (const item of normalizedSaturday) {
+      expandedTasks.push({ ...item, day: "SAT" });
+    }
+    for (const item of normalizedSunday) {
+      expandedTasks.push({ ...item, day: "SUN" });
+    }
+
+    return {
+      summary: plan.summary,
+      studyRotation: plan.studyRotation ?? null,
+      weekdaySchedule: normalizedWeekday,
+      saturdaySchedule: normalizedSaturday,
+      sundaySchedule: normalizedSunday,
+      expandedTasks,
+    };
+  }
+
+  /**
+   * Bulk saves approved weekly tasks into the user's plan.
+   */
+  async bulkSaveTasks(userId: string, data: BulkSaveWeeklyTasksDTO) {
+    const { weekStart, replaceExisting, tasks } = data;
+
+    const plan = await weeklyRepository.upsertPlan(userId, weekStart);
+
+    if (replaceExisting) {
+      await weeklyRepository.deleteTasksByPlanId(plan.id);
+    }
+
+    // Check existing tasks to prevent exact duplicates
+    const currentPlan = await weeklyRepository.getPlan(userId, weekStart);
+    const existingTasks = currentPlan?.weeklyTasks ?? [];
+
+    const tasksToCreate = tasks.filter((candidate) => {
+      const isDuplicate = existingTasks.some(
+        (existing) =>
+          existing.day === candidate.day &&
+          existing.title.toLowerCase().trim() ===
+            candidate.title.toLowerCase().trim() &&
+          existing.startTime === candidate.startTime,
+      );
+      return !isDuplicate;
+    });
+
+    if (tasksToCreate.length > 0) {
+      await weeklyRepository.bulkCreateTasks(plan.id, tasksToCreate);
+    }
+
+    const fullPlan = await weeklyRepository.getPlan(userId, weekStart);
+    if (!fullPlan) throw new AppError("Weekly plan not found", 404);
+
+    return WeeklyMapper.toPlanResponse(fullPlan);
+  }
+
+  /**
+   * Deletes an entire weekly plan for a week.
+   */
+  async deletePlan(userId: string, weekStart: string) {
+    const success = await weeklyRepository.deletePlan(userId, weekStart);
+    return { success, message: "Weekly plan deleted successfully" };
   }
 
   /**

@@ -39,6 +39,54 @@ class WeeklyRepository implements IWeeklyRepository {
     return prisma.weeklyTask.create({ data });
   }
 
+  async bulkCreateTasks(
+    weeklyPlanId: string,
+    tasks: Array<{
+      title: string;
+      description?: string | null;
+      day: string;
+      priority: string;
+      category: string;
+      duration: number;
+      startTime?: string | null;
+      repeatWeekly?: boolean;
+      completed?: boolean;
+    }>,
+  ) {
+    if (!tasks.length) return 0;
+    const records = tasks.map((t) => ({
+      weeklyPlanId,
+      title: t.title,
+      description: t.description ?? null,
+      day: t.day,
+      priority: t.priority ?? "MEDIUM",
+      category: t.category ?? "General",
+      duration: t.duration ?? 60,
+      startTime: t.startTime ?? "09:00 AM",
+      repeatWeekly: t.repeatWeekly ?? true,
+      completed: t.completed ?? false,
+    }));
+
+    const result = await prisma.weeklyTask.createMany({
+      data: records,
+    });
+    return result.count;
+  }
+
+  async deleteTasksByPlanId(weeklyPlanId: string) {
+    const result = await prisma.weeklyTask.deleteMany({
+      where: { weeklyPlanId },
+    });
+    return result.count;
+  }
+
+  async deletePlan(userId: string, weekStart: string) {
+    const result = await prisma.weeklyPlan.deleteMany({
+      where: { userId, weekStart },
+    });
+    return result.count > 0;
+  }
+
   async updateTask(
     taskId: string,
     data: Partial<{

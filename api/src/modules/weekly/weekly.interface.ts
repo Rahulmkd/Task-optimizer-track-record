@@ -32,6 +32,28 @@ export interface IWeeklyRepository {
     sourceTaskId?: string | null;
   }): Promise<WeeklyTask>;
 
+  /** Bulk create tasks inside an existing plan. */
+  bulkCreateTasks(
+    weeklyPlanId: string,
+    tasks: Array<{
+      title: string;
+      description?: string | null;
+      day: string;
+      priority: string;
+      category: string;
+      duration: number;
+      startTime?: string | null;
+      repeatWeekly?: boolean;
+      completed?: boolean;
+    }>,
+  ): Promise<number>;
+
+  /** Delete all tasks inside a weekly plan. */
+  deleteTasksByPlanId(weeklyPlanId: string): Promise<number>;
+
+  /** Delete an entire weekly plan (and cascades its tasks). */
+  deletePlan(userId: string, weekStart: string): Promise<boolean>;
+
   /** Update fields on an existing weekly task. */
   updateTask(
     taskId: string,

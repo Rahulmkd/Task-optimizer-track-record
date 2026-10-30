@@ -3,7 +3,10 @@ import { axiosBaseQuery } from "@/redux/axiosBaseQuery";
 import { API_PATHS } from "@/constants/api-paths";
 import { ApiResponse } from "@/types/api.types";
 import {
+  AIWeeklyPlanPreview,
+  BulkSaveWeeklyTasksPayload,
   CreateWeeklyTaskPayload,
+  GenerateWeeklyPlanPayload,
   IWeeklyPlan,
   IWeeklyTask,
   UpdateWeeklyTaskPayload,
@@ -25,6 +28,45 @@ export const weeklyService = createApi({
       }),
       transformResponse: (response: ApiResponse<IWeeklyPlan>) => response.data,
       providesTags: (_result, _error, weekStart) => [
+        { type: "WeeklyPlan", id: weekStart },
+      ],
+    }),
+
+    generateAIWeeklyPlan: builder.mutation<
+      AIWeeklyPlanPreview,
+      GenerateWeeklyPlanPayload
+    >({
+      query: (data) => ({
+        url: API_PATHS.WEEKLY.GENERATE_PLAN,
+        method: "POST",
+        data,
+        timeout: 60000,
+      }),
+      transformResponse: (response: ApiResponse<AIWeeklyPlanPreview>) =>
+        response.data,
+    }),
+
+    bulkSaveWeeklyTasks: builder.mutation<
+      IWeeklyPlan,
+      BulkSaveWeeklyTasksPayload
+    >({
+      query: (data) => ({
+        url: API_PATHS.WEEKLY.BULK_SAVE,
+        method: "POST",
+        data,
+      }),
+      transformResponse: (response: ApiResponse<IWeeklyPlan>) => response.data,
+      invalidatesTags: (_result, _error, { weekStart }) => [
+        { type: "WeeklyPlan", id: weekStart },
+      ],
+    }),
+
+    deleteWeeklyPlan: builder.mutation<void, { weekStart: string }>({
+      query: ({ weekStart }) => ({
+        url: `${API_PATHS.WEEKLY.DELETE_PLAN}?weekStart=${weekStart}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (_result, _error, { weekStart }) => [
         { type: "WeeklyPlan", id: weekStart },
       ],
     }),
@@ -116,6 +158,9 @@ export const weeklyService = createApi({
 
 export const {
   useGetWeeklyPlanQuery,
+  useGenerateAIWeeklyPlanMutation,
+  useBulkSaveWeeklyTasksMutation,
+  useDeleteWeeklyPlanMutation,
   useCreateWeeklyTaskMutation,
   useUpdateWeeklyTaskMutation,
   useToggleWeeklyTaskMutation,

@@ -45,6 +45,9 @@ export const API_PATHS = {
 
   WEEKLY: {
     GET_PLAN: `${WEEKLY_BASE}`,
+    GENERATE_PLAN: `${WEEKLY_BASE}/generate`,
+    BULK_SAVE: `${WEEKLY_BASE}/bulk-save`,
+    DELETE_PLAN: `${WEEKLY_BASE}/plan`,
     CREATE_TASK: `${WEEKLY_BASE}/tasks`,
     UPDATE_TASK: (id: string) => `${WEEKLY_BASE}/tasks/${id}`,
     TOGGLE_TASK: (id: string) => `${WEEKLY_BASE}/tasks/${id}/toggle`,

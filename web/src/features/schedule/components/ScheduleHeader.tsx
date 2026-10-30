@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { getWeekRangeLabel } from "../utils/weekly-schedule.utils";
@@ -11,6 +11,7 @@ interface ScheduleHeaderProps {
   onPrevWeek: () => void;
   onNextWeek: () => void;
   onAddTask: () => void;
+  onOpenAI?: () => void;
 }
 
 export function ScheduleHeader({
@@ -18,6 +19,7 @@ export function ScheduleHeader({
   onPrevWeek,
   onNextWeek,
   onAddTask,
+  onOpenAI,
 }: ScheduleHeaderProps) {
   return (
     <motion.div
@@ -41,15 +43,29 @@ export function ScheduleHeader({
           </div>
         </div>
 
-        <Button
-          variant="gradient"
-          size="sm"
-          onClick={onAddTask}
-          className="shrink-0 self-start sm:self-auto cursor-pointer shadow-[0_3px_12px_rgba(109,40,217,0.22)] hover:shadow-[0_4px_16px_rgba(109,40,217,0.4)] transition-all"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Add Task
-        </Button>
+        <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto flex-wrap">
+          {onOpenAI && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={onOpenAI}
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium text-xs px-3.5 py-1.5 rounded-lg shadow-[0_0_15px_rgba(139,92,246,0.25)] flex items-center gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Generate with AI</span>
+            </Button>
+          )}
+
+          <Button
+            variant="gradient"
+            size="sm"
+            onClick={onAddTask}
+            className="cursor-pointer shadow-[0_3px_12px_rgba(109,40,217,0.22)] hover:shadow-[0_4px_16px_rgba(109,40,217,0.4)] transition-all text-xs"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Task
+          </Button>
+        </div>
       </div>
 
       {/* Week navigation */}
