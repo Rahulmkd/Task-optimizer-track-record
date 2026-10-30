@@ -36,15 +36,7 @@ export interface IWeeklyPlan {
 
 export type WeekDay = "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
 export type Priority = "HIGH" | "MEDIUM" | "LOW";
-export type Category =
-  | "Study"
-  | "Work"
-  | "Personal"
-  | "Health"
-  | "Fitness"
-  | "Nutrition"
-  | "Career"
-  | "Other";
+export type Category = string;
 
 /** POST /api/v1/weekly/tasks */
 export interface CreateWeeklyTaskPayload {

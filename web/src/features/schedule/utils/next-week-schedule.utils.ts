@@ -1,4 +1,4 @@
-import { Category, IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
+import { IWeeklyTask, WeekDay } from "@/features/schedule/types/weekly.types";
 
 /* -------------------------------------------------------------------------- */
 /*                              DAY CONSTANTS                                 */
@@ -30,19 +30,72 @@ export const DAY_LABELS: Record<WeekDay, string> = {
 
 /** Canonical category values — defined once so the filter pills and the
  * "Add Task" dropdown can never drift out of sync with each other. */
-export const CATEGORY_VALUES: Category[] = [
+export const DEFAULT_CATEGORIES: string[] = [
   "Study",
   "Work",
   "Personal",
-  "Health",
   "Fitness",
-  "Nutrition",
-  "Career",
-  "Other",
 ];
 
-export const CATEGORY_FILTERS = ["All", ...CATEGORY_VALUES] as const;
-export type CategoryFilter = (typeof CATEGORY_FILTERS)[number];
+export const CATEGORY_STORAGE_KEY = "task_optimizer_custom_categories";
+
+export function getCustomCategories(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(CATEGORY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((c) => typeof c === "string" && c.trim() && c !== "__CREATE_NEW__")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveCustomCategory(name: string): string[] {
+  const trimmed = name.trim();
+  if (
+    !trimmed ||
+    trimmed === "__CREATE_NEW__" ||
+    typeof window === "undefined"
+  ) {
+    return getCustomCategories();
+  }
+  const current = getCustomCategories();
+  const exists =
+    current.some((c) => c.toLowerCase() === trimmed.toLowerCase()) ||
+    DEFAULT_CATEGORIES.some((c) => c.toLowerCase() === trimmed.toLowerCase());
+
+  if (!exists) {
+    const updated = [...current, trimmed];
+    try {
+      localStorage.setItem(CATEGORY_STORAGE_KEY, JSON.stringify(updated));
+    } catch {}
+    return updated;
+  }
+  return current;
+}
+
+export function getAllCategories(existingTasks: IWeeklyTask[] = []): string[] {
+  const custom = getCustomCategories();
+  const taskCategories = existingTasks
+    .map((t) => t.category?.trim())
+    .filter(
+      (c): c is string =>
+        Boolean(c && c !== "Other" && c !== "__CREATE_NEW__"),
+    );
+
+  const combined = Array.from(
+    new Set([...DEFAULT_CATEGORIES, ...custom, ...taskCategories]),
+  );
+  return combined;
+}
+
+export const CATEGORY_VALUES: string[] = DEFAULT_CATEGORIES;
+
+export const CATEGORY_FILTERS = ["All", ...CATEGORY_VALUES];
+export type CategoryFilter = string;
 
 /* -------------------------------------------------------------------------- */
 /*                            PRIORITY STYLES                                 */

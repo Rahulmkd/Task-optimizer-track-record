@@ -2,16 +2,6 @@ import { z } from "zod";
 
 const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"] as const;
 const PRIORITIES = ["HIGH", "MEDIUM", "LOW"] as const;
-const CATEGORIES = [
-  "Study",
-  "Work",
-  "Personal",
-  "Health",
-  "Fitness",
-  "Nutrition",
-  "Career",
-  "Other",
-] as const;
 
 /** GET /api/v1/weekly?weekStart=2026-07-20 */
 export const getWeeklyPlanSchema = z
@@ -32,7 +22,7 @@ export const createWeeklyTaskSchema = z
     description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS),
     priority: z.enum(PRIORITIES).default("MEDIUM"),
-    category: z.enum(CATEGORIES).default("Other"),
+    category: z.string().trim().min(1, "Category is required").max(50).default("General"),
     duration: z.number().int().min(15).max(480).default(60),
     startTime: z.string().max(20).optional().default("09:00 AM"),
     repeatWeekly: z.boolean().optional().default(false),
@@ -46,7 +36,7 @@ export const updateWeeklyTaskSchema = z
     description: z.string().max(2000).optional().nullable(),
     day: z.enum(DAYS).optional(),
     priority: z.enum(PRIORITIES).optional(),
-    category: z.enum(CATEGORIES).optional(),
+    category: z.string().trim().min(1).max(50).optional(),
     duration: z.number().int().min(15).max(480).optional(),
     startTime: z.string().max(20).optional(),
     repeatWeekly: z.boolean().optional(),

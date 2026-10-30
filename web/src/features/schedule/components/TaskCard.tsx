@@ -174,7 +174,12 @@ export function TaskCard({
         </span>
 
         {/* category */}
-        <span className="text-[10px] text-white/25">{task.category}</span>
+        <span
+          className="inline-flex items-center text-[10px] text-white/50 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.08]"
+          title={`Category: ${task.category}`}
+        >
+          {task.category}
+        </span>
       </div>
     </motion.div>
   );

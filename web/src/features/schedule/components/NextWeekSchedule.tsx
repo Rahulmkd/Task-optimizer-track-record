@@ -18,6 +18,7 @@ import { AddTaskModal } from "./AddTaskModal";
 import {
   CategoryFilter,
   DAY_KEYS,
+  getAllCategories,
   getMondayOf,
   shiftWeek,
 } from "../utils/next-week-schedule.utils";
@@ -96,6 +97,10 @@ export function NextWeekSchedule() {
     return idx < todayIdx;
   }).length;
 
+  const dynamicCategories = useMemo(() => {
+    return ["All", ...getAllCategories(tasks)];
+  }, [tasks]);
+
   return (
     <div className="space-y-5">
       <ScheduleHeader
@@ -105,7 +110,11 @@ export function NextWeekSchedule() {
         onAddTask={handleOpenAddTask}
       />
 
-      <CategoryFilterBar value={categoryFilter} onChange={setCategoryFilter} />
+      <CategoryFilterBar
+        value={categoryFilter}
+        categories={dynamicCategories}
+        onChange={setCategoryFilter}
+      />
 
       <WeekStatsStrip stats={stats} />
 
