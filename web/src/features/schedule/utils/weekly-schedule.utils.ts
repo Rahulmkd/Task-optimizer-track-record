@@ -97,6 +97,36 @@ export const CATEGORY_VALUES: string[] = DEFAULT_CATEGORIES;
 export const CATEGORY_FILTERS = ["All", ...CATEGORY_VALUES];
 export type CategoryFilter = string;
 
+export const CATEGORY_THEMES: Record<
+  string,
+  { bg: string; text: string; border: string; dot: string }
+> = {
+  Work: {
+    bg: "bg-violet-500/10",
+    text: "text-violet-300",
+    border: "border-violet-500/20",
+    dot: "bg-violet-400",
+  },
+  Study: {
+    bg: "bg-sky-500/10",
+    text: "text-sky-300",
+    border: "border-sky-500/20",
+    dot: "bg-sky-400",
+  },
+  Fitness: {
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-300",
+    border: "border-emerald-500/20",
+    dot: "bg-emerald-400",
+  },
+  Personal: {
+    bg: "bg-pink-500/10",
+    text: "text-pink-300",
+    border: "border-pink-500/20",
+    dot: "bg-pink-400",
+  },
+};
+
 /* -------------------------------------------------------------------------- */
 /*                            PRIORITY STYLES                                 */
 /* -------------------------------------------------------------------------- */

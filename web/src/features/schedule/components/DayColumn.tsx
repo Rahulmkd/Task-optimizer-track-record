@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -53,67 +53,91 @@ export function DayColumn({
   return (
     <div
       className={cn(
-        "rounded-2xl border flex flex-col overflow-hidden",
+        "rounded-2xl border flex flex-col overflow-hidden transition-all duration-200",
+        "w-full min-w-0 h-full",
         isToday
-          ? "border-violet-500/30 bg-violet-500/[0.04]"
-          : "border-white/10 bg-white/[0.03]",
+          ? "border-violet-500/35 bg-gradient-to-b from-violet-950/25 via-violet-950/5 to-transparent shadow-[0_0_24px_rgba(139,92,246,0.08)]"
+          : "border-white/10 bg-gradient-to-b from-white/[0.03] to-white/[0.01] hover:border-white/15",
       )}
     >
-      {/* column header */}
+      {/* ── Column Header ──────────────────────────────────────── */}
       <div
         className={cn(
-          "flex items-center justify-between px-3 py-2.5 border-b",
-          isToday ? "border-violet-500/20" : "border-white/[0.06]",
+          "flex items-center justify-between px-3 py-2.5 border-b transition-colors",
+          isToday
+            ? "border-violet-500/25 bg-violet-500/[0.08]"
+            : "border-white/[0.06] bg-white/[0.02]",
         )}
       >
-        <div>
-          <p
-            className={cn(
-              "text-xs font-bold",
-              isToday ? "text-violet-300" : "text-white/70",
-            )}
-          >
-            {DAY_LABELS[dayKey]}
-          </p>
-          <p className="text-[10px] text-white/30">
-            {getDayDateLabel(weekStart, dayOffset)}
-          </p>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {isToday && (
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+          )}
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p
+                className={cn(
+                  "text-xs font-bold uppercase tracking-wider truncate",
+                  isToday ? "text-violet-300" : "text-white/80",
+                )}
+              >
+                {DAY_LABELS[dayKey]}
+              </p>
+              {isToday && (
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+                  Today
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-white/40 font-medium truncate">
+              {getDayDateLabel(weekStart, dayOffset)}
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0 ml-1">
           {tasks.length > 0 && (
             <span
               className={cn(
-                "text-[10px] font-semibold px-1.5 py-0.5 rounded-full",
-                isToday
-                  ? "bg-violet-500/20 text-violet-300"
-                  : "bg-white/[0.06] text-white/40",
+                "text-[10px] font-bold px-1.5 py-0.5 rounded-full border transition-colors",
+                completedCount === tasks.length
+                  ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
+                  : isToday
+                    ? "bg-violet-500/20 text-violet-300 border-violet-500/30"
+                    : "bg-white/[0.05] text-white/50 border-white/[0.08]",
               )}
             >
               {completedCount}/{tasks.length}
             </span>
           )}
           <button
+            type="button"
             onClick={onAdd}
             aria-label={`Add task on ${DAY_LABELS[dayKey]}`}
-            className="h-5 w-5 rounded-md bg-white/[0.06] hover:bg-violet-500/20 hover:text-violet-400 text-white/30 flex items-center justify-center transition-colors"
+            title={`Add task on ${DAY_LABELS[dayKey]}`}
+            className="h-6 w-6 rounded-lg bg-white/[0.05] hover:bg-violet-600/30 hover:border-violet-500/40 border border-white/10 text-white/40 hover:text-white flex items-center justify-center transition-all cursor-pointer"
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
-      {/* tasks in chronological order */}
-      <div className="flex-1 p-2 space-y-2 min-h-[80px]">
-        <AnimatePresence>
+      {/* ── Tasks Container ──────────────────────────────────────── */}
+      <div className="flex-1 p-2 space-y-2 flex flex-col justify-start">
+        <AnimatePresence mode="popLayout">
           {sortedTasks.length === 0 ? (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-[10px] text-white/20 text-center pt-4"
+            <button
+              type="button"
+              onClick={onAdd}
+              className="w-full py-6 rounded-xl border border-dashed border-white/[0.06] hover:border-violet-500/30 bg-white/[0.01] hover:bg-violet-500/[0.03] transition-all flex flex-col items-center justify-center gap-1.5 text-white/25 hover:text-violet-300 group/empty cursor-pointer my-auto"
             >
-              No tasks
-            </motion.p>
+              <div className="h-6 w-6 rounded-lg bg-white/[0.03] group-hover/empty:bg-violet-600/20 border border-white/10 group-hover/empty:border-violet-500/30 flex items-center justify-center transition-colors">
+                <Plus className="h-3 w-3" />
+              </div>
+              <span className="text-[11px] font-medium tracking-wide">
+                No tasks
+              </span>
+            </button>
           ) : (
             sortedTasks.map((task) => {
               const hasConflict = conflictIds.has(task.id);
