@@ -14,13 +14,13 @@ import {
   Shield,
   ScrollText,
   X,
-  Zap,
   ListTodo,
   CalendarRange,
   Map,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME, ROUTES } from "@/constants/constants";
+import { Logo } from "@/components/shared/Logo";
 
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -218,9 +218,7 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
             >
               <div className="flex items-center justify-between h-16 px-4 border-b border-white/[0.08] shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-violet-600 flex items-center justify-center shadow-md shadow-violet-950/40">
-                    <Zap className="h-4 w-4 text-white" />
-                  </div>
+                  <Logo size="sm" />
                   <span className="text-white font-bold text-sm tracking-tight">
                     {APP_NAME}
                   </span>

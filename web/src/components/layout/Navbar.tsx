@@ -11,7 +11,6 @@ import {
   Menu,
   Settings,
   User,
-  Zap,
 } from "lucide-react";
 import { getInitials } from "@/lib/utils";
 import { APP_NAME, ROUTES } from "@/constants/constants";
@@ -19,6 +18,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logoutThunk } from "@/redux/slices/auth.slice";
 import { toast } from "sonner";
 import Link from "next/link";
+import { Logo } from "@/components/shared/Logo";
 
 export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAppSelector((state) => state.auth);
@@ -69,9 +69,7 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
         href={ROUTES.DASHBOARD}
         className="flex items-center gap-2.5 mr-1 sm:mr-4 group transition-opacity hover:opacity-90"
       >
-        <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-violet-950/40 group-hover:scale-105 transition-transform">
-          <Zap className="h-4 w-4 text-white" />
-        </div>
+        <Logo size="sm" priority />
         <span className="text-white font-bold text-sm tracking-tight hidden sm:flex items-center gap-1.5">
           {APP_NAME}
           <span className="text-[10px] font-semibold text-violet-300 bg-violet-500/15 border border-violet-500/30 px-1.5 py-0.2 rounded-full">

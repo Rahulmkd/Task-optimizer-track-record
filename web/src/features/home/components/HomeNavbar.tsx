@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Menu, X, ArrowRight, LayoutDashboard, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, ArrowRight, LayoutDashboard, LogIn, UserPlus } from "lucide-react";
+import { Logo } from "@/components/shared/Logo";
 import { APP_NAME, ROUTES } from "@/constants/constants";
 import { useAppSelector } from "@/redux/hooks";
 import { Button } from "@/components/ui/button";
@@ -36,9 +37,7 @@ export function HomeNavbar() {
           href={ROUTES.HOME}
           className="group flex items-center gap-2.5 transition-opacity hover:opacity-90"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-md shadow-violet-900/30 group-hover:scale-105 transition-transform">
-            <Zap className="h-5 w-5 text-white" />
-          </div>
+          <Logo size="md" priority />
           <div className="flex flex-col">
             <span className="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
               {APP_NAME}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft, Zap } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/shared/Logo";
 import { Button } from "@/components/ui/button";
 import { GlowBackground } from "@/components/shared/GlowBackground";
 import { ROUTES } from "@/constants/constants";
@@ -18,9 +19,7 @@ export default function NotFound() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="relative z-10 text-center max-w-md w-full p-8 rounded-3xl border border-white/10 bg-[#0e0e16]/80 backdrop-blur-2xl shadow-2xl shadow-black/80"
       >
-        <div className="h-16 w-16 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400 mx-auto mb-5 shadow-[0_0_30px_rgba(139,92,246,0.25)]">
-          <Zap className="h-8 w-8" />
-        </div>
+        <Logo size="xl" className="border-violet-500/30 shadow-[0_0_30px_rgba(139,92,246,0.25)] mx-auto mb-5" />
 
         <p className="text-7xl sm:text-8xl font-black text-gradient tracking-tight mb-2">
           404

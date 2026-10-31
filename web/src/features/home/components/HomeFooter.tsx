@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Logo } from "@/components/shared/Logo";
 import { APP_NAME, APP_DESCRIPTION, ROUTES } from "@/constants/constants";
 
 export function HomeFooter() {
@@ -12,9 +13,7 @@ export function HomeFooter() {
           {/* Col 1: Brand Info */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600">
-                <Zap className="h-4 w-4 text-white" />
-              </div>
+              <Logo size="sm" />
               <span className="text-base font-bold text-white tracking-tight">{APP_NAME}</span>
             </div>
             <p className="text-xs sm:text-sm text-white/50 max-w-sm leading-relaxed">

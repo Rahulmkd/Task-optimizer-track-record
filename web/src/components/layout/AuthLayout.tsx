@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { GlowBackground } from "@/components/shared/GlowBackground";
 import { APP_NAME } from "@/constants/constants";
 import Link from "next/link";
-import { Zap, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/shared/Logo";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -20,9 +21,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       {/* Top Nav */}
       <nav className="relative z-10 px-4 py-5 sm:px-8 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group transition-opacity hover:opacity-90">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-950/40 group-hover:scale-105 transition-transform">
-            <Zap className="h-4 w-4 text-white" />
-          </div>
+          <Logo size="sm" priority />
           <span className="text-white font-bold text-base tracking-tight">{APP_NAME}</span>
         </Link>
 
