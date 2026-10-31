@@ -3,7 +3,11 @@
 /* -------------------------------------------------------------------------- */
 /*                          SHARED MODAL PRIMITIVES                           */
 /* -------------------------------------------------------------------------- */
+import { useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
+
+const emptySubscribe = () => () => {};
 
 export function Backdrop({
   children,
@@ -12,7 +16,25 @@ export function Backdrop({
   children: React.ReactNode;
   onClick: () => void;
 }) {
-  return (
+  const isClient = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  if (!isClient || typeof document === "undefined") {
+    return null;
+  }
+
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -22,6 +44,7 @@ export function Backdrop({
       onClick={onClick}
     >
       {children}
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }

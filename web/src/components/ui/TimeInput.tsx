@@ -117,7 +117,7 @@ export function TimeInput({
   return (
     <div
       className={cn(
-        "flex items-center rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm transition-colors focus-within:border-violet-500/50 focus-within:ring-1 focus-within:ring-violet-500/30",
+        "flex w-full items-center rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm transition-colors focus-within:border-violet-500/50 focus-within:ring-1 focus-within:ring-violet-500/30",
         isSmall ? "h-9 gap-2 px-2.5" : "h-11 gap-3 px-3",
         className,
       )}
