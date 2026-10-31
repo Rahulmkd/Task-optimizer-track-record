@@ -37,6 +37,7 @@ import {
   DAY_KEYS,
   DAY_LABELS,
   getAllCategories,
+  getCurrentDayKey,
   getDayDateLabel,
   getDurationLabel,
   getMondayOf,
@@ -53,7 +54,9 @@ import { cn } from "@/lib/utils";
 
 export function WeeklyTasksDashboard() {
   const [weekStart, setWeekStart] = useState(() => getMondayOf(new Date()));
-  const [selectedDay, setSelectedDay] = useState<WeekDay | "ALL">("ALL");
+  const [selectedDay, setSelectedDay] = useState<WeekDay | "ALL">(() =>
+    getCurrentDayKey(),
+  );
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [showAIModal, setShowAIModal] = useState(false);
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
@@ -90,17 +93,7 @@ export function WeeklyTasksDashboard() {
   const todayDayKey = useMemo<WeekDay | null>(() => {
     const currentMonday = getMondayOf(new Date());
     if (currentMonday !== weekStart) return null;
-    const jsDay = new Date().getDay();
-    const map: (WeekDay | null)[] = [
-      "SUN",
-      "MON",
-      "TUE",
-      "WED",
-      "THU",
-      "FRI",
-      "SAT",
-    ];
-    return map[jsDay];
+    return getCurrentDayKey();
   }, [weekStart]);
 
   // Overlapping task IDs
@@ -154,9 +147,33 @@ export function WeeklyTasksDashboard() {
   }, [filteredTasks]);
 
   // Week navigation
-  const handlePrevWeek = () => setWeekStart((w) => shiftWeek(w, -1));
-  const handleNextWeek = () => setWeekStart((w) => shiftWeek(w, 1));
-  const handleCurrentWeek = () => setWeekStart(getMondayOf(new Date()));
+  const handlePrevWeek = () => {
+    const prev = shiftWeek(weekStart, -1);
+    setWeekStart(prev);
+    const currentMonday = getMondayOf(new Date());
+    if (prev === currentMonday) {
+      setSelectedDay(getCurrentDayKey());
+    } else {
+      setSelectedDay("ALL");
+    }
+  };
+
+  const handleNextWeek = () => {
+    const next = shiftWeek(weekStart, 1);
+    setWeekStart(next);
+    const currentMonday = getMondayOf(new Date());
+    if (next === currentMonday) {
+      setSelectedDay(getCurrentDayKey());
+    } else {
+      setSelectedDay("ALL");
+    }
+  };
+
+  const handleCurrentWeek = () => {
+    const currentMonday = getMondayOf(new Date());
+    setWeekStart(currentMonday);
+    setSelectedDay(getCurrentDayKey());
+  };
 
   // Task actions
   const handleToggleTask = async (task: IWeeklyTask) => {
@@ -178,7 +195,7 @@ export function WeeklyTasksDashboard() {
 
   const handleOpenAddTask = (day?: WeekDay) => {
     setTaskToEdit(undefined);
-    setPreselectedDay(day);
+    setPreselectedDay(day ?? (selectedDay !== "ALL" ? selectedDay : undefined));
     setShowAddTaskModal(true);
   };
 

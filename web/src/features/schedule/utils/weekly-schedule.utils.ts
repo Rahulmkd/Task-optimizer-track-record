@@ -126,27 +126,48 @@ export const PRIORITY_CONFIG: Record<
 /*                              DATE HELPERS                                  */
 /* -------------------------------------------------------------------------- */
 
-/** Get the ISO date string (YYYY-MM-DD) of the Monday for a given Date. */
+/**
+ * Automatically detects and returns the WeekDay key ("MON".."SUN") for a given Date (defaults to current date).
+ */
+export function getCurrentDayKey(date = new Date()): WeekDay {
+  const jsDay = date.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const map: WeekDay[] = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+  return map[jsDay];
+}
+
+/** Parse YYYY-MM-DD into a local Date object without UTC timezone shifting. */
+export function parseLocalDate(ymd: string): Date {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
+}
+
+/** Get the ISO date string (YYYY-MM-DD) of the Monday for a given Date in local calendar time. */
 export function getMondayOf(date: Date): string {
-  const d = new Date(date);
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const day = d.getDay();
   // getDay() returns 0=Sun … 6=Sat; shift so Mon=0
   const diff = (day + 6) % 7;
   d.setDate(d.getDate() - diff);
-  return d.toISOString().split("T")[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const dayNum = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${dayNum}`;
 }
 
 /** Add `weeks` weeks to a YYYY-MM-DD weekStart string. */
 export function shiftWeek(weekStart: string, weeks: number): string {
-  const d = new Date(weekStart);
+  const d = parseLocalDate(weekStart);
   d.setDate(d.getDate() + weeks * 7);
-  return d.toISOString().split("T")[0];
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const dayNum = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${dayNum}`;
 }
 
 /** "Jul 20 – Jul 26, 2026" display label. */
 export function getWeekRangeLabel(weekStart: string): string {
-  const start = new Date(weekStart);
-  const end = new Date(weekStart);
+  const start = parseLocalDate(weekStart);
+  const end = parseLocalDate(weekStart);
   end.setDate(end.getDate() + 6);
 
   const fmt = (d: Date) =>
@@ -159,7 +180,7 @@ export function getWeekRangeLabel(weekStart: string): string {
  * Day-of-month + month label for a specific day offset from weekStart.
  */
 export function getDayDateLabel(weekStart: string, offset: number): string {
-  const d = new Date(weekStart);
+  const d = parseLocalDate(weekStart);
   d.setDate(d.getDate() + offset);
   const month = d.toLocaleDateString("en-US", { month: "short" });
   return `${d.getDate()} ${month}`;

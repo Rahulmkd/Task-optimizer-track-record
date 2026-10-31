@@ -23,6 +23,7 @@ import {
   CategoryFilter,
   DAY_KEYS,
   getAllCategories,
+  getCurrentDayKey,
   getMondayOf,
   shiftWeek,
 } from "../utils/weekly-schedule.utils";
@@ -60,17 +61,7 @@ export function WeeklySchedule() {
   const todayDayKey = useMemo<WeekDay | null>(() => {
     const todayMonday = getMondayOf(new Date());
     if (todayMonday !== weekStart) return null;
-    const jsDay = new Date().getDay(); // 0=Sun … 6=Sat
-    const keys: (WeekDay | null)[] = [
-      "SUN",
-      "MON",
-      "TUE",
-      "WED",
-      "THU",
-      "FRI",
-      "SAT",
-    ];
-    return keys[jsDay];
+    return getCurrentDayKey();
   }, [weekStart]);
 
   // Dynamic categories list
